@@ -1,47 +1,45 @@
 # Deploy the client to Vercel
 
-Manual only — pushes to `master` do not deploy.
+Vercel's native Git integration auto-deploys: `master` → production; any other branch → preview. Makefile targets exist as a local escape hatch.
+
+`installCommand` = `bash scripts/vercel-install.sh` (rustup + `wasm/build.sh` + `yarn install`); `buildCommand` = `yarn build`. Wasm must precede `yarn install` because `client/package.json` has `file://../wasm/*/pkg` deps that don't exist until `wasm-pack` runs.
+
+## Verified Vercel project settings
+
+| Setting | Value |
+| --- | --- |
+| Plan / Build Machine | Enterprise + **Enhanced** (~18 min cold) |
+| Framework Preset | Other |
+| Root Directory | `client` |
+| Production Branch | `master` |
+| Ignored Build Step | Automatic |
+| Node | `22.x` (project); `^22.20.0` (`package.json` engines) |
 
 ## One-time setup
 
-1. Create a Vercel project with `client/` as the root, Framework = "Other".
-2. **Settings → Git → Ignored Build Step:** `exit 0`.
-3. **Settings → Environment Variables:** add `REACT_APP_SERVER_URL` (full URL of your backend with `https://`, no trailing slash) and tick **both** Production and Preview — Makefile targets read from whichever environment you deploy to, and the GHA workflow deploys to Preview.
-4. **Account Settings → Tokens:** create a team-scoped token. Save it as:
-   - GitHub repo secret `VERCEL_TOKEN` (for the workflow).
-   - Local shell `export VERCEL_TOKEN=...` (for the Makefile).
-5. Link the local checkout to the existing Vercel project (from the repo root, since Vercel's Root Directory is `client`):
+1. Create the project. Framework: Other. Root Directory: `client`.
+2. Build Machine: Enhanced on Enterprise; default on Pro.
+3. Production Branch: `master`. Ignored Build Step: Automatic.
+4. Node.js Version: `22.x`.
+5. Environment Variables: `REACT_APP_SOLANA_FOUNDATION_SERVER_URL` (full URL, `https://`, no trailing slash) for Production and Preview.
+6. Account Settings → Tokens: team-scoped token, `export VERCEL_TOKEN=...` locally for the Makefile targets.
+7. Link the local checkout (from repo root):
 
    ```sh
    VERCEL_PROJECT_ID=prj_xxx make vercel-bootstrap
    ```
 
-   `VERCEL_PROJECT_ID` is the project's ID from **Settings → General → Project ID** in the Vercel dashboard. The target resolves the `orgId` from the Vercel API and writes `.vercel/project.json`.
-
-Also add the Vercel deployment origin to the GAE server's `client_urls`, or every browser request fails CORS.
+Add the Vercel deployment origin to the GAE server's `client_urls` or CORS will reject every request.
 
 ## Deploy
 
-- **GitHub:** Actions → "Deploy Client (Vercel)" → "Run workflow". Optional `ref` input (default `master`).
-- **Local — preview** (unique URL, no auto-promote), from repo root:
-  ```sh
-  VERCEL_TOKEN=<token> make deploy-client-to-vercel-preview
-  ```
-  Promote later with `vercel promote <url> --prod` or via the dashboard.
-- **Local — production** (live immediately on the prod alias), from repo root:
-  ```sh
-  VERCEL_TOKEN=<token> make deploy-client-to-vercel-production
-  ```
+- **Automatic:** push the branch.
+- **Local preview:** `VERCEL_TOKEN=<token> make deploy-client-to-vercel-preview`. Promote later with `vercel promote <url> --prod`.
+- **Local production:** `VERCEL_TOKEN=<token> make deploy-client-to-vercel-production`.
 
-Each target has a matching `vercel-link-{production,preview}` that's run automatically as a prerequisite.
-
-`REACT_APP_SERVER_URL` must be configured in Vercel for whichever environment you're deploying to (Production for `-production`, Preview for `-preview`, or both).
+`vercel-link-{production,preview}` runs automatically as a prerequisite for each Makefile target.
 
 ## Endpoint routing
 
-Split is deliberate:
-
-- **Build/deploy is configurable** (`REACT_APP_SERVER_URL` at build time, also user-overridable via the `server.endpoint` setting) — so self-hosted forks can route builds to their own backend.
-- **Share (`/share/*`, `/new`) is hardcoded to `https://api.solpg.io`** — so shared snippets stay discoverable from one canonical store regardless of where the client is hosted.
-
-For this Vercel deploy, `REACT_APP_SERVER_URL` is read directly from the Vercel project's environment variables (pulled via `vercel pull` before the build).
+- All non-share routes → `REACT_APP_SOLANA_FOUNDATION_SERVER_URL` (also user-overridable via the `server.endpoint` setting), so forks can point at their own backend.
+- Share routes (`/share/*`, `/new`) → hardcoded `https://api.solpg.io` so shared snippets stay discoverable across hosts.

@@ -1,7 +1,0 @@
-src
-public
-scripts
-craco.config.js
-tsconfig.json
-.env*
-*.log

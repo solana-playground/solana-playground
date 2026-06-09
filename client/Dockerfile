@@ -20,13 +20,13 @@ ONBUILD COPY --from=solana-playground-server /home/${USER}/.cargo /root/.cargo
 ################################### No server ##################################
 FROM ${IMAGE} AS server-false
 
-# Set build server URL to the production API
-ONBUILD ENV REACT_APP_SERVER_URL="https://api.solpg.io"
-
 ###################### Build and start development client ######################
 FROM server-${HAS_SERVER}
 
 ARG USER
+# ARG accepts --build-arg; ENV exposes it to craco's process.env at build (CRA bakes the value into the bundle).
+ARG REACT_APP_SOLANA_FOUNDATION_SERVER_URL
+ENV REACT_APP_SOLANA_FOUNDATION_SERVER_URL=${REACT_APP_SOLANA_FOUNDATION_SERVER_URL}
 
 WORKDIR /home/${USER}
 COPY . .

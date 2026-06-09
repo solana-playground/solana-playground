@@ -1,8 +1,8 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
-  "buildCommand": null,
-  "installCommand": null,
+  "installCommand": "bash scripts/vercel-install.sh",
+  "buildCommand": "NODE_OPTIONS='--max-old-space-size=6144' yarn build",
   "outputDirectory": "build",
   "trailingSlash": false,
   "rewrites": [

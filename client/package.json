@@ -82,7 +82,7 @@
     "typescript": "5.0.4"
   },
   "engines": {
-    "node": ">=22.20.0"
+    "node": "^22.20.0"
   },
   "scripts": {
     "setup": "git submodule update --init && yarn build-wasm && yarn generate",

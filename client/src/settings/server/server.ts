@@ -2,24 +2,24 @@ import { GITHUB_URL } from "../../constants";
 import { PgCommon } from "../../utils";
 import { createSetting } from "../create";
 
-const customServerUrl = process.env.REACT_APP_SERVER_URL;
+const solanaFoundationServerUrl =
+  process.env.REACT_APP_SOLANA_FOUNDATION_SERVER_URL;
 
 export const server = [
   createSetting({
     id: "server.endpoint",
     description: "Build server URL",
     values: [
-      ...(customServerUrl
-        ? [{ name: "Solana Playground", value: customServerUrl }]
-        : []),
-      { name: "Solpg Playground API", value: "https://api.solpg.io" },
       { name: "Local", value: "http://localhost:8080" },
+      ...(solanaFoundationServerUrl
+        ? [{ name: "Solana Foundation", value: solanaFoundationServerUrl }]
+        : []),
+      { name: "SolPg", value: "https://api.solpg.io" },
     ],
     default:
-      customServerUrl ??
-      (process.env.NODE_ENV === "production"
-        ? "https://api.solpg.io"
-        : "http://localhost:8080"),
+      process.env.NODE_ENV === "production"
+        ? solanaFoundationServerUrl ?? "https://api.solpg.io"
+        : "http://localhost:8080",
     custom: {
       parse: (v) => {
         if (PgCommon.isUrl(v)) return v;
