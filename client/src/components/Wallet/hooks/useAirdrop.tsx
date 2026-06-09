@@ -3,17 +3,14 @@ import { useEffect, useState } from "react";
 import { PgCommand, PgConnection } from "../../../utils";
 
 export const useAirdrop = () => {
-  const [airdropAmount, setAirdropAmount] =
-    useState<ReturnType<typeof PgConnection["getAirdropAmount"]>>(null);
+  const [airdropCondition, setAirdropCondition] = useState(false);
 
   useEffect(() => {
-    const { dispose } = PgConnection.onDidChangeCurrent(() => {
-      setAirdropAmount(PgConnection.getAirdropAmount());
+    const { dispose } = PgConnection.onDidChangeCluster(() => {
+      setAirdropCondition(!!PgConnection.getAirdropAmount());
     });
     return dispose;
   }, []);
 
-  const airdrop = PgCommand.airdrop.execute;
-
-  return { airdrop, airdropCondition: !!airdropAmount };
+  return { airdrop: PgCommand.airdrop.execute, airdropCondition };
 };
