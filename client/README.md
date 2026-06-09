@@ -16,6 +16,10 @@ Start the dev server:
 yarn start
 ```
 
+## Deployment
+
+For Vercel deployment instructions, see [Deploy client to Vercel](docs/deploy-client-vercel.md).
+
 ## Docker
 
 You can run the client locally via [Docker Compose](https://github.com/docker/compose):
