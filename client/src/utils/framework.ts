@@ -141,6 +141,8 @@ export class PgFramework {
   static async exportWorkspace<C extends boolean = false>(opts?: {
     convert?: C;
   }) {
+    const workspacePath = PgExplorer.getRequiredCurrentWorkspacePath();
+
     let files: TupleFiles = [];
     const recursivelyGetItems = async (path: string) => {
       const itemNames = await PgExplorer.fs.readDir(path);
@@ -159,7 +161,7 @@ export class PgFramework {
         }
       }
     };
-    await recursivelyGetItems(PgExplorer.currentWorkspacePath);
+    await recursivelyGetItems(workspacePath);
 
     // Convert from playground layout to framework layout
     let readme: string | undefined;

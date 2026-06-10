@@ -84,22 +84,6 @@ export class PgExplorer {
     return this._explorer.currentIndex;
   }
 
-  /**
-   * Get full path of current workspace('/' appended)
-   *
-   * @throws if the workspace doesn't exist. Shouldn't be used with temporary projects.
-   */
-  static get currentWorkspacePath() {
-    if (!this.currentWorkspaceName) {
-      throw new Error(PgWorkspace.errors.CURRENT_NOT_FOUND);
-    }
-
-    return PgCommon.joinPaths(
-      PgExplorer.PATHS.ROOT_DIR_PATH,
-      PgCommon.appendSlash(this.currentWorkspaceName)
-    );
-  }
-
   /** Get current workspace name */
   static get currentWorkspaceName() {
     return this._workspace?.currentName;
@@ -545,30 +529,21 @@ export class PgExplorer {
    */
   static async renameWorkspace(newName: string) {
     newName = newName.trim();
-    if (!this._workspace) {
-      throw new Error(PgWorkspace.errors.NOT_FOUND);
-    }
-    if (!this.currentWorkspaceName) {
-      throw new Error(PgWorkspace.errors.CURRENT_NOT_FOUND);
-    }
     if (!this.isWorkspaceNameValid(newName)) {
       throw new Error(PgWorkspace.errors.INVALID_NAME);
     }
+
+    const workspacePath = this.getRequiredCurrentWorkspacePath();
     if (this.allWorkspaceNames!.includes(newName)) {
       throw new Error(PgWorkspace.errors.ALREADY_EXISTS);
     }
 
     // Rename workspace folder
-    const newPath = this.currentWorkspacePath.replace(
-      this.currentWorkspaceName,
-      newName
-    );
-    await this.renameItem(this.currentWorkspacePath, newPath, {
-      skipNameValidation: true,
-    });
+    const newPath = workspacePath.replace(this.currentWorkspaceName!, newName);
+    await this.renameItem(workspacePath, newPath, { skipNameValidation: true });
 
     // Rename workspace in state
-    this._workspace.rename(newName);
+    this._workspace!.rename(newName);
 
     await this.switchWorkspace(newName);
 
@@ -577,25 +552,21 @@ export class PgExplorer {
 
   /** Delete the current workspace. */
   static async deleteWorkspace() {
-    if (!this._workspace) {
-      throw new Error(PgWorkspace.errors.NOT_FOUND);
-    }
-    if (!this.currentWorkspaceName) {
-      throw new Error(PgWorkspace.errors.CURRENT_NOT_FOUND);
-    }
+    const workspacePath = this.getRequiredCurrentWorkspacePath();
+    const workspace = this._workspace!;
+    const workspaceName = this.currentWorkspaceName!;
 
     // Delete from `indexedDB`
-    await this.deleteItem(this.currentWorkspacePath);
+    await this.deleteItem(workspacePath);
 
     // Delete from state
-    this._workspace.delete(this.currentWorkspaceName);
+    workspace.delete(workspaceName);
 
-    const workspaceCount = this._workspace.allNames.length;
-    if (workspaceCount) {
-      const lastWorkspace = this._workspace.allNames[workspaceCount - 1];
+    if (workspace.allNames.length) {
+      const lastWorkspace = workspace.allNames.at(-1)!;
       await this.switchWorkspace(lastWorkspace);
     } else {
-      this._workspace.setCurrent({ allNames: [] });
+      workspace.setCurrent({ allNames: [] });
       await this._saveWorkspaces();
       PgCommon.createAndDispatchCustomEvent(
         this.events.ON_DID_SWITCH_WORKSPACE
@@ -611,19 +582,22 @@ export class PgExplorer {
    * NOTE: Only runs when the project is not temporary.
    */
   static async saveMeta() {
+    if (this.isTemporary) return;
+
     const paths = Object.keys(this.files);
-    if (!this.currentWorkspaceName || !paths.length) return;
+    if (!paths.length) return;
 
     // Check whether the files start with the correct workspace path
+    const workspacePath = this.getRequiredCurrentWorkspacePath();
     const isInvalidState = paths.some(
-      (path) => !path.startsWith(this.currentWorkspacePath)
+      (path) => !path.startsWith(workspacePath)
     );
     if (isInvalidState) return;
 
     const metaFile = paths
       .reduce((acc, path) => {
         // Only save the files in the current workspace
-        if (path.startsWith(this.currentWorkspacePath)) {
+        if (path.startsWith(workspacePath)) {
           acc.push({
             path,
             isTabs: this.tabs.includes(path),
@@ -872,7 +846,7 @@ export class PgExplorer {
     if (PgExplorer.isTemporary) return fullPath.substring(1);
 
     // /name/src/lib.rs -> src/lib.rs
-    return fullPath.replace(PgExplorer.currentWorkspacePath, "");
+    return fullPath.replace(this.getRequiredCurrentWorkspacePath(), "");
   }
 
   /**
@@ -911,9 +885,8 @@ export class PgExplorer {
    * @returns the current project root path
    */
   static getProjectRootPath() {
-    return this.isTemporary
-      ? this.PATHS.ROOT_DIR_PATH
-      : this.currentWorkspacePath;
+    if (this.isTemporary) return this.PATHS.ROOT_DIR_PATH;
+    return this.getRequiredCurrentWorkspacePath();
   }
 
   /**
@@ -927,6 +900,39 @@ export class PgExplorer {
       this.PATHS.SRC_DIRNAME
     );
     return PgCommon.appendSlash(srcPath);
+  }
+
+  /**
+   * Get full path of current workspace (`/` appended), or `null` if not in a
+   * workspace.
+   *
+   * @returns the workspace path
+   */
+  static getCurrentWorkspacePath() {
+    if (!this.currentWorkspaceName) return null;
+
+    return PgCommon.joinPaths(
+      PgExplorer.PATHS.ROOT_DIR_PATH,
+      PgCommon.appendSlash(this.currentWorkspaceName)
+    );
+  }
+
+  /**
+   * Get full path of current workspace (`/` appended).
+   *
+   * @throws if not currently in a workspace
+   * @returns the workspace path
+   */
+  static getRequiredCurrentWorkspacePath() {
+    if (!this._workspace) {
+      throw new Error(PgWorkspace.errors.NOT_FOUND);
+    }
+    if (!this.currentWorkspaceName) {
+      throw new Error(PgWorkspace.errors.CURRENT_NOT_FOUND);
+    }
+
+    // Previous checks guarantee definition
+    return this.getCurrentWorkspacePath()!;
   }
 
   /* --------------------------- Change listeners --------------------------- */
@@ -1067,9 +1073,8 @@ export class PgExplorer {
    * Only the current workspace at a time will be in the memory.
    */
   private static async _initCurrentWorkspace() {
-    if (!this._workspace) {
-      throw new Error(PgWorkspace.errors.NOT_FOUND);
-    }
+    const workspacePath = this.getRequiredCurrentWorkspacePath();
+    const workspace = this._workspace!;
 
     // Reset files
     this._explorer.files = {};
@@ -1109,7 +1114,7 @@ export class PgExplorer {
     };
 
     try {
-      await setupFiles(this.currentWorkspacePath);
+      await setupFiles(workspacePath);
     } catch (e: any) {
       console.log("Couldn't setup files:", e.message);
 
@@ -1118,7 +1123,7 @@ export class PgExplorer {
       // current workspace. To fix this, set the current workspace name to
       // either the last workspace, or reset all workspaces in the case of no
       // valid workspace directory in `/`.
-      if (this._workspace.allNames.length) {
+      if (workspace.allNames.length) {
         const rootDirs = await this.fs.readDir(PgExplorer.PATHS.ROOT_DIR_PATH);
         const workspaceDirs = rootDirs.filter(PgExplorer.isItemNameValid);
         if (!workspaceDirs.length) {
@@ -1127,7 +1132,7 @@ export class PgExplorer {
         } else {
           // Open the last workspace
           const lastWorkspaceName = workspaceDirs[workspaceDirs.length - 1];
-          this._workspace.rename(lastWorkspaceName);
+          workspace.rename(lastWorkspaceName);
         }
 
         await this._saveWorkspaces();
@@ -1148,7 +1153,7 @@ export class PgExplorer {
       const lsExplorerStr = localStorage.getItem("explorer");
       if (lsExplorerStr) {
         // Create a default workspace
-        this._workspace.create(PgWorkspace.DEFAULT_WORKSPACE_NAME);
+        workspace.create(PgWorkspace.DEFAULT_WORKSPACE_NAME);
         // Save workspaces
         await this._saveWorkspaces();
 
@@ -1157,16 +1162,12 @@ export class PgExplorer {
         for (const path in lsFiles) {
           const oldData = lsFiles[path];
           delete lsFiles[path];
-          lsFiles[
-            path.replace(
-              PgExplorer.PATHS.ROOT_DIR_PATH,
-              this.currentWorkspacePath
-            )
-          ] = {
-            content: oldData.content,
-            // @ts-ignore // ignoring because the type of oldData changed
-            meta: { current: oldData.current, tabs: oldData.tabs },
-          };
+          lsFiles[path.replace(PgExplorer.PATHS.ROOT_DIR_PATH, workspacePath)] =
+            {
+              content: oldData.content,
+              // @ts-ignore // ignoring because the type of oldData changed
+              meta: { current: oldData.current, tabs: oldData.tabs },
+            };
         }
         this._explorer.files = lsFiles;
       } else {
