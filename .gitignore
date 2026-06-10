@@ -27,3 +27,4 @@ server/programs/*
 
 # WASM
 **/www
+.vercel
