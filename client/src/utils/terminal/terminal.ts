@@ -451,7 +451,9 @@ export class PgTerm {
         : number
       : string
   > {
-    // Avoid `this.focus()` here: its `scrollToCursor()` desyncs the DOM scroll from xterm's state and leaves the next render at the wrong position.
+    // Avoid `this.focus()` here because it calls `scrollToCursor`, which may
+    // desync the DOM scroll from `xterm`'s state and leave the next render at
+    // the wrong position.
     this._xterm.focus();
     this.scrollToBottom();
 

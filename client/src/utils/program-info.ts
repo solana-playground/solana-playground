@@ -31,7 +31,7 @@ type ProgramInfo = Nullable<{
     buffer: Buffer;
     fileName: string;
   };
-  /** Whether the last build failed; cleared on success. Persisted so a reload doesn't drop the warning. */
+  /** Whether the last build failed */
   lastBuildFailed: boolean;
 }>;
 
