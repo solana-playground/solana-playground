@@ -441,7 +441,11 @@ export class PgTerm {
         : number
       : string
   > {
-    this.focus();
+    // Avoid `this.focus()` here because it calls `scrollToCursor`, which may
+    // desync the DOM scroll from `xterm`'s state and leave the next render at
+    // the wrong position.
+    this._xterm.focus();
+    this.scrollToBottom();
 
     let convertedMsg = msg;
     const disposables = [];
