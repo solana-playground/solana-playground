@@ -1,17 +1,7 @@
 # Local Vercel deploy targets. See client/docs/deploy-client-vercel.md.
 # `vercel build` reads client/vercel.json (installCommand, buildCommand) so install/build chain isn't duplicated here.
 
-.PHONY: vercel-bootstrap vercel-link-production vercel-link-preview deploy-client-to-vercel-production deploy-client-to-vercel-preview
-
-# Make "function" — called as $(call vercel_deploy,<env>,<extra-flag>).
-# $(1) = production|preview (also the .env file suffix); $(2) = --prod or empty.
-# Single logical shell line (backslash-continued) so it runs as one invocation.
-define vercel_deploy
-	set -a && . ./.vercel/.env.$(1).local && set +a && \
-		: $${REACT_APP_SOLANA_FOUNDATION_SERVER_URL:?REACT_APP_SOLANA_FOUNDATION_SERVER_URL missing from Vercel $(1) env} && \
-		npx vercel@latest build $(2) --token="$${VERCEL_TOKEN}" && \
-		npx vercel@latest deploy --prebuilt $(2) --token="$${VERCEL_TOKEN}"
-endef
+.PHONY: vercel-bootstrap vercel-link-preview deploy-client-to-vercel-preview
 
 # Resolve orgId from Vercel API + write .vercel/project.json. Requires jq.
 vercel-bootstrap: ## Link the local checkout to the dashboard project (run once; needs VERCEL_TOKEN, VERCEL_PROJECT_ID)
@@ -25,18 +15,13 @@ vercel-bootstrap: ## Link the local checkout to the dashboard project (run once;
 		jq -n --arg org "$$org_id" --arg proj "$${VERCEL_PROJECT_ID}" '{orgId: $$org, projectId: $$proj}' > .vercel/project.json; \
 		echo "Wrote .vercel/project.json"
 
-vercel-link-production: ## Pull production env vars from Vercel
-	@: $${VERCEL_TOKEN:?VERCEL_TOKEN is unset}
-	npx vercel@latest pull --yes --environment=production --token="$${VERCEL_TOKEN}"
-
 vercel-link-preview: ## Pull preview env vars from Vercel
 	@: $${VERCEL_TOKEN:?VERCEL_TOKEN is unset}
 	npx vercel@latest pull --yes --environment=preview --token="$${VERCEL_TOKEN}"
 
-deploy-client-to-vercel-production: vercel-link-production ## Build + deploy to the prod alias (live immediately)
-	@: $${VERCEL_TOKEN:?VERCEL_TOKEN is unset}
-	$(call vercel_deploy,production,--prod)
-
 deploy-client-to-vercel-preview: vercel-link-preview ## Build + deploy a unique preview URL
 	@: $${VERCEL_TOKEN:?VERCEL_TOKEN is unset}
-	$(call vercel_deploy,preview,)
+	set -a && . ./.vercel/.env.preview.local && set +a && \
+		: $${REACT_APP_SOLANA_FOUNDATION_SERVER_URL:?REACT_APP_SOLANA_FOUNDATION_SERVER_URL missing from Vercel preview env} && \
+		npx vercel@latest build --token="$${VERCEL_TOKEN}" && \
+		npx vercel@latest deploy --prebuilt --token="$${VERCEL_TOKEN}"

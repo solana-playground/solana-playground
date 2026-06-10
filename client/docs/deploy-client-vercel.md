@@ -35,9 +35,8 @@ Add the Vercel deployment origin to the GAE server's `client_urls` or CORS will 
 
 - **Automatic:** push the branch.
 - **Local preview:** `VERCEL_TOKEN=<token> make deploy-client-to-vercel-preview`. Promote later with `vercel promote <url> --prod`.
-- **Local production:** `VERCEL_TOKEN=<token> make deploy-client-to-vercel-production`.
 
-`vercel-link-{production,preview}` runs automatically as a prerequisite for each Makefile target.
+`vercel-link-preview` runs automatically as a prerequisite. Local production deploys are intentionally not supported — production goes out only via the `master` Git integration.
 
 ## Endpoint routing
 
