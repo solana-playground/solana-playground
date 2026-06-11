@@ -21,41 +21,23 @@ export const deploy = createCmd({
   preCheck: [checkWallet, checkProgram],
   handle: async () => {
     PgGlobal.update({ deployState: "loading" });
+    PgView.setMainSecondaryProgress(0.1);
 
     PgTerminal.println(
       `${PgTerminal.info(
         "Deploying..."
       )} This could take a while depending on the program size and network conditions.`
     );
-    PgView.setMainSecondaryProgress(0.1);
 
     try {
       const startTime = performance.now();
-      const { txHash, closeBuffer } = await processDeploy();
-      let msg;
-      if (txHash) {
-        const timePassed = (performance.now() - startTime) / 1000;
-        msg = `${PgTerminal.success(
+      await processDeploy();
+      const timePassed = (performance.now() - startTime) / 1000;
+      PgTerminal.println(
+        `${PgTerminal.success(
           "Deployment successful."
-        )} Completed in ${PgCommon.secondsToTime(timePassed)}.`;
-      } else if (closeBuffer) {
-        const term = await PgTerminal.get();
-        const shouldCloseBufferAccount = await term.waitForInput(
-          PgTerminal.warning("Cancelled deployment.") +
-            " Would you like to close the buffer account and reclaim SOL?",
-          { confirm: true, default: "yes" }
-        );
-        if (shouldCloseBufferAccount) {
-          await closeBuffer();
-          msg = PgTerminal.success("Reclaim successful.");
-        } else {
-          msg = `${PgTerminal.error(
-            "Reclaim rejected."
-          )} Run \`solana program close --buffers\` to close unused buffer accounts and reclaim SOL.`;
-        }
-      }
-
-      PgTerminal.println(msg);
+        )} Completed in ${PgCommon.secondsToTime(timePassed)}.`
+      );
     } finally {
       PgView.setMainSecondaryProgress(0);
       PgGlobal.update({ deployState: "ready" });
@@ -260,7 +242,27 @@ const processDeploy = async () => {
       },
     }
   );
-  if (loadBufferResult.cancelled) return { closeBuffer };
+  if (loadBufferResult.cancelled) {
+    const term = await PgTerminal.get();
+    const shouldCloseBufferAccount = await term.waitForInput(
+      `${PgTerminal.warning(
+        "Cancelled deployment."
+      )} Would you like to close the buffer account and reclaim SOL?`,
+      { confirm: true, default: "yes" }
+    );
+    let msg;
+    if (shouldCloseBufferAccount) {
+      await closeBuffer();
+      msg = PgTerminal.success("Reclaim successful.");
+    } else {
+      msg = `${PgTerminal.error(
+        "Reclaim rejected."
+      )} Run \`solana program close --buffers\` to close unused buffer accounts and reclaim SOL.`;
+    }
+
+    term.println(msg);
+    throw new Error("Deployment cancelled");
+  }
 
   // If deploying from a standard wallet, transfer the buffer authority
   // to the standard wallet before deployment, otherwise it doesn't
@@ -286,7 +288,7 @@ const processDeploy = async () => {
 
   // Deploy/upgrade
   try {
-    const txHash = await sendAndConfirmTxWithRetries(
+    await sendAndConfirmTxWithRetries(
       async () => {
         if (programExists) {
           return await BpfLoaderUpgradeable.upgradeProgram(
@@ -306,7 +308,6 @@ const processDeploy = async () => {
         return !bufferAcc;
       }
     );
-    return { txHash };
   } catch (e) {
     await closeBuffer();
     throw e;
