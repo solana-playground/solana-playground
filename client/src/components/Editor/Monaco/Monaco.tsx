@@ -12,12 +12,14 @@ import {
   PgLanguage,
   PgPackage,
   PgProgramInfo,
+  PgSettings,
   PgTerminal,
   PgTheme,
 } from "../../../utils";
 import {
   useAsyncEffect,
   useKeybind,
+  useRenderOnChange,
   useSendAndReceiveCustomEvent,
 } from "../../../hooks";
 
@@ -213,6 +215,23 @@ const Monaco = () => {
 
     return dispose;
   }, [editor]);
+
+  // Set keybinding
+  const keybinding = useRenderOnChange(PgSettings.onDidChangeEditorKeybinding);
+  useAsyncEffect(async () => {
+    if (!editor) return;
+
+    switch (keybinding) {
+      case "default":
+        return;
+      case "vim": {
+        const { initVimMode } = await import("monaco-vim");
+        return initVimMode(editor).dispose;
+      }
+      default:
+        throw new Error(`Unhandled keybinding: ${keybinding}`);
+    }
+  }, [editor, keybinding]);
 
   // Create editor
   useEffect(() => {
