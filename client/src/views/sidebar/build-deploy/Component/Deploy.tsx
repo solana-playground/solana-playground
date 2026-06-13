@@ -46,24 +46,7 @@ const Deploy = () => {
   const deployButtonProps = useMemo<ButtonProps>(
     () => ({
       kind: "primary",
-      onClick: () => {
-        switch (deployState) {
-          case "ready":
-            // TODO: Run commands without writing to terminal and handle the
-            // `PgGlobal.deployState` inside the command implementation. The
-            // state has to be handled outside of the command because the deploy
-            // command is waiting for user input and re-running the command here
-            // would overwrite the user input.
-            return PgCommand.deploy.execute();
-
-          case "loading":
-            PgGlobal.update({ deployState: "paused" });
-            break;
-
-          case "paused":
-            PgGlobal.update({ deployState: "loading" });
-        }
-      },
+      onClick: () => PgCommand.deploy.execute(),
       disabled: buildLoading,
       loading: deployState === "cancelled",
       leftIcon:

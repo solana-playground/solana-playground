@@ -20,9 +20,21 @@ export const deploy = createCmd({
   description: "Deploy your program",
   preCheck: [checkWallet, checkProgram],
   handle: async () => {
-    PgGlobal.update({ deployState: "loading" });
-    PgView.setMainSecondaryProgress(0.1);
+    switch (PgGlobal.deployState) {
+      case "ready":
+        PgGlobal.update({ deployState: "loading" });
+        break;
+      case "loading":
+        PgGlobal.update({ deployState: "paused" });
+        return;
+      case "paused":
+        PgGlobal.update({ deployState: "loading" });
+        return;
+      case "cancelled":
+        throw new Error("Deployment has been cancelled.");
+    }
 
+    PgView.setMainSecondaryProgress(0.1);
     PgTerminal.println(
       `${PgTerminal.info(
         "Deploying..."
@@ -344,10 +356,10 @@ const loadBufferWithControl = (
         dispose();
 
         if (shouldContinue) {
-          PgGlobal.deployState = "loading";
+          PgGlobal.update({ deployState: "loading" });
           loadBufferWithControl(...args).then(res);
         } else {
-          PgGlobal.deployState = "cancelled";
+          PgGlobal.update({ deployState: "cancelled" });
           res({ cancelled: true });
         }
       }
