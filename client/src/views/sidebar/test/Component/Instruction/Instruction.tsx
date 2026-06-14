@@ -102,7 +102,7 @@ const Instruction: FC<InstructionProps> = ({ index, idlInstruction }) => {
         }
 
         PgTerminal.println(
-          `${Emoji.CHECKMARK_BUTTON} ${PgTerminal.success(`Test passed`)}.`
+          `${Emoji.CHECKMARK_BUTTON} ${PgTerminal.success(`Test passed.`)}`
         );
       } catch (e: any) {
         if (e.message) {
