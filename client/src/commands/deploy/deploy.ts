@@ -219,21 +219,6 @@ const processDeploy = async () => {
     }
   );
 
-  console.log("Buffer pk:", bufferKp.publicKey.toBase58());
-  const closeBuffer = async () => {
-    return await sendAndConfirmTxWithRetries(
-      async () => {
-        return await BpfLoaderUpgradeable.closeBuffer(bufferKp.publicKey, {
-          wallet: pgWallet,
-        });
-      },
-      async () => {
-        const bufferAcc = await connection.getAccountInfo(bufferKp.publicKey);
-        return !bufferAcc;
-      }
-    );
-  };
-
   // Load buffer
   const loadBufferResult = await loadBufferWithControl(
     bufferKp.publicKey,
@@ -264,7 +249,17 @@ const processDeploy = async () => {
     );
     let msg;
     if (shouldCloseBufferAccount) {
-      await closeBuffer();
+      await sendAndConfirmTxWithRetries(
+        async () => {
+          return await BpfLoaderUpgradeable.closeBuffer(bufferKp.publicKey, {
+            wallet: pgWallet,
+          });
+        },
+        async () => {
+          const bufferAcc = await connection.getAccountInfo(bufferKp.publicKey);
+          return !bufferAcc;
+        }
+      );
       msg = PgTerminal.success("Reclaim successful.");
     } else {
       msg = `${PgTerminal.error(
@@ -298,17 +293,10 @@ const processDeploy = async () => {
     );
   }
 
-  // Deploy/upgrade
-  try {
-    await sendAndConfirmTxWithRetries(
+  // Deploy
+  if (!programExists) {
+    return await sendAndConfirmTxWithRetries(
       async () => {
-        if (programExists) {
-          return await BpfLoaderUpgradeable.upgradeProgram(
-            PgProgramInfo.pk!,
-            bufferKp.publicKey
-          );
-        }
-
         return await BpfLoaderUpgradeable.deployProgram(
           PgProgramInfo.kp!,
           bufferKp.publicKey,
@@ -320,10 +308,45 @@ const processDeploy = async () => {
         return !bufferAcc;
       }
     );
-  } catch (e) {
-    await closeBuffer();
-    throw e;
   }
+
+  // Extend if needed
+  const programPk = PgProgramInfo.pk!;
+  await sendAndConfirmTxWithRetries(
+    async () => {
+      return await BpfLoaderUpgradeable.extendProgramIfNeeded(
+        programPk,
+        programLen
+      );
+    },
+    async () => {
+      const programDataPk =
+        PgWeb3.BpfLoaderUpgradeableProgram.getProgramDataAddress(programPk);
+      const programDataAcc = await connection.getAccountInfo(programDataPk);
+      if (!programDataAcc) return false;
+
+      const hasEnoughSpace =
+        programDataAcc.data.length >=
+        PgWeb3.BpfLoaderUpgradeableProgram.getProgramDataAccountSize(
+          programLen
+        );
+      return hasEnoughSpace;
+    }
+  );
+
+  // Upgrade
+  return await sendAndConfirmTxWithRetries(
+    async () => {
+      return await BpfLoaderUpgradeable.upgradeProgram(
+        programPk,
+        bufferKp.publicKey
+      );
+    },
+    async () => {
+      const bufferAcc = await connection.getAccountInfo(bufferKp.publicKey);
+      return !bufferAcc;
+    }
+  );
 };
 
 /** Load buffer with the ability to pause, resume and cancel on demand. */
@@ -398,23 +421,25 @@ const loadBufferWithControl = (
  * @returns the transaction signature
  */
 const sendAndConfirmTxWithRetries = async (
-  sendTx: () => Promise<string>,
+  sendTx: () => Promise<string | undefined>,
   checkConfirmation: () => Promise<boolean>
 ) => {
   const MAX_RETRIES = 5;
   const SLEEP_MULTIPLIER = 1.8;
 
   let sleepAmount = 1000;
-  let errMsg;
+  let err;
   for (let i = 0; i < MAX_RETRIES; i++) {
     try {
       const txHash = await sendTx();
+      if (!txHash) return;
       const result = await PgTx.confirm(txHash);
       if (!result?.err) return txHash;
       if (await checkConfirmation()) return txHash;
     } catch (e: any) {
-      errMsg = e.message;
-      console.log(errMsg);
+      console.log(e);
+      err = e;
+      if (i === MAX_RETRIES - 1) break;
       await PgCommon.sleep(sleepAmount);
       sleepAmount *= SLEEP_MULTIPLIER;
     }
@@ -425,6 +450,6 @@ const sendAndConfirmTxWithRetries = async (
       MAX_RETRIES.toString()
     )}).
 This might be an RPC related issue. Consider changing the endpoint from the settings.
-Reason: ${errMsg}`
+${err.message ? `Reason: ${err.message}` : ""}`
   );
 };

@@ -117,14 +117,22 @@ export class BpfLoaderUpgradeableProgram {
   );
 
   /** Buffer account size without data */
-  static BUFFER_ACCOUNT_METADATA_SIZE = 37; // Option<Pk>
+  static BUFFER_METADATA_SIZE = 37; // `Option<Pubkey>`
 
   /** Program account size */
-  static PROGRAM_ACCOUNT_SIZE = 36; // Pk
+  static PROGRAM_ACCOUNT_SIZE = 36; // `Pubkey`
+
+  /** Program data account size */
+  static PROGRAM_DATA_METADATA_SIZE = 45; // `u64 + Option<Pubkey>`
 
   /** Get buffer account size. */
   static getBufferAccountSize(programLen: number) {
-    return this.BUFFER_ACCOUNT_METADATA_SIZE + programLen;
+    return this.BUFFER_METADATA_SIZE + programLen;
+  }
+
+  /** Get program data account size. */
+  static getProgramDataAccountSize(programLen: number) {
+    return this.PROGRAM_DATA_METADATA_SIZE + programLen;
   }
 
   /** Derive the program data address from the given program address. */
