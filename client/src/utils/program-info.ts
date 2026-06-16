@@ -153,10 +153,10 @@ class _PgProgramInfo {
   }
 
   /**
-   * Fetch the program from chain.
+   * Fetch the on-chain program.
    *
    * @param programId optional program id
-   * @returns program's authority and whether the program is upgradable
+   * @returns program's on-chain data
    */
   static async fetch(programId: PgWeb3.PublicKey | null = PgProgramInfo.pk) {
     if (!programId) throw new Error("Program id doesn't exist");
@@ -166,7 +166,16 @@ class _PgProgramInfo {
 
     const programAccountInfo = await conn.getAccountInfo(programId);
     const deployed = !!programAccountInfo;
-    if (!programAccountInfo) return { deployed, upgradable: true };
+    if (!deployed) return { deployed, upgradable: true };
+
+    // TODO: Also handle Loader v4?
+    if (
+      !programAccountInfo.owner.equals(
+        PgWeb3.BpfLoaderUpgradeableProgram.programId
+      )
+    ) {
+      return { deployed, upgradable: false };
+    }
 
     const programDataPkBuffer = programAccountInfo.data.slice(4);
     const programDataPk = new PgWeb3.PublicKey(programDataPkBuffer);
@@ -174,11 +183,12 @@ class _PgProgramInfo {
 
     // Check if program authority exists
     const authorityExists = programDataAccountInfo?.data.at(12);
-    if (!authorityExists) return { deployed, upgradable: false };
+    const upgradable = !!authorityExists;
+    if (!upgradable) return { deployed, upgradable };
 
-    const upgradeAuthorityPkBuffer = programDataAccountInfo?.data.slice(13, 45);
-    const upgradeAuthorityPk = new PgWeb3.PublicKey(upgradeAuthorityPkBuffer!);
-    return { deployed, authority: upgradeAuthorityPk, upgradable: true };
+    const authorityBuffer = programDataAccountInfo!.data.slice(13, 45);
+    const authority = new PgWeb3.PublicKey(authorityBuffer);
+    return { deployed, upgradable, authority };
   }
 
   /**
