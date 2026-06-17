@@ -226,7 +226,16 @@ const Monaco = () => {
         return;
       case "vim": {
         const { initVimMode } = await import("monaco-vim");
-        return initVimMode(editor).dispose;
+
+        // NOTE: It is required to store the result as a variable to avoid the
+        // `Cannot read properties of undefined (reading 'dispatch')` error on
+        // disposal.
+        //
+        // TODO: Show status bar
+        const vimMode = initVimMode(editor);
+
+        // Also required to create a callback; cannot `return vimMode.dispose`
+        return () => vimMode.dispose();
       }
       default:
         throw new Error(`Unhandled keybinding: ${keybinding}`);
