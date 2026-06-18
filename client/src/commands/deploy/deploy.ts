@@ -10,6 +10,7 @@ import {
   PgView,
   PgWallet,
   PgWeb3,
+  SyncOrAsync,
 } from "../../utils";
 import { checkWallet } from "../checks";
 import { createCmd } from "../create";
@@ -311,34 +312,27 @@ const processDeploy = async () => {
   }
 
   // Extend if needed
-  const programPk = PgProgramInfo.pk!;
-  await sendAndConfirmTxWithRetries(
-    async () => {
-      return await BpfLoaderUpgradeable.extendProgramIfNeeded(
-        programPk,
-        programLen
-      );
-    },
-    async () => {
-      const programDataPk =
-        PgWeb3.BpfLoaderUpgradeableProgram.getProgramDataAddress(programPk);
-      const programDataAcc = await connection.getAccountInfo(programDataPk);
-      if (!programDataAcc) return false;
+  const getOnChainProgramDataLen = () => {
+    const programDataLen = PgProgramInfo.onChain?.programDataLen;
+    if (!programDataLen) throw new Error("Failed to get program data length");
+    return programDataLen;
+  };
 
-      const hasEnoughSpace =
-        programDataAcc.data.length >=
-        PgWeb3.BpfLoaderUpgradeableProgram.getProgramDataAccountSize(
-          programLen
-        );
-      return hasEnoughSpace;
-    }
-  );
+  const requiredLen =
+    PgWeb3.BpfLoaderUpgradeableProgram.getProgramDataAccountSize(programLen);
+  const delta = requiredLen - getOnChainProgramDataLen();
+  if (delta > 0) {
+    await sendAndConfirmTxWithRetries(
+      () => BpfLoaderUpgradeable.extendProgram(PgProgramInfo.pk!, delta),
+      () => getOnChainProgramDataLen() >= requiredLen
+    );
+  }
 
   // Upgrade
   return await sendAndConfirmTxWithRetries(
     async () => {
       return await BpfLoaderUpgradeable.upgradeProgram(
-        programPk,
+        PgProgramInfo.pk!,
         bufferKp.publicKey
       );
     },
@@ -422,7 +416,7 @@ const loadBufferWithControl = (
  */
 const sendAndConfirmTxWithRetries = async (
   sendTx: () => Promise<string | undefined>,
-  checkConfirmation: () => Promise<boolean>
+  checkConfirmation: () => SyncOrAsync<boolean>
 ) => {
   const MAX_RETRIES = 5;
   const SLEEP_MULTIPLIER = 1.8;

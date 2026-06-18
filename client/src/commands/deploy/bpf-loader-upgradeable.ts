@@ -213,53 +213,17 @@ export class BpfLoaderUpgradeable {
     return await PgTx.send(ixs, { wallet, keypairSigners: [program] });
   }
 
-  /**
-   * Extend the program data account if it has less space than the program
-   * binary size.
-   */
-  static async extendProgramIfNeeded(
+  /** Extend the program data account. */
+  static async extendProgram(
     programPk: PgWeb3.PublicKey,
-    programLen: number,
+    additionalBytes: number,
     opts?: WalletOption
   ) {
     const { wallet } = this._getOptions(opts);
 
-    // TODO: Optimize this by using `PgProgramInfo.onChain`
-    const connection = PgConnection.current;
-    const programDataPk =
-      PgWeb3.BpfLoaderUpgradeableProgram.getProgramDataAddress(programPk);
-    const programDataAccountInfo = await connection.getAccountInfo(
-      programDataPk
-    );
-    if (!programDataAccountInfo) return;
-
-    if (
-      !programDataAccountInfo.owner.equals(
-        PgWeb3.BpfLoaderUpgradeableProgram.programId
-      )
-    ) {
-      return;
-    }
-
-    const isUpgradable = !!programDataAccountInfo.data.at(12);
-    if (!isUpgradable) throw new Error("Program is not upgradable");
-
-    const authorityPk = new PgWeb3.PublicKey(
-      programDataAccountInfo.data.slice(13, 45)
-    );
-    if (!authorityPk.equals(wallet.publicKey)) {
-      throw new Error("You do not have the authority to upgrade this program");
-    }
-
-    const onChainLen = programDataAccountInfo.data.length;
-    const requiredLen =
-      PgWeb3.BpfLoaderUpgradeableProgram.getProgramDataAccountSize(programLen);
-    const delta = requiredLen - onChainLen;
-    if (delta <= 0) return;
-
     const ix = PgWeb3.BpfLoaderUpgradeableProgram.extendProgram({
       programPk,
-      additionalBytes: delta,
+      additionalBytes,
       payerPk: wallet.publicKey,
     });
 

@@ -180,15 +180,21 @@ class _PgProgramInfo {
     const programDataPkBuffer = programAccountInfo.data.slice(4);
     const programDataPk = new PgWeb3.PublicKey(programDataPkBuffer);
     const programDataAccountInfo = await conn.getAccountInfo(programDataPk);
+    if (!programDataAccountInfo) return { deployed, upgradable: true };
 
     // Check if program authority exists
-    const authorityExists = programDataAccountInfo?.data.at(12);
+    const authorityExists = programDataAccountInfo.data.at(12);
     const upgradable = !!authorityExists;
     if (!upgradable) return { deployed, upgradable };
 
-    const authorityBuffer = programDataAccountInfo!.data.slice(13, 45);
+    const authorityBuffer = programDataAccountInfo.data.slice(13, 45);
     const authority = new PgWeb3.PublicKey(authorityBuffer);
-    return { deployed, upgradable, authority };
+    return {
+      deployed,
+      upgradable,
+      authority,
+      programDataLen: programDataAccountInfo.data.length,
+    };
   }
 
   /**
