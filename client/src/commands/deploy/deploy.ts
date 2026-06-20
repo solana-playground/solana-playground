@@ -203,6 +203,31 @@ const processDeploy = async () => {
     );
   }
 
+  // Extend the program data account if needed.
+  //
+  // NOTE: This ideally would happen just before the upgrade, but doing so
+  // results in `Program was deployed in this block already` error.
+  if (programExists) {
+    const getOnChainProgramDataLen = () => {
+      const programDataLen = PgProgramInfo.onChain?.programDataLen;
+      if (typeof programDataLen !== "number") {
+        throw new Error("Failed to get program data length");
+      }
+
+      return programDataLen;
+    };
+
+    const requiredLen =
+      PgWeb3.BpfLoaderUpgradeableProgram.getProgramDataAccountSize(programLen);
+    const delta = requiredLen - getOnChainProgramDataLen();
+    if (delta > 0) {
+      await sendAndConfirmTxWithRetries(
+        () => BpfLoaderUpgradeable.extendProgram(PgProgramInfo.pk!, delta),
+        () => getOnChainProgramDataLen() >= requiredLen
+      );
+    }
+  }
+
   // Create buffer
   const bufferKp = PgWeb3.Keypair.generate();
   await sendAndConfirmTxWithRetries(
@@ -308,23 +333,6 @@ const processDeploy = async () => {
         const bufferAcc = await connection.getAccountInfo(bufferKp.publicKey);
         return !bufferAcc;
       }
-    );
-  }
-
-  // Extend if needed
-  const getOnChainProgramDataLen = () => {
-    const programDataLen = PgProgramInfo.onChain?.programDataLen;
-    if (!programDataLen) throw new Error("Failed to get program data length");
-    return programDataLen;
-  };
-
-  const requiredLen =
-    PgWeb3.BpfLoaderUpgradeableProgram.getProgramDataAccountSize(programLen);
-  const delta = requiredLen - getOnChainProgramDataLen();
-  if (delta > 0) {
-    await sendAndConfirmTxWithRetries(
-      () => BpfLoaderUpgradeable.extendProgram(PgProgramInfo.pk!, delta),
-      () => getOnChainProgramDataLen() >= requiredLen
     );
   }
 
