@@ -222,7 +222,11 @@ const processDeploy = async () => {
     const delta = requiredLen - getOnChainProgramDataLen();
     if (delta > 0) {
       await sendAndConfirmTxWithRetries(
-        () => BpfLoaderUpgradeable.extendProgram(PgProgramInfo.pk!, delta),
+        () => {
+          return BpfLoaderUpgradeable.extendProgram(PgProgramInfo.pk!, delta, {
+            wallet: pgWallet,
+          });
+        },
         () => getOnChainProgramDataLen() >= requiredLen
       );
     }
