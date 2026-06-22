@@ -103,7 +103,8 @@ const Import = () => {
 
 const Export = () => {
   const kp = useRenderOnChange(PgProgramInfo.onDidChangeKp);
-  if (!kp) return null;
+  const customPk = useRenderOnChange(PgProgramInfo.onDidChangeCustomPk);
+  if (!kp || customPk) return null;
 
   return (
     <Button.Export
