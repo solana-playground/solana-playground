@@ -1,11 +1,12 @@
 name: CI
 
-# Pull-request validation gate. Deployment is handled separately by cicd.yml
-# (triggered by tag pushes or manual dispatch), so this runs only on PRs.
+# Validation gate for pushes to master and pull requests. Deployment is handled
+# separately by cicd.yml.
 on:
+  push:
+    branches: ["master"]
   pull_request:
-    branches:
-      - master
+    branches: ["master"]
 
   workflow_dispatch:
 
