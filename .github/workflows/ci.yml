@@ -1,7 +1,7 @@
 name: CI
 
-# Pull-request gate. Pushes to master are validated + deployed by cicd.yml,
-# so this workflow intentionally does not trigger on push.
+# Pull-request validation gate. Deployment is handled separately by cicd.yml
+# (triggered by tag pushes or manual dispatch), so this runs only on PRs.
 on:
   pull_request:
     branches:
