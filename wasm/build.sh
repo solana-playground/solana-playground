@@ -51,13 +51,6 @@ if ! command -v wasm-pack 2>&1 >/dev/null; then
     cargo install wasm-pack@0.10.3 --locked --no-default-features
 fi
 
-# wasm-pack 0.10.3 runs `cargo install wasm-bindgen-cli` without --locked; pre-stage it.
-wasm_bindgen_version="0.2.92"
-wasm_bindgen_root="$HOME/.cache/.wasm-pack/.wasm-bindgen-cargo-install-${wasm_bindgen_version}"
-if [ ! -x "${wasm_bindgen_root}/bin/wasm-bindgen" ]; then
-    cargo install wasm-bindgen-cli@${wasm_bindgen_version} --locked --root "${wasm_bindgen_root}"
-fi
-
 # All package names
 all_packages=(
     "anchor-cli"
