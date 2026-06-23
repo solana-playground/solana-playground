@@ -10,8 +10,10 @@ automatic_scaling:
 # Keep this file free of credentials so the manifest is safe to commit.
 env_variables:
   PG_PORT: "8080"
+  # Each cargo-build-sbf peaks ~3.7GB and ~1 core; sized with resources below for 4 concurrent builds.
+  PG_BUILD_CONCURRENCY: "4"
 
 resources:
-  cpu: 1
-  memory_gb: 1
+  cpu: 4
+  memory_gb: 16
   disk_size_gb: 10
