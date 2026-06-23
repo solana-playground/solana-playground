@@ -27,7 +27,12 @@ jobs:
         run: |
           git fetch --tags
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            TAG=$(git describe --tags --abbrev=0 || echo "0.0.0")
+            # Manual deploy: use the latest reachable tag; fail loudly rather than deploy a sentinel version.
+            TAG=$(git describe --tags --abbrev=0 2>/dev/null || true)
+            if [ -z "$TAG" ]; then
+              echo "::error::No git tag found to derive a deploy version; create a tag before dispatching." >&2
+              exit 1
+            fi
           else
             TAG=$(git describe --tags --exact-match 2>/dev/null || true)
           fi
