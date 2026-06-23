@@ -250,6 +250,11 @@ const Monaco = () => {
       monaco.editor.create(monacoRef.current, {
         automaticLayout: true,
         fontLigatures: true,
+        // Render overflow widgets (context menu, find/replace, suggest widget,
+        // hover tooltips) as position:fixed elements appended to document.body
+        // so they aren't clipped by ancestor overflow:auto/hidden containers.
+        // Fixes #176 where editor popups appeared below other page elements.
+        fixedOverflowWidgets: true,
       })
     );
   }, [editor, isThemeSet]);
