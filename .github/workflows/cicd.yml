@@ -42,7 +42,7 @@ jobs:
   checks:
     needs: resolve_version
     if: needs.resolve_version.outputs.version_tag != ''
-    uses: ./.github/workflows/_checks.yml
+    uses: ./.github/workflows/reusable-checks.yml
 
   deploy_server:
     name: Deploy Playground Server
