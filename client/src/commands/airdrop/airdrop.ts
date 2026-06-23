@@ -24,7 +24,7 @@ export const airdrop = createCmd({
       },
     },
   ]),
-  preCheck: checkWallet,
+  preChecks: checkWallet,
   handle: async (input) => {
     const defaultAmount = PgConnection.getAirdropAmount();
     if (typeof defaultAmount !== "number") {

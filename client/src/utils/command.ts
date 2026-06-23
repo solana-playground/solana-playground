@@ -15,7 +15,7 @@ export type CommandParam<
   /** Description that will be seen in the `help` command */
   description: string;
   /* Only process the command if the condition passes */
-  preCheck?: Arrayable<() => SyncOrAsync<void>>;
+  preChecks?: Arrayable<() => SyncOrAsync<void>>;
 } & (WithSubcommands<S> | WithHandle<A, O, R>);
 
 type WithSubcommands<S> = {
@@ -324,8 +324,8 @@ export class PgCommandManager {
         if (subcmd) cmd = subcmd;
 
         // Handle checks
-        if (cmd.preCheck) {
-          const preChecks = PgCommon.toArray(cmd.preCheck);
+        if (cmd.preChecks) {
+          const preChecks = PgCommon.toArray(cmd.preChecks);
           for (const preCheck of preChecks) await preCheck();
         }
 

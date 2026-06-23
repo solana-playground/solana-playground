@@ -19,7 +19,7 @@ import { BpfLoaderUpgradeable } from "./bpf-loader-upgradeable";
 export const deploy = createCmd({
   name: "deploy",
   description: "Deploy your program",
-  preCheck: [checkWallet, checkProgram],
+  preChecks: [checkWallet, checkProgram],
   handle: async () => {
     switch (PgGlobal.deployState) {
       case "ready":
