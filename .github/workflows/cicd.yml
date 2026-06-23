@@ -30,7 +30,7 @@ jobs:
         name: Compute App Engine version tag
         run: |
           git fetch --tags
-          TAG=$(git describe --tags --abbrev=0 || echo "v0.0.0")
+          TAG=$(git describe --tags --abbrev=0 || echo "0.0.0")
           # Replace periods with dashes for App Engine compatibility
           NORMALIZED_TAG=${TAG//./-}
           echo "version_tag=${NORMALIZED_TAG}" >> "$GITHUB_OUTPUT"
