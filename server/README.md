@@ -25,17 +25,19 @@ See the [root README](../README.md#run-with-docker) for more options.
 
 # Deployment
 
-The server is deployed to **Google App Engine** as the `playground-server` service via [`.github/workflows/cicd.yml`](../.github/workflows/cicd.yml). Pushes to `master` run `cargo fmt` + `cargo clippy`, then `gcloud app deploy server/app.yaml` from a checkout that includes git tags.
+The server is deployed to **Google App Engine** as the `playground-server` service via [`.github/workflows/cicd.yml`](../.github/workflows/cicd.yml). The workflow triggers on pushes to `master` and on manual dispatch, but checks and deploy run only for a tagged commit — untagged pushes exit early.
 
-The deployed App Engine version is derived from the latest git tag (periods replaced with dashes — e.g. `0.29.1` → `0-29-1`) and is uploaded with `--no-promote`, so traffic must be cut over manually in the GCP console.
+The App Engine version label is the tag with periods replaced by dashes (e.g. `0.29.1` → `0-29-1`) and is uploaded with `--no-promote`, so traffic must be cut over manually in the GCP console.
 
 ## Versioning
 
-Tags are the unit of release. To cut a new deployable version:
+Tags are the unit of release. The deploy uses `git describe --exact-match`, so the tag must point to the commit at `master` HEAD. To cut a new version:
 
-1. Bump the relevant version (e.g. `git tag 0.29.2`).
-2. Push the tag and merge the changes to `master`.
+1. Tag the commit you're releasing (e.g. `git tag 0.29.2`).
+2. Push the branch and tag together so the tagged commit is master's HEAD — e.g. `git push origin master --follow-tags`.
 3. The workflow normalizes the tag and deploys it as a parked App Engine version.
+
+Or run it manually (Actions → CICD → Run workflow) to deploy the latest tag.
 
 ## Required GitHub secrets
 
@@ -45,4 +47,4 @@ Tags are the unit of release. To cut a new deployable version:
 | `SERVICE_ACCOUNT` | Service-account email used by `gcloud config`.   |
 | `PROJECT_ID`      | GCP project that owns the App Engine app.       |
 
-Runtime configuration (database URI, API keys, etc.) is **not** baked into [`app.yaml`](app.yaml). Inject them via GCP Secret Manager or the App Engine env-var replace step in the workflow.
+Runtime configuration (e.g. the database URI) is **not** baked into [`app.yaml`](app.yaml); set it on the App Engine service separately. Note: the current deploy does not set `PG_DB_URI`, so the server's database connection is not configured by this workflow.
