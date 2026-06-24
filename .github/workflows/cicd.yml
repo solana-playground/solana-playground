@@ -25,7 +25,7 @@ jobs:
       - id: tag
         name: Compute App Engine version tag
         run: |
-          git fetch --tags
+          # Tags are already present from checkout (fetch-depth: 0); no network fetch needed.
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             # Manual deploy: use the latest reachable tag; fail loudly rather than deploy a sentinel version.
             TAG=$(git describe --tags --abbrev=0 2>/dev/null || true)
