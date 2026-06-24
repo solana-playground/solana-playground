@@ -155,7 +155,7 @@ const processDeploy = async () => {
   const programExists = PgProgramInfo.onChain!.deployed;
   const requiredBalanceWithoutFees = programExists
     ? bufferBalance
-    : 3 * bufferBalance;
+    : 2 * bufferBalance;
   if (userBalance < requiredBalanceWithoutFees) {
     const msg = `${
       programExists ? "Upgrading" : "Initial deployment"
@@ -167,7 +167,7 @@ const processDeploy = async () => {
       PgWeb3.lamportsToSol(bufferBalance).toFixed(2)
     )} SOL will be refunded at the end.`;
     const airdropAmount = PgConnection.getAirdropAmount();
-    if (airdropAmount === null) throw new Error(msg);
+    if (typeof airdropAmount !== "number") throw new Error(msg);
 
     const term = await PgTerminal.get();
     term.println(`Warning: ${msg}`);
@@ -330,7 +330,7 @@ const processDeploy = async () => {
         return await BpfLoaderUpgradeable.deployProgram(
           PgProgramInfo.kp!,
           bufferKp.publicKey,
-          programLen * 2
+          programLen
         );
       },
       async () => {
