@@ -5,17 +5,6 @@ name: Checks
 # two trigger workflows can't drift apart.
 on:
   workflow_call:
-    inputs:
-      rust_toolchain:
-        description: "Rust toolchain channel used for `cargo fmt --check` in the server workspace (host triple is resolved automatically by rustup)."
-        required: false
-        type: string
-        default: nightly
-      wasm_rust_toolchain:
-        description: "Rust toolchain channel used for `cargo fmt --check` and `cargo clippy` in the wasm workspace. Pinned because wasm deps (e.g. ahash 0.8.3) reference nightly features removed in newer toolchains."
-        required: false
-        type: string
-        default: "1.75.0"
 
 jobs:
   format_client:
@@ -55,11 +44,13 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Add rustfmt toolchain(${{ inputs.rust_toolchain }})
-        run: rustup component add --toolchain ${{ inputs.rust_toolchain }} rustfmt
+      # Server fmt needs nightly (rustfmt.toml uses nightly-only options); the
+      # rest of the toolchain is pinned by the workspace rust-toolchain.toml.
+      - name: Add rustfmt (nightly)
+        run: rustup component add --toolchain nightly rustfmt
 
-      - name: Check format toolchain(${{ inputs.rust_toolchain }})
-        run: cargo +${{ inputs.rust_toolchain }} fmt --check
+      - name: Check format
+        run: cargo +nightly fmt --check
 
   format_wasm:
     name: Format WASM
@@ -73,11 +64,9 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Add rustfmt toolchain(${{ inputs.wasm_rust_toolchain }})
-        run: rustup component add --toolchain ${{ inputs.wasm_rust_toolchain }} rustfmt
-
-      - name: Check format toolchain(${{ inputs.wasm_rust_toolchain }})
-        run: cargo +${{ inputs.wasm_rust_toolchain }} fmt --check
+      # Toolchain + rustfmt come from wasm/rust-toolchain.toml.
+      - name: Check format
+        run: cargo fmt --check
 
   clippy_server:
     name: Clippy Server
@@ -111,11 +100,13 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Add clippy toolchain(${{ inputs.wasm_rust_toolchain }})
-        run: rustup component add --toolchain ${{ inputs.wasm_rust_toolchain }} clippy
+      # clippy isn't in wasm/rust-toolchain.toml's components; add it to the
+      # pinned toolchain, which cargo selects via the toml.
+      - name: Add clippy
+        run: rustup component add clippy
 
-      - name: Check clippy warnings toolchain(${{ inputs.wasm_rust_toolchain }})
-        run: cargo +${{ inputs.wasm_rust_toolchain }} clippy --all-targets -- -D warnings
+      - name: Check clippy warnings
+        run: cargo clippy --all-targets -- -D warnings
 
   build:
     name: Build
