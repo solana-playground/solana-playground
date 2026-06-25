@@ -1130,14 +1130,19 @@ export class PgExplorer {
           // Reset workspaces since there is no workspace directories
           this._workspace = new PgWorkspace();
         } else {
-          // Open the last workspace
-          const lastWorkspaceName = workspaceDirs[workspaceDirs.length - 1];
-          workspace.rename(lastWorkspaceName);
+          // Remove the current workspace.
+          //
+          // NOTE: Intentionally avoiding using `this.deleteWorkspace`, in order
+          // to keep the files in case we want to recover in the future.
+          if (workspace.currentName) workspace.delete(workspace.currentName);
+
+          // Switch to the last available workspace
+          const lastWorkspaceName = workspaceDirs.at(-1)!;
+          workspace.setCurrentName(lastWorkspaceName);
         }
 
         await this._saveWorkspaces();
         await this._initCurrentWorkspace();
-
         return;
       }
 
