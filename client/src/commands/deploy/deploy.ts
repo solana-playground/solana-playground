@@ -195,9 +195,11 @@ const processDeploy = async () => {
     await sendAndConfirmTxWithRetries(
       () => PgTx.send(transferIx),
       async () => {
-        const currentBalance = await connection.getBalance(
-          standardWallet.publicKey
-        );
+        const currentBalance = PgWallet.balance;
+        if (typeof currentBalance !== "number") {
+          throw new Error("Could not get wallet balance");
+        }
+
         return currentBalance < userBalance - requiredBalance;
       }
     );
