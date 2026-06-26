@@ -188,9 +188,28 @@ const Monaco = () => {
     return dispose;
   }, [theme]);
 
+  // Create editor
+  useEffect(() => {
+    if (editor || !isThemeSet || !monacoRef.current) return;
+
+    setEditor(
+      monaco.editor.create(monacoRef.current, {
+        automaticLayout: true,
+        fontLigatures: true,
+      })
+    );
+  }, [editor, isThemeSet]);
+
+  // Dispose editor on unmount
+  useEffect(() => {
+    if (editor) return () => editor.dispose();
+  }, [editor]);
+
   // Set font
   useEffect(() => {
-    editor?.updateOptions({
+    if (!editor) return;
+
+    editor.updateOptions({
       fontFamily: theme.components.editor.default.fontFamily,
     });
   }, [editor, theme]);
@@ -242,21 +261,16 @@ const Monaco = () => {
     }
   }, [editor, keybinding]);
 
-  // Create editor
+  // Set other settings
   useEffect(() => {
-    if (editor || !isThemeSet || !monacoRef.current) return;
+    if (!editor) return;
 
-    setEditor(
-      monaco.editor.create(monacoRef.current, {
-        automaticLayout: true,
-        fontLigatures: true,
-      })
-    );
-  }, [editor, isThemeSet]);
-
-  // Dispose editor
-  useEffect(() => {
-    if (editor) return () => editor.dispose();
+    const disposables = [
+      PgSettings.onDidChangeEditorWordWrap((ww) => {
+        editor.updateOptions({ wordWrap: ww ? "on" : "off" });
+      }),
+    ];
+    return () => disposables.forEach(({ dispose }) => dispose());
   }, [editor]);
 
   // Set editor state

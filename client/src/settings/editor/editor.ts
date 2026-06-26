@@ -6,4 +6,5 @@ export const editor = [
     values: ["default", "vim"] as const,
     default: "default" as const,
   }),
+  createSetting({ id: "editor.wordWrap" }),
 ];
