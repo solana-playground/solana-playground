@@ -153,9 +153,7 @@ const processDeploy = async () => {
 
   // Balance required to deploy/upgrade (without fees)
   const programExists = PgProgramInfo.onChain!.deployed;
-  const requiredBalanceWithoutFees = programExists
-    ? bufferBalance
-    : 2 * bufferBalance;
+  const requiredBalanceWithoutFees = bufferBalance;
   if (userBalance < requiredBalanceWithoutFees) {
     const msg = `${
       programExists ? "Upgrading" : "Initial deployment"
@@ -163,9 +161,7 @@ const processDeploy = async () => {
       PgWeb3.lamportsToSol(requiredBalanceWithoutFees).toFixed(2)
     )} SOL but you have ${PgTerminal.bold(
       PgWeb3.lamportsToSol(userBalance).toFixed(2)
-    )} SOL. ${PgTerminal.bold(
-      PgWeb3.lamportsToSol(bufferBalance).toFixed(2)
-    )} SOL will be refunded at the end.`;
+    )} SOL.`;
     const airdropAmount = PgConnection.getAirdropAmount();
     if (typeof airdropAmount !== "number") throw new Error(msg);
 
