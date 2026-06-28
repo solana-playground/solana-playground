@@ -163,6 +163,7 @@ export function updatable<T extends Record<string, any>>(params: {
           let value;
           try {
             value = PgCommon.getValue(state, migration.from);
+            if (value === undefined) continue;
           } catch {
             // The value has already been migrated
             continue;
