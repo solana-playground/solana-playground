@@ -4,6 +4,7 @@ import {
   PgCommon,
   PgConnection,
   PgSettings,
+  PgTerminal,
   PgWallet,
 } from "../../utils";
 
@@ -30,9 +31,14 @@ export const automaticAirdrop = () => {
       // Execute the `airdrop` command (handles the default amount)
       try {
         await PgCommand.airdrop.execute();
-      } catch (e) {
+      } catch {
         errorCache.add(cluster);
-        throw e;
+        PgTerminal.println(
+          [
+            "Note: This was an automatic airdrop request.",
+            `To disable, run \`${PgCommand.setting.name} set wallet.automaticAirdrop false\`.`,
+          ].join(" ")
+        );
       }
     }),
     [PgWallet.onDidChangeBalance, PgSettings.onDidChangeWalletAutomaticAirdrop]
