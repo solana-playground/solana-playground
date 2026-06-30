@@ -130,7 +130,13 @@ module.exports = {
             }, {});
 
             const migrations = settings.reduce((acc, cur) => {
-              if (cur.migrate) acc.push({ from: cur.migrate.from, to: cur.id });
+              if (cur.migrate) {
+                const froms = Array.isArray(cur.migrate.from)
+                  ? cur.migrate.from
+                  : [cur.migrate.from];
+                for (const from of froms) acc.push({ from, to: cur.id });
+              }
+
               return acc;
             }, []);
 
