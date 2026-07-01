@@ -26,14 +26,15 @@ const Settings: FC<SettingsProps> = ({ showRename }) => {
   const { airdrop, airdropCondition } = useAirdrop();
   const { darken, lighten } = useDarken();
 
-  const [, copyAddress] = useCopy(PgWallet.current?.publicKey.toBase58()!);
-
-  const isPg = !!PgWallet.current?.isPg;
+  const wallet = PgWallet.current!;
+  const isPg = wallet.isPg;
+  const [copied, copyAddress] = useCopy(wallet.publicKey.toBase58());
 
   const defaultSettings: MenuItemProps[] = [
     {
-      name: "Copy address",
+      name: copied ? "Copied address" : "Copy address",
       onClick: copyAddress,
+      color: copied ? "success" : undefined,
       icon: <Copy />,
     },
     {
