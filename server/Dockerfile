@@ -1,10 +1,10 @@
 # Default non-root user
-ARG USER
+ARG USER=solpg
 
 ################# BASE RUST INSTALLATION TO USE IN OTHER STEPS #################
 FROM ubuntu:24.04 AS rust
 
-ARG USER
+ARG USER=solpg
 ARG DEBIAN_FRONTEND="noninteractive"
 
 # Install build deps
@@ -44,7 +44,7 @@ RUN cargo build --release
 ################################# START SERVER #################################
 FROM rust
 
-ARG USER
+ARG USER=solpg
 ARG SOLANA_VERSION="1.17.34"
 
 # Install Solana
@@ -60,5 +60,8 @@ RUN cargo-build-sbf --manifest-path programs/Cargo.toml
 
 # Start server
 COPY --from=build /build/target/release/solpg-server .
+# Restrict the server binary to its owner so a future unprivileged builder
+# user (e.g. for sandboxed cargo-build-sbf) cannot read it.
+RUN chmod 700 solpg-server
 EXPOSE 8080
 CMD ["./solpg-server"]
