@@ -404,7 +404,7 @@ export class PgTty {
     this._cursor = newCursor;
   }
 
-  /** Add highighting to the given text based on ANSI escape sequences. */
+  /** Add highlighting to the given text based on ANSI escape sequences. */
   private _highlightText(text: string) {
     // Prompt highlighting
     if (this._promptPrefix && text.startsWith(this._promptPrefix)) {

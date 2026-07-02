@@ -379,7 +379,7 @@ export class PgCommon {
   }
 
   /**
-   * Access the property value from `.` seperated input.
+   * Access the property value from `.` separated input.
    *
    * @param obj object to get the property value of
    * @param accessor property accessor

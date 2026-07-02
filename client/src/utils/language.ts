@@ -1,7 +1,7 @@
 import { PgCommon } from "./common";
 import type { Arrayable, Elementable } from "./types";
 
-/** Programing language creation parameter */
+/** Programming language creation parameter */
 type LanguageParam<N extends string> = {
   /** Language name */
   name: N;
@@ -35,7 +35,7 @@ export class PgLanguage {
   }
 
   /**
-   * Get the langugage from the given path's extension.
+   * Get the language from the given path's extension.
    *
    * @param path item path
    * @returns the language
