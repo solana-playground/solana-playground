@@ -110,7 +110,7 @@ export class PgTheme {
     });
 
     // We might not be able to find the theme from `themeName` if one of the
-    // following occured:
+    // following occurred:
     //
     // - The theme name was updated/deleted
     // - The theme key was overridden by another app when running locally

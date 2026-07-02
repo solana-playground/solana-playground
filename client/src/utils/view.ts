@@ -300,7 +300,7 @@ class _PgView {
   }
 
   /**
-   * Normalize element i.e. convert components to elements and keep elemenets
+   * Normalize element i.e. convert components to elements and keep elements
    * the same.
    *
    * @param elementable element or component

@@ -165,7 +165,7 @@ export const processDeploy = async (rpcUrl: string | undefined) => {
         address: candyPubkey,
       });
     } catch {
-      throw new Error("Candy machine from cache does't exist on chain!");
+      throw new Error("Candy machine from cache doesn't exist on chain!");
     }
   }
 
