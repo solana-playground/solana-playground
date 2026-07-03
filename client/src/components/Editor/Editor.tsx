@@ -55,7 +55,7 @@ const Wrapper = styled.div`
      *
      * The reason we are setting the background in this element is also partly
      * due to Monaco editor's incompatibility with background-image property.
-     * We are able to solve this problem by seting the editor's background to
+     * We are able to solve this problem by setting the editor's background to
      * transparent and set this(wrapper) element's background to background-image.
      */
     &:has(> #${PgView.ids.HOME}) {
