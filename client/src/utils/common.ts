@@ -621,6 +621,26 @@ export class PgCommon {
   }
 
   /**
+   * Convert the given CSS unit to pixels.
+   *
+   * @param unit CSS unit
+   * @returns the pixel value
+   */
+  static convertToPx(unit: string) {
+    const el = document.createElement("div");
+    el.style.width = unit;
+    el.style.zIndex = "-1";
+    el.style.opacity = "0";
+    el.style.pointerEvents = "none";
+
+    document.body.appendChild(el);
+    const px = el.getBoundingClientRect().width;
+    document.body.removeChild(el);
+
+    return px;
+  }
+
+  /**
    * @returns true if the pressed key is `Ctrl` or `Cmd`
    */
   static isKeyCtrlOrCmd(ev: KeyboardEvent) {

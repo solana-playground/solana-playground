@@ -16,9 +16,9 @@ const ResponsiveItems: FC<ResponsiveItemsProps> = (props) => {
     const el = ref.current;
     if (!el) return;
 
-    const gap = convertToPx(props.gap);
+    const gap = PgCommon.convertToPx(props.gap);
     const widthPoints = Array.from<number>({ length: props.maxItems })
-      .fill(convertToPx(props.minItemWidth))
+      .fill(PgCommon.convertToPx(props.minItemWidth))
       .map((mw, i) => (i + 1) * mw + i * gap)
       .reverse();
 
@@ -55,20 +55,6 @@ const ResponsiveItems: FC<ResponsiveItemsProps> = (props) => {
   }, [props.minItemWidth, props.gap, props.maxItems]);
 
   return <Wrapper ref={ref} itemCount={itemCount} {...props} />;
-};
-
-const convertToPx = (unit: string) => {
-  const el = document.createElement("div");
-  el.style.width = unit;
-  el.style.zIndex = "-1";
-  el.style.opacity = "0";
-  el.style.pointerEvents = "none";
-
-  document.body.appendChild(el);
-  const px = el.getBoundingClientRect().width;
-  document.body.removeChild(el);
-
-  return px;
 };
 
 const Wrapper = styled.div<ResponsiveItemsProps & { itemCount: number }>`
