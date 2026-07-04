@@ -155,13 +155,19 @@ const processDeploy = async () => {
   const programExists = PgProgramInfo.onChain!.deployed;
   const requiredBalanceWithoutFees = bufferBalance;
   if (userBalance < requiredBalanceWithoutFees) {
+    const formatBalance = (lamports: number) => {
+      return PgTerminal.bold(PgWeb3.lamportsToSol(lamports).toFixed(2));
+    };
+
     const msg = `${
       programExists ? "Upgrading" : "Initial deployment"
-    } costs ${PgTerminal.bold(
-      PgWeb3.lamportsToSol(requiredBalanceWithoutFees).toFixed(2)
-    )} SOL but you have ${PgTerminal.bold(
-      PgWeb3.lamportsToSol(userBalance).toFixed(2)
-    )} SOL.`;
+    } requires ${formatBalance(
+      requiredBalanceWithoutFees
+    )} SOL but you have ${formatBalance(userBalance)} SOL. ${
+      programExists
+        ? "This is only a temporary cost; most of the funds will be returned when the upgrade completes."
+        : "This is the cost to store the program on-chain. You can reclaim the funds by closing the program later."
+    }`;
     const airdropAmount = PgConnection.getAirdropAmount();
     if (typeof airdropAmount !== "number") throw new Error(msg);
 
@@ -220,10 +226,12 @@ const processDeploy = async () => {
     const delta = requiredLen - getOnChainProgramDataLen();
     if (delta > 0) {
       await sendAndConfirmTxWithRetries(
-        () => {
-          return BpfLoaderUpgradeable.extendProgram(PgProgramInfo.pk!, delta, {
-            wallet: pgWallet,
-          });
+        async () => {
+          return await BpfLoaderUpgradeable.extendProgram(
+            PgProgramInfo.pk!,
+            delta,
+            { wallet: pgWallet }
+          );
         },
         () => getOnChainProgramDataLen() >= requiredLen
       );
@@ -425,7 +433,7 @@ const loadBufferWithControl = (
  * @returns the transaction signature
  */
 const sendAndConfirmTxWithRetries = async (
-  sendTx: () => Promise<string | undefined>,
+  sendTx: () => Promise<string>,
   checkConfirmation: () => SyncOrAsync<boolean>
 ) => {
   const MAX_RETRIES = 5;
