@@ -4,8 +4,11 @@ import styled, { css } from "styled-components";
 import Left from "./Left";
 import Right from "./Right";
 import { SpinnerWithBg } from "../../../components/Loading";
-import { PgRouter, PgTheme, PgView } from "../../../utils";
+import { PgCommon, PgRouter, PgTheme, PgView } from "../../../utils";
 import { useKeybind, useRenderOnChange } from "../../../hooks";
+
+const DEFAULT_WIDTH = PgCommon.convertToPx("20rem");
+const AUTOMATIC_MINIMIZE_WINDOW_WIDTH = PgCommon.convertToPx("60rem");
 
 const Side = () => {
   const page = useRenderOnChange(PgView.onDidChangeCurrentSidebarPage);
@@ -34,11 +37,23 @@ const Side = () => {
     return page.handle?.()?.dispose;
   }, [page]);
 
-  const [width, setWidth] = useState(320);
+  const [width, setWidth] = useState(DEFAULT_WIDTH);
   const [oldWidth, setOldWidth] = useState(width);
   useEffect(() => {
     if (width) setOldWidth(width);
   }, [width]);
+
+  // Minimize if the window is too small
+  useEffect(() => {
+    const handle = () => {
+      if (window.innerWidth < AUTOMATIC_MINIMIZE_WINDOW_WIDTH) setWidth(0);
+      else setWidth(oldWidth);
+    };
+    handle();
+
+    window.addEventListener("resize", handle);
+    return () => window.removeEventListener("resize", handle);
+  }, [oldWidth, setWidth]);
 
   // Handle keybinds
   useKeybind(

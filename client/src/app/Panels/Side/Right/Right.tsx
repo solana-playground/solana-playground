@@ -6,7 +6,6 @@ import {
   useCallback,
   useRef,
   ReactNode,
-  useEffect,
 } from "react";
 import styled, { css } from "styled-components";
 
@@ -27,25 +26,14 @@ interface RightProps<W = number> extends DefaultRightProps {
   oldWidth: W;
 }
 
+const AUTOMATIC_MINIMIZE_WIDTH = PgCommon.convertToPx("12rem");
+
 const Right: FC<RightProps> = ({ page, width, setWidth, oldWidth }) => {
-  // Minimize if the window is too small
-  useEffect(() => {
-    const handle = () => {
-      if (window.innerWidth < 960) setWidth(0);
-      else setWidth(oldWidth);
-    };
-    handle();
-
-    window.addEventListener("resize", handle);
-    return () => window.removeEventListener("resize", handle);
-  }, [oldWidth, setWidth]);
-
   const handleResizeStop = useCallback(
     (e, direction, ref, d) => {
       setWidth((w) => {
         const newWidth = w + d.width;
-        if (newWidth < 180) return 0;
-
+        if (newWidth < AUTOMATIC_MINIMIZE_WIDTH) return 0;
         return newWidth;
       });
     },
