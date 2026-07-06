@@ -151,9 +151,16 @@ const processDeploy = async () => {
     ),
   ]);
 
-  // Balance required to deploy/upgrade (without fees)
+  // Get the balance required to deploy/upgrade (without fees)
   const programExists = PgProgramInfo.onChain!.deployed;
-  const requiredBalanceWithoutFees = bufferBalance;
+  const getAdditionalLen = programExists
+    ? () => getProgramDataAccountSize(programLen) - getOnChainProgramDataSize()
+    : () => 0;
+  const additionalLen = getAdditionalLen();
+  const requiredBalanceWithoutFees = additionalLen
+    ? bufferBalance +
+      (await connection.getMinimumBalanceForRentExemption(additionalLen))
+    : bufferBalance;
   if (userBalance < requiredBalanceWithoutFees) {
     const formatBalance = (lamports: number) => {
       return PgTerminal.bold(PgWeb3.lamportsToSol(lamports).toFixed(2));
@@ -163,7 +170,7 @@ const processDeploy = async () => {
       programExists ? "Upgrading" : "Initial deployment"
     } requires ${formatBalance(
       requiredBalanceWithoutFees
-    )} SOL but you have ${formatBalance(userBalance)} SOL. ${
+    )} SOL but you have ${formatBalance(userBalance)} SOL.\n${
       programExists
         ? "This is only a temporary cost; most of the funds will be returned when the upgrade completes."
         : "This is the cost to store the program on-chain. You can reclaim the funds by closing the program later."
@@ -211,31 +218,17 @@ const processDeploy = async () => {
   //
   // NOTE: This ideally would happen just before the upgrade, but doing so
   // results in `Program was deployed in this block already` error.
-  if (programExists) {
-    const getOnChainProgramDataLen = () => {
-      const programDataLen = PgProgramInfo.onChain?.programDataLen;
-      if (typeof programDataLen !== "number") {
-        throw new Error("Failed to get program data length");
-      }
-
-      return programDataLen;
-    };
-
-    const requiredLen =
-      PgWeb3.BpfLoaderUpgradeableProgram.getProgramDataAccountSize(programLen);
-    const delta = requiredLen - getOnChainProgramDataLen();
-    if (delta > 0) {
-      await sendAndConfirmTxWithRetries(
-        async () => {
-          return await BpfLoaderUpgradeable.extendProgram(
-            PgProgramInfo.pk!,
-            delta,
-            { wallet: pgWallet }
-          );
-        },
-        () => getOnChainProgramDataLen() >= requiredLen
-      );
-    }
+  if (additionalLen) {
+    await sendAndConfirmTxWithRetries(
+      async () => {
+        return await BpfLoaderUpgradeable.extendProgram(
+          PgProgramInfo.pk!,
+          getAdditionalLen(),
+          { wallet: pgWallet }
+        );
+      },
+      () => getAdditionalLen() <= 0
+    );
   }
 
   // Create buffer
@@ -359,6 +352,23 @@ const processDeploy = async () => {
       return !bufferAcc;
     }
   );
+};
+
+/** {@link PgWeb3.BpfLoaderUpgradeableProgram.getProgramDataAccountSize} */
+const getProgramDataAccountSize = (
+  ...args: Parameters<
+    typeof PgWeb3.BpfLoaderUpgradeableProgram.getProgramDataAccountSize
+  >
+) => PgWeb3.BpfLoaderUpgradeableProgram.getProgramDataAccountSize(...args);
+
+/** Get the current program's on-chain program data account length */
+const getOnChainProgramDataSize = () => {
+  const programDataLen = PgProgramInfo.onChain?.programDataLen;
+  if (typeof programDataLen !== "number") {
+    throw new Error("Failed to get program data length");
+  }
+
+  return programDataLen;
 };
 
 /** Load buffer with the ability to pause, resume and cancel on demand. */
