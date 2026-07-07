@@ -1,8 +1,8 @@
 import * as monaco from "monaco-editor";
 
 import {
-  ClientPackageName,
   Disposable,
+  JsRuntimePackageName,
   PgCommon,
   TupleFiles,
 } from "../../../../../../utils";
@@ -16,7 +16,7 @@ import {
  * @returns module declaration for the given package
  */
 export const declareModule = (
-  packageName: ClientPackageName,
+  packageName: JsRuntimePackageName,
   module: string = ""
 ) => {
   return `declare module "${packageName}" { ${module} }`;
@@ -32,7 +32,7 @@ export const declareModule = (
  * package has already been declared
  */
 export const declarePackage = async (
-  packageName: ClientPackageName,
+  packageName: JsRuntimePackageName,
   opts?: { empty?: boolean; transitive?: boolean }
 ): Promise<Disposable | undefined> => {
   if (cache.has(packageName)) return;
@@ -84,7 +84,7 @@ export const declarePackage = async (
   // transitive dependencies because that results in excessive amount of
   // requests without adding much benefit.
   if (!opts?.transitive) {
-    const deps: ClientPackageName[] = await PgCommon.fetchJSON(
+    const deps: JsRuntimePackageName[] = await PgCommon.fetchJSON(
       `/packages/${packageName}/deps.json`
     );
     const transitiveDisposables = await Promise.all(
@@ -102,4 +102,4 @@ export const declarePackage = async (
 };
 
 /** Declared package names cache */
-const cache = new Set<ClientPackageName>();
+const cache = new Set<JsRuntimePackageName>();

@@ -3,7 +3,7 @@ import * as mocha from "mocha";
 import * as util from "util";
 import * as anchor from "@coral-xyz/anchor";
 
-import { ClientPackageName, PgClientPackage } from "./package";
+import { JsRuntimePackageName, PgJsRuntimePackage } from "./package";
 import { PgCommon } from "../common";
 import { PgConnection } from "../connection";
 import { PgProgramInfo } from "../program-info";
@@ -14,7 +14,7 @@ import type { MergeUnion, OrString } from "../types";
 import type { PgWeb3 } from "../web3";
 
 /** Options to use when running a script/test */
-interface ClientParams {
+interface ExecuteParams {
   /** Name of the file to execute */
   fileName: string;
   /** JS/TS code to execute */
@@ -23,13 +23,13 @@ interface ClientParams {
   isTest: boolean;
 }
 
-export class PgClient {
+export class PgJsRuntime {
   /**
    * Run or test JS/TS code.
    *
    * @param params client parameters
    */
-  static async execute({ fileName, code, isTest }: ClientParams) {
+  static async execute({ fileName, code, isTest }: ExecuteParams) {
     await this._executeBlocking(
       async () => {
         PgTerminal.println(`  ${fileName}:`);
@@ -144,7 +144,7 @@ export class PgClient {
    */
   private static async _executeBlocking(
     cb: () => Promise<void>,
-    { isTest }: Pick<ClientParams, "isTest">
+    { isTest }: Pick<ExecuteParams, "isTest">
   ) {
     // Block creating multiple client/test instances at the same time
     if (this._isClientRunning) {
@@ -208,7 +208,7 @@ export class PgClient {
    * @param isTest whether to execute as a test
    * @returns the globals and the end code to indicate when the execution is over
    */
-  private static async _getGlobals({ isTest }: Pick<ClientParams, "isTest">) {
+  private static async _getGlobals({ isTest }: Pick<ExecuteParams, "isTest">) {
     // Redefine console inside the iframe to log in the terminal
     const log = (cb?: (text: string) => string) => {
       return (...args: any[]) => {
@@ -243,7 +243,7 @@ export class PgClient {
       PgCommon.entries(PACKAGES.global).map(
         async ([packageName, importStyle]) => {
           const style = importStyle as Partial<MergeUnion<typeof importStyle>>;
-          const pkg: { [name: string]: any } = await PgClientPackage.import(
+          const pkg: { [name: string]: any } = await PgJsRuntimePackage.import(
             packageName
           );
           this._overridePackage(packageName, pkg);
@@ -362,7 +362,7 @@ export class PgClient {
       const importPath = importMatch[6];
       const getPackage = importPath.startsWith(".")
         ? this._importFromPath
-        : PgClientPackage.import;
+        : PgJsRuntimePackage.import;
       const pkg = await getPackage(importPath);
       this._overridePackage(importPath, pkg);
       setupImport(pkg);
@@ -402,7 +402,10 @@ export class PgClient {
    * @param pkg package
    * @returns the overridden package
    */
-  private static _overridePackage(name: OrString<ClientPackageName>, pkg: any) {
+  private static _overridePackage(
+    name: OrString<JsRuntimePackageName>,
+    pkg: any
+  ) {
     // Anchor
     if (name === "@coral-xyz/anchor" || name === "@project-serum/anchor") {
       const providerName =

@@ -8,8 +8,8 @@ import { MAIN_SECONDARY, SIDEBAR } from "../views";
 import { SETTINGS } from "../settings";
 import {
   Arrayable,
-  ClientPackageName,
   Disposable,
+  JsRuntimePackageName,
   OrString,
   Settings,
   SyncOrAsync,
@@ -37,12 +37,12 @@ global {
   /** Supported client packages */
   const PACKAGES: {
     global: {
-      [K in ClientPackageName]:
+      [K in JsRuntimePackageName]:
         | { as: string }
         | { named: string }
         | { default: string };
     };
-    importable: ClientPackageName[];
+    importable: JsRuntimePackageName[];
   };
 
   /** Array of all markdown tutorial data */

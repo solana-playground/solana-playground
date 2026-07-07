@@ -67,7 +67,7 @@ const packageImportFile = await fs.readFile(
   "utf8"
 );
 await fs.writeFile(
-  pathModule.join(CLIENT_PATH, "src", "utils", "client", "package.ts"),
+  pathModule.join(CLIENT_PATH, "src", "utils", "js-runtime", "package.ts"),
   packageImportFile
     .replace(
       "<PACKAGE_NAMES>",
@@ -92,12 +92,7 @@ async function generatePackage(name) {
   // Get all declaration file paths
   const paths = [];
 
-  const packagePath = pathModule.join(
-    REPO_ROOT_PATH,
-    "client",
-    "node_modules",
-    name
-  );
+  const packagePath = pathModule.join(CLIENT_PATH, "node_modules", name);
   const pkg = await getPackage(packagePath);
   if (!pkg) {
     // `@types/node` is handled differently because each file is a different module
@@ -136,7 +131,7 @@ async function generatePackage(name) {
   const rawFiles = [];
   for (const path of paths) {
     const content = await fs.readFile(
-      pathModule.join(REPO_ROOT_PATH, "client", path.webpack),
+      pathModule.join(CLIENT_PATH, path.webpack),
       "utf8"
     );
     rawFiles.push([path.monaco, content]);

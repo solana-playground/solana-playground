@@ -76,9 +76,9 @@ module.exports = {
 
         // Circular dependencies
         new CircularDependencyPlugin({
-          // Excluding terminal commands because circular imports will be resolved
-          // by the time the commands are executed.
-          exclude: /node_modules|terminal|sugar|client/,
+          // TODO: Avoid excluding so many or be more specific
+          exclude:
+            /node_modules|connection|explorer|playnet|sugar|terminal|Instruction/,
           // Include all src folder
           include: /src/,
           // Add errors to webpack instead of warnings

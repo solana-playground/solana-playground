@@ -1,6 +1,6 @@
 import { declarePackage } from "./helper";
 import { importTypes } from "../../common";
-import type { ClientPackageName, Disposable } from "../../../../../../utils";
+import type { Disposable, JsRuntimePackageName } from "../../../../../../utils";
 
 /**
  * Declare importable types in the editor and update them based on file switch
@@ -15,7 +15,7 @@ export const declareImportableTypes = () => {
 
 /** Mapping of package name -> imported */
 const cachedTypes: {
-  [K in ClientPackageName]?: true | Disposable;
+  [K in JsRuntimePackageName]?: true | Disposable;
 } = {};
 
 /**

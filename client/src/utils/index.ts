@@ -1,5 +1,4 @@
 export * from "./block-explorer";
-export * from "./client/";
 export * from "./common";
 export * from "./codec";
 export * from "./command";
@@ -9,6 +8,7 @@ export * from "./explorer/";
 export * from "./framework";
 export * from "./github";
 export * from "./global";
+export * from "./js-runtime";
 export * from "./keybind";
 export * from "./language";
 export * from "./package";

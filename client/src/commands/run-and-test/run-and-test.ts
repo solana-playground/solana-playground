@@ -1,7 +1,7 @@
 import {
-  PgClientImporter,
   PgCommon,
   PgExplorer,
+  PgJsRuntimeImporter,
   PgLanguage,
   PgTerminal,
 } from "../../utils";
@@ -75,7 +75,7 @@ const processCommon = async (params: {
     PgTerminal.info(`Running ${isTest ? "tests" : "client"}...`)
   );
 
-  const { PgClient } = await PgClientImporter.import();
+  const { PgJsRuntime } = await PgJsRuntimeImporter.import();
 
   const folderPath = isTest
     ? PgExplorer.PATHS.TESTS_DIRNAME
@@ -96,7 +96,7 @@ const processCommon = async (params: {
         throw new Error(`File '${fileName}' is not a script file`);
       }
 
-      await PgClient.execute({ fileName, code, isTest });
+      await PgJsRuntime.execute({ fileName, code, isTest });
     }
 
     return;
@@ -116,7 +116,7 @@ const processCommon = async (params: {
 
     const [fileName, code] = DEFAULT;
     await PgExplorer.createItem(PgCommon.joinPaths(folderPath, fileName), code);
-    return await PgClient.execute({ fileName, code, isTest });
+    return await PgJsRuntime.execute({ fileName, code, isTest });
   }
 
   // Run all files inside the folder
@@ -124,7 +124,7 @@ const processCommon = async (params: {
     const code = PgExplorer.getFileContent(
       PgCommon.joinPaths(folderPath, fileName)
     )!;
-    await PgClient.execute({ fileName, code, isTest });
+    await PgJsRuntime.execute({ fileName, code, isTest });
   }
 };
 

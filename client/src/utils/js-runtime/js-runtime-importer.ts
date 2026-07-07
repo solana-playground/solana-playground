@@ -3,7 +3,7 @@ import { format } from "util";
 import { Emoji } from "../../constants";
 import { PgTerminal } from "../terminal";
 
-export class PgClientImporter {
+export class PgJsRuntimeImporter {
   /** Whether `console.log` is overridden */
   private static _isOverridden: boolean;
   /** The default `console.log` */
@@ -11,7 +11,7 @@ export class PgClientImporter {
 
   /**
    * Redefine `console.log` to show `mocha` logs in the terminal and
-   * asynchronously import `PgClient`.
+   * asynchronously import `PgJsRuntime`.
    */
   static async import() {
     if (!this._isOverridden) {
@@ -46,6 +46,6 @@ export class PgClientImporter {
       this._isOverridden = true;
     }
 
-    return await import("./client");
+    return await import("./js-runtime");
   }
 }
