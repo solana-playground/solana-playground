@@ -157,10 +157,11 @@ const processDeploy = async () => {
     ? () => getProgramDataAccountSize(programLen) - getOnChainProgramDataSize()
     : () => 0;
   const additionalLen = getAdditionalLen();
-  const requiredBalanceWithoutFees = additionalLen
-    ? bufferBalance +
-      (await connection.getMinimumBalanceForRentExemption(additionalLen))
-    : bufferBalance;
+  const requiredBalanceWithoutFees =
+    additionalLen > 0
+      ? bufferBalance +
+        (await connection.getMinimumBalanceForRentExemption(additionalLen))
+      : bufferBalance;
   if (userBalance < requiredBalanceWithoutFees) {
     const formatBalance = (lamports: number) => {
       return PgTerminal.bold(PgWeb3.lamportsToSol(lamports).toFixed(2));
@@ -218,12 +219,12 @@ const processDeploy = async () => {
   //
   // NOTE: This ideally would happen just before the upgrade, but doing so
   // results in `Program was deployed in this block already` error.
-  if (additionalLen) {
+  if (additionalLen > 0) {
     await sendAndConfirmTxWithRetries(
       async () => {
         return await BpfLoaderUpgradeable.extendProgram(
           PgProgramInfo.pk!,
-          getAdditionalLen(),
+          additionalLen,
           { wallet: pgWallet }
         );
       },
