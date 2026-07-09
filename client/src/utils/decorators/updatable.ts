@@ -79,16 +79,14 @@ export function updatable<T extends Record<string, any>>(params: {
         all: typeof accessor[] = []
       ) => {
         const value = PgCommon.getValue(params.defaultState, accessor);
-        // FIXME: This should account for whether it's `recursive`
         if (
-          accessor.length &&
-          (typeof value !== "object" ||
-            value === null ||
-            Array.isArray(value) ||
-            PgCommon.isEqual(value, {}))
+          typeof value !== "object" ||
+          value === null ||
+          Array.isArray(value) ||
+          PgCommon.isEqual(value, {})
         ) {
           all.push(accessor);
-        } else {
+        } else if (!accessor.length || params.recursive) {
           for (const key in value) getAllAccessors([...accessor, key], all);
         }
 
