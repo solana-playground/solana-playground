@@ -1,0 +1,78 @@
+name: CICD
+
+on:
+  push:
+    branches:
+      - master
+
+  workflow_dispatch:
+
+jobs:
+  # Resolve the App Engine version from the tag at HEAD. Push to master deploys
+  # only when that commit is tagged; manual dispatch falls back to the latest
+  # reachable tag so it always has a version to deploy.
+  resolve_version:
+    name: Resolve deploy version
+    runs-on: ubuntu-latest
+    outputs:
+      version_tag: ${{ steps.tag.outputs.version_tag }}
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - id: tag
+        name: Compute App Engine version tag
+        run: |
+          # Tags are already present from checkout (fetch-depth: 0); no network fetch needed.
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            # Manual deploy: use the latest reachable tag; fail loudly rather than deploy a sentinel version.
+            TAG=$(git describe --tags --abbrev=0 2>/dev/null || true)
+            if [ -z "$TAG" ]; then
+              echo "::error::No git tag found to derive a deploy version; create a tag before dispatching." >&2
+              exit 1
+            fi
+          else
+            TAG=$(git describe --tags --exact-match 2>/dev/null || true)
+          fi
+          # Replace periods with dashes for App Engine compatibility (empty stays empty)
+          echo "version_tag=${TAG//./-}" >> "$GITHUB_OUTPUT"
+
+  checks:
+    needs: resolve_version
+    if: needs.resolve_version.outputs.version_tag != ''
+    uses: ./.github/workflows/reusable-checks.yml
+
+  deploy_server:
+    name: Deploy Playground Server
+    runs-on: ubuntu-latest
+    needs:
+      - resolve_version
+      - checks
+    if: needs.resolve_version.outputs.version_tag != ''
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Cloud SDK authentication
+        uses: google-github-actions/auth@v2
+        with:
+          token_format: "access_token"
+          credentials_json: ${{ secrets.GCP_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure GCloud
+        run: |-
+          gcloud config set account ${{ secrets.SERVICE_ACCOUNT }}
+          gcloud config set project ${{ secrets.PROJECT_ID }}
+
+      - name: Deploy to App Engine with specific version (no promote)
+        working-directory: server
+        run: |
+          gcloud app deploy app.yaml \
+            --version=${{ needs.resolve_version.outputs.version_tag }} \
+            --no-promote \
+            --quiet

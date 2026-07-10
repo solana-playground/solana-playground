@@ -1,0 +1,149 @@
+name: Checks
+
+# Reusable workflow shared by ci.yml (PR validation) and cicd.yml (master
+# deploy gate). Single source of truth for format/clippy/build steps so the
+# two trigger workflows can't drift apart.
+on:
+  workflow_call:
+
+jobs:
+  format_client:
+    name: Format client
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    defaults:
+      run:
+        working-directory: client
+
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: client/.nvmrc
+          cache: "yarn"
+          cache-dependency-path: "client/yarn.lock"
+
+      # Make the locked prettier resolvable on PATH (no global install,
+      # no full `yarn install`), then run the package.json script so
+      # CI mirrors local dev exactly.
+      - name: Check format
+        run: |
+          prettier_version=$(awk "/^prettier/{getline; print}" yarn.lock | cut -d "\"" -f 2)
+          npx --yes --package=prettier@$prettier_version -- yarn check-format
+
+  format_server:
+    name: Format server
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    defaults:
+      run:
+        working-directory: server
+
+    steps:
+      - uses: actions/checkout@v6
+
+      # Server fmt needs nightly (rustfmt.toml uses nightly-only options); the
+      # rest of the toolchain is pinned by the workspace rust-toolchain.toml.
+      - name: Add rustfmt (nightly)
+        run: rustup component add --toolchain nightly rustfmt
+
+      - name: Check format
+        run: cargo +nightly fmt --check
+
+  format_wasm:
+    name: Format WASM
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    defaults:
+      run:
+        working-directory: wasm
+
+    steps:
+      - uses: actions/checkout@v6
+
+      # Toolchain + rustfmt come from wasm/rust-toolchain.toml.
+      - name: Check format
+        run: cargo fmt --check
+
+  clippy_server:
+    name: Clippy Server
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    needs: format_server
+
+    defaults:
+      run:
+        working-directory: server
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Add clippy
+        run: rustup component add clippy
+
+      - name: Check clippy warnings
+        run: cargo clippy --all-targets -- -D warnings
+
+  clippy_wasm:
+    name: Clippy WASM
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    needs: format_wasm
+
+    defaults:
+      run:
+        working-directory: wasm
+
+    steps:
+      - uses: actions/checkout@v6
+
+      # clippy isn't in wasm/rust-toolchain.toml's components; add it to the
+      # pinned toolchain, which cargo selects via the toml.
+      - name: Add clippy
+        run: rustup component add clippy
+
+      - name: Check clippy warnings
+        run: cargo clippy --all-targets -- -D warnings
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    needs:
+      [format_client, format_server, format_wasm, clippy_server, clippy_wasm]
+
+    defaults:
+      run:
+        working-directory: client
+
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: client/.nvmrc
+          cache: "yarn"
+          cache-dependency-path: "client/yarn.lock"
+
+      - name: Sync rust-toolchain
+        run: rustc --version
+
+      # `wasm/rust-analyzer` and `wasm/rustfmt` sit outside the wasm workspace with their own target dirs; list them so rust-cache picks each up.
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: |
+            wasm
+            wasm/rust-analyzer
+            wasm/rustfmt
+
+      - name: Setup
+        run: yarn setup
+
+      # This confirms that there are no changes after setup script runs
+      - name: Check git status
+        run: git status --porcelain | wc -l | grep -q -w "0"
+
+      - name: Build
+        run: yarn build
