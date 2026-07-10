@@ -267,6 +267,9 @@ const processDeploy = async () => {
           )} not confirmed, retrying...`
         );
       },
+      onRateLimit: () => {
+        PgTerminal.println("Warning: Reached rate-limits, waiting...");
+      },
     }
   );
   if (loadBufferResult.cancelled) {

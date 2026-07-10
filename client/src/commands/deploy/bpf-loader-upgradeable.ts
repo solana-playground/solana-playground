@@ -62,6 +62,7 @@ export class BpfLoaderUpgradeable {
       abortController?: AbortController;
       onWrite?: (offset: number) => void;
       onMissing?: (missingCount: number) => void;
+      onRateLimit?: () => void;
     } & WalletOption
   ) {
     const { wallet } = this._getOptions(opts);
@@ -94,6 +95,7 @@ export class BpfLoaderUpgradeable {
 
       let i = 0;
       let lastTxHash: string | undefined;
+      let isRateLimited = false;
       await Promise.all(
         new Array(loadConcurrency).fill(null).map(async () => {
           while (1) {
@@ -116,12 +118,38 @@ export class BpfLoaderUpgradeable {
               lastTxHash = await PgTx.send(ix, { wallet, computeUnitLimit });
               if (!isMissing) opts?.onWrite?.(endOffset);
             } catch (e: any) {
-              console.log("Buffer write error:", e.message);
+              console.log("Buffer write error:", e);
+              if (!(e instanceof Error)) continue;
+
+              // Naively parse the error message. Example error message for rate limits:
+              // `429 :  {"jsonrpc":"2.0","error":{"code": 429, "message":"Too many requests for a specific RPC call"}, "id": "1840af2d-8e39-494a-8e3f-69ca0099d4e4" } \r\n`
+              const msg = e.message.trim();
+              const maybeResponseStr = msg.substring(
+                msg.indexOf("{"),
+                msg.lastIndexOf("}") + 1
+              );
+              try {
+                const response = JSON.parse(maybeResponseStr);
+                isRateLimited = response.error?.code === 429;
+                if (isRateLimited) break;
+              } catch {}
             }
           }
         })
       );
       if (opts?.abortController?.signal.aborted) return;
+
+      // TODO: Make use of the `X-Ratelimit-Method-Remaining` response header.
+      // At the time of writing this comment, the default devnet RPC sets 150
+      // for `X-Ratelimit-Method-Limit`, but it only allows 40 requests in
+      // reality. This matches `...Conn-Limit` and `...Connrate-Limit`, but
+      // their `*-Remaining` counterparts do not decrease with each request;
+      // when `...Method-Remaining` falls to 110, the next request triggers to
+      // the same RPC method triggers the rate limit.
+      if (isRateLimited) {
+        opts?.onRateLimit?.();
+        await PgCommon.sleep(10_000);
+      }
 
       // Wait for the last transaction to confirm
       if (lastTxHash) {
