@@ -22,6 +22,5 @@ vercel-link-preview: ## Pull preview env vars from Vercel
 deploy-client-to-vercel-preview: vercel-link-preview ## Build + deploy a unique preview URL
 	@: $${VERCEL_TOKEN:?VERCEL_TOKEN is unset}
 	set -a && . ./.vercel/.env.preview.local && set +a && \
-		: $${REACT_APP_SOLANA_FOUNDATION_SERVER_URL:?REACT_APP_SOLANA_FOUNDATION_SERVER_URL missing from Vercel preview env} && \
 		npx vercel@latest build --token="$${VERCEL_TOKEN}" && \
 		npx vercel@latest deploy --prebuilt --token="$${VERCEL_TOKEN}"

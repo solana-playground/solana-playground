@@ -21,9 +21,8 @@ Vercel's native Git integration auto-deploys: `master` → production; any other
 2. Build Machine: Enhanced on Enterprise; default on Pro.
 3. Production Branch: `master`. Ignored Build Step: Automatic.
 4. Node.js Version: `22.x`.
-5. Environment Variables: `REACT_APP_SOLANA_FOUNDATION_SERVER_URL` (full URL, `https://`, no trailing slash) for Production and Preview.
-6. Account Settings → Tokens: team-scoped token, `export VERCEL_TOKEN=...` locally for the Makefile targets.
-7. Link the local checkout (from repo root):
+5. Account Settings → Tokens: team-scoped token, `export VERCEL_TOKEN=...` locally for the Makefile targets.
+6. Link the local checkout (from repo root):
 
    ```sh
    VERCEL_PROJECT_ID=prj_xxx make vercel-bootstrap
@@ -40,5 +39,5 @@ Add the Vercel deployment origin to the GAE server's `client_urls` or CORS will 
 
 ## Endpoint routing
 
-- All non-share routes → `REACT_APP_SOLANA_FOUNDATION_SERVER_URL` (also user-overridable via the `server.endpoint` setting), so forks can point at their own backend.
+- All non-share routes → the hardcoded Solana Foundation server URL in `client/src/settings/server/server.ts` (also user-overridable via the `server.endpoint` setting), so forks can point at their own backend.
 - Share routes (`/share/*`, `/new`) → hardcoded `https://api.solpg.io` so shared snippets stay discoverable across hosts.

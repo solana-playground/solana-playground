@@ -13,15 +13,11 @@ x-client: &client
     args:
       USER: solpg
       HAS_SERVER: true
-      # build args feed the Dockerfile ARG (baked into the CRA bundle); environment below feeds yarn start in dev.
-      REACT_APP_SOLANA_FOUNDATION_SERVER_URL: ${REACT_APP_SOLANA_FOUNDATION_SERVER_URL:-}
     additional_contexts:
       solana-playground-wasm: service:wasm
       solana-playground-server: service:server
   ports:
     - ${PG_CLIENT_PORT:-3000}:3000
-  environment:
-    - REACT_APP_SOLANA_FOUNDATION_SERVER_URL=${REACT_APP_SOLANA_FOUNDATION_SERVER_URL:-}
 
 x-server: &server
   platform: linux/amd64
@@ -62,13 +58,10 @@ services:
       args:
         USER: solpg
         HAS_SERVER: ${PG_SERVER:-false}
-        REACT_APP_SOLANA_FOUNDATION_SERVER_URL: ${REACT_APP_SOLANA_FOUNDATION_SERVER_URL:-}
       additional_contexts:
         solana-playground-wasm: service:wasm
     ports:
       - ${PG_CLIENT_PORT:-3000}:3000
-    environment:
-      - REACT_APP_SOLANA_FOUNDATION_SERVER_URL=${REACT_APP_SOLANA_FOUNDATION_SERVER_URL:-}
     tty: true
     stdin_open: true
     profiles:

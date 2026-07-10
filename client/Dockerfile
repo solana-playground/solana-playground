@@ -24,9 +24,6 @@ FROM ${IMAGE} AS server-false
 FROM server-${HAS_SERVER}
 
 ARG USER
-# ARG accepts --build-arg; ENV exposes it to craco's process.env at build (CRA bakes the value into the bundle).
-ARG REACT_APP_SOLANA_FOUNDATION_SERVER_URL
-ENV REACT_APP_SOLANA_FOUNDATION_SERVER_URL=${REACT_APP_SOLANA_FOUNDATION_SERVER_URL}
 
 WORKDIR /home/${USER}
 COPY . .
