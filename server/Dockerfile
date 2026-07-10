@@ -30,7 +30,8 @@ COPY rust-toolchain.toml .
 RUN cargo --version
 
 # Cache deps
-COPY Cargo.* .
+# Trailing slash required: Cloud Build's legacy builder rejects multi-source COPY into "."
+COPY Cargo.* ./
 RUN mkdir src
 RUN echo "fn main() {}" > src/main.rs
 RUN cargo build --release
