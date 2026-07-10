@@ -20,6 +20,9 @@ ONBUILD COPY --from=solana-playground-server /home/${USER}/.cargo /root/.cargo
 ################################### No server ##################################
 FROM ${IMAGE} AS server-false
 
+# Set build server URL to the production API
+ONBUILD ENV REACT_APP_SERVER_URL="https://playground-server-dot-analytics-324114.de.r.appspot.com"
+
 ###################### Build and start development client ######################
 FROM server-${HAS_SERVER}
 

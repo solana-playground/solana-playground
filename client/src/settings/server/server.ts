@@ -17,7 +17,10 @@ export const server = [
     default:
       process.env.NODE_ENV === "production"
         ? SOLANA_FOUNDATION_SERVER_URL
-        : "http://localhost:8080",
+        : // Docker builds use this environment variable to set the server URL
+          // to the production API (instead of local) if the user has not yet
+          // built the server image
+          process.env.REACT_APP_SERVER_URL ?? "http://localhost:8080",
     custom: {
       parse: (v) => {
         if (PgCommon.isUrl(v)) return v;
