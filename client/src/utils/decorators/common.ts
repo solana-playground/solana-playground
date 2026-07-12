@@ -201,7 +201,10 @@ export const addOnDidChange = (
   };
 
   // Dispatch change event(s)
-  sClass[PROPS.DISPATCH_CHANGE_EVENT] = (accessor: Accessor = []) => {
+  sClass[PROPS.DISPATCH_CHANGE_EVENT] = (
+    accessor: Accessor = [],
+    noCache?: boolean
+  ) => {
     // Only dispatch if the state has been initialized
     if (!sClass[PROPS.IS_INITIALIZED]) return;
 
@@ -218,7 +221,7 @@ export const addOnDidChange = (
       // cached values are compared by reference.
       if (cache[cacheKey] === value) return;
 
-      cache[cacheKey] = value;
+      if (!noCache) cache[cacheKey] = value;
       PgCommon.createAndDispatchCustomEvent(
         getChangeEventName(accessor),
         value
