@@ -100,6 +100,7 @@ export class BpfLoaderUpgradeable {
         new Array(loadConcurrency).fill(null).map(async () => {
           while (1) {
             if (opts?.abortController?.signal.aborted) return;
+            if (isRateLimited) break;
 
             const offset = indices[i] * WRITE_CHUNK_SIZE;
             i++;
@@ -118,6 +119,8 @@ export class BpfLoaderUpgradeable {
               lastTxHash = await PgTx.send(ix, { wallet, computeUnitLimit });
               if (!isMissing) opts?.onWrite?.(endOffset);
             } catch (e: any) {
+              if (isRateLimited) break;
+
               console.log("Buffer write error:", e);
               if (!(e instanceof Error)) continue;
 
