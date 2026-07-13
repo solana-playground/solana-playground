@@ -38,20 +38,16 @@ const PgWalletProvider: FC = ({ children }) => {
       ) as StandardWalletAdapter[];
   }, [wallets]);
 
-  // Re-derive the `standard` and `current` fields when the user changes
-  // standard wallet accounts (inside the extension)
+  // Sync values when the user changes standard wallet accounts in the extension
   useEffect(() => {
     if (!wallet || wallet.isPg) return;
 
     const handleStandardAccountChange = () => {
       // Set the `standardWallets` to itself to trigger the re-derivation of the
-      // derivable fields that depend on this field (`standard` and `current`).
+      // derivable fields that depend on this field.
       //
-      // NOTE: This only works because the field `standardWallets` is an object,
-      // which is not cached by the decorator implementation. Using `standardName`
-      // instead would not trigger re-derivation after the first change because
-      // string values are cached.
-      PgWallet.update({ standardWallets: PgWallet.standardWallets });
+      // NOTE: Cloning into a new array is required to bypass caching.
+      PgWallet.standardWallets = [...PgWallet.standardWallets];
     };
 
     // There is no specific event for account changes, but the `connect` event

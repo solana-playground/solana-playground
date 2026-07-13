@@ -56,23 +56,12 @@ const storage = {
 };
 
 const derive = () => ({
-  /** A Wallet Standard wallet adapter */
-  standard: createDerivable({
-    derive: (): StandardWallet | null => {
-      const standardWallet = PgWallet.standardWallets.find(
-        (wallet) => wallet.name === PgWallet.standardName
-      );
-      return standardWallet ?? null;
-    },
-    onChange: ["standardWallets", "standardName"],
-    infallible: true,
-  }),
-
   /**
    * The current active wallet.
    *
    * It will be one of the following:
-   * - The Playground Wallet
+   *
+   * - A Playground wallet
    * - A Wallet Standard wallet
    * - `null` if not connected.
    */
@@ -92,17 +81,34 @@ const derive = () => ({
           return PgWallet.create(currentAccount);
         }
 
-        case "sol":
-          if (!PgWallet.standard || PgWallet.standard.connecting) return null;
-          if (!PgWallet.standard.connected) await PgWallet.standard.connect();
-          return PgWallet.standard as StandardWallet<true>;
+        case "sol": {
+          const standard = PgWallet.standardWallets.find(
+            (wallet) => wallet.name === PgWallet.standardName
+          );
+          if (!standard || standard.connecting) return null;
+          if (!standard.connected) await standard.connect();
+          return standard as StandardWallet<true>;
+        }
 
         case "disconnected":
         case "setup":
           return null;
       }
     },
-    onChange: ["state", "accounts", "currentIndex", "standard"],
+    onChange: [
+      "state",
+      "accounts",
+      "currentIndex",
+      "standardWallets",
+      "standardName",
+    ],
+    // Do not cache because changing standard wallets accounts inside extensions
+    // keeps the same object in memory, and thus making the value stale when
+    // comparing cached object values by reference.
+    //
+    // TODO: Should we allow customizing the logic? For example:
+    // `cache: (value: Wallet | null) => !value || value.isPg`
+    noCache: true,
   }),
 
   /** Balance of the current wallet in SOL */
