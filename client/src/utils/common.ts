@@ -13,10 +13,29 @@ import type {
 export class PgCommon {
   /**
    * @param ms amount of time to sleep in ms
+   * @param abortController abort controller for cancelling
    * @returns a promise that will resolve after specified ms
    */
-  static async sleep(ms: number) {
-    return new Promise((res) => setTimeout(res, ms));
+  static async sleep(ms: number, abortController?: AbortController) {
+    return new Promise<void>((res, rej) => {
+      if (!abortController) return setTimeout(res, ms);
+
+      if (abortController.signal.aborted) {
+        return rej(new DOMException("Aborted", "AbortError"));
+      }
+
+      const id = setTimeout(() => {
+        abortController.signal.removeEventListener("abort", onAbort);
+        res();
+      }, ms);
+
+      const onAbort = () => {
+        clearTimeout(id);
+        rej(new DOMException("Aborted", "AbortError"));
+      };
+
+      abortController.signal.addEventListener("abort", onAbort, { once: true });
+    });
   }
 
   /**
