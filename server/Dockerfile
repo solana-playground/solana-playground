@@ -23,6 +23,12 @@ ENV PATH="${HOME}/.cargo/bin:${PATH}"
 ############################## BUILD SERVER BINARY #############################
 FROM rust AS build
 
+ARG USER=solpg
+
+# Cloud Build's legacy builder creates WORKDIR as root even under USER
+USER root
+RUN mkdir /build && chown ${USER}:${USER} /build
+USER ${USER}
 WORKDIR /build
 
 # Cache toolchain
