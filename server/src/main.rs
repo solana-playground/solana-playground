@@ -3,8 +3,10 @@ mod db;
 mod error;
 mod log;
 mod middlewares;
+mod package;
 mod program;
 mod routes;
+mod utils;
 
 use std::net::{Ipv4Addr, SocketAddr};
 
@@ -27,14 +29,26 @@ async fn main() -> Result<()> {
     db::init(&config.db_uri, config.db_name).await?;
     info!("DB initialized");
 
-    let app = Router::new()
+    let stable_routes = Router::new()
         .route(
             "/build",
             post(build).with_state(BuildState::new(config.build_concurrency)),
         )
         .route("/deploy/{uuid}", get(deploy))
         .route("/share/{id}", get(share_get))
-        .route("/new", post(share_new))
+        .route("/new", post(share_new));
+
+    let unstable_routes = if cfg!(feature = "unstable") {
+        Router::new()
+            .route("/packages/{*name}", get(packages))
+            .route("/types/{*name}", get(types))
+    } else {
+        Router::new()
+    };
+
+    let app = Router::new()
+        .merge(stable_routes)
+        .nest("/unstable", unstable_routes)
         .layer(compression())
         .layer(payload_limit(config.payload_limit))
         .layer(cors(config.client_urls))

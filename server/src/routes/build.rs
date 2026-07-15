@@ -10,10 +10,7 @@ use serde::{Deserialize, Serialize};
 use tokio::{sync::Semaphore, task};
 use uuid::Uuid;
 
-use crate::{
-    error::Result,
-    program::{self, Files},
-};
+use crate::{error::Result, program, utils::Files};
 
 /// Build request
 #[derive(Deserialize)]

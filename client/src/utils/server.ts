@@ -41,7 +41,6 @@ export class PgServer {
    * @returns the build response
    */
   static async build(req: BuildRequest) {
-    /** `/build` response */
     interface BuildResponse {
       /** Build output */
       stderr: string;
@@ -71,6 +70,42 @@ export class PgServer {
     const response = await this._send(`/deploy/${uuid}`);
     const arrayBuffer = await response.arrayBuffer();
     return Buffer.from(arrayBuffer);
+  }
+
+  /**
+   * Get the ESM package.
+   *
+   * @param name package name
+   * @returns the package module
+   */
+  static async packages(name: string) {
+    const response = await this._send(`/unstable/packages/${name}`);
+    const text = await response.text();
+    const blob = new Blob([text], { type: "text/javascript" });
+    const blobUrl = URL.createObjectURL(blob);
+    try {
+      return await import(/* webpackIgnore: true */ blobUrl);
+    } finally {
+      URL.revokeObjectURL(blobUrl);
+    }
+  }
+
+  /**
+   * Get the package type declarations.
+   *
+   * @param name package name
+   * @returns the package module
+   */
+  static async types(name: string) {
+    interface TypesResponse {
+      /** Type declaration files */
+      files: TupleFiles;
+      /** Type dependencies */
+      dependencies: string[];
+    }
+
+    const response = await this._send(`/unstable/types/${name}`);
+    return (await response.json()) as TypesResponse;
   }
 
   /**

@@ -70,13 +70,15 @@ await fs.writeFile(
   pathModule.join(CLIENT_PATH, "src", "utils", "js-runtime", "package.ts"),
   packageImportFile
     .replace(
-      "<PACKAGE_NAMES>",
+      "<TYPES>",
       packages.importable.reduce((acc, cur) => acc + `\n  | "${cur}"`, "")
     )
     .replace(
       "<IMPORTS>",
       packages.importable.reduce((acc, cur) => {
-        return acc + `\n      case "${cur}":\n        return import("${cur}");`;
+        return (
+          acc + `\n        case "${cur}":\n          return import("${cur}");`
+        );
       }, "")
     )
 );

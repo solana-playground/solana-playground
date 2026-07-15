@@ -4,7 +4,10 @@ use anchor_syn::idl::{parse::file::parse as parse_idl, types::Idl};
 use anyhow::anyhow;
 use regex::Regex;
 
-use crate::log::{info, warn};
+use crate::{
+    log::{info, warn},
+    utils::Files,
+};
 
 /// Directory name of where the programs are stored
 const PROGRAMS_DIR: &str = "programs";
@@ -17,9 +20,6 @@ const MAX_PATH_LEN: usize = 128;
 
 /// Max program build output stderr length
 const MAX_STDERR_LEN: usize = 1024 * 1024 * 1024;
-
-/// A vector of [Path, Content]
-pub type Files = Vec<[String; 2]>;
 
 /// Build the program from the given program name and files.
 ///
@@ -49,7 +49,7 @@ pub fn build(
     // Check file paths
     static ALLOWED_REGEX: LazyLock<Regex> =
         LazyLock::new(|| Regex::new(r"^/src/[\w/-]+\.rs$").unwrap());
-    for [path, _] in files {
+    for (path, _) in files {
         let is_valid = path.len() <= MAX_PATH_LEN
             && !path.contains("..")
             && !path.contains("//")
@@ -88,7 +88,7 @@ pub fn build(
     };
 
     // Write files
-    for [path, content] in files {
+    for (path, content) in files {
         let relative_path = path.trim_start_matches('/');
         let item_path = program_path.join(relative_path);
 
