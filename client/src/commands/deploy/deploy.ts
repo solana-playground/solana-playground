@@ -267,8 +267,10 @@ const processDeploy = async () => {
           )} not confirmed, retrying...`
         );
       },
-      onRateLimit: () => {
-        PgTerminal.println("Warning: Reached rate-limits, waiting...");
+      onRateLimit: (retryAfter) => {
+        PgTerminal.println(
+          `Warning: Reached rate-limits, waiting ({${retryAfter}s)...`
+        );
       },
     }
   );

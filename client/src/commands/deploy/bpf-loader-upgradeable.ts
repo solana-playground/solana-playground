@@ -62,7 +62,7 @@ export class BpfLoaderUpgradeable {
       abortController?: AbortController;
       onWrite?: (offset: number) => void;
       onMissing?: (missingCount: number) => void;
-      onRateLimit?: () => void;
+      onRateLimit?: (retryAfter: number) => void;
     } & WalletOption
   ) {
     const { wallet } = this._getOptions(opts);
@@ -124,8 +124,17 @@ export class BpfLoaderUpgradeable {
               console.log("Buffer write error:", e);
               if (!(e instanceof Error)) continue;
 
-              // Naively parse the error message. Example error message for rate limits:
+              // Naively parse the error message. Example error message:
               // `429 :  {"jsonrpc":"2.0","error":{"code": 429, "message":"Too many requests for a specific RPC call"}, "id": "1840af2d-8e39-494a-8e3f-69ca0099d4e4" } \r\n`
+              //
+              // TODO: Make use of the `X-Ratelimit-Method-Remaining` response
+              // header. At the time of writing this comment, the default devnet
+              // RPC returns 150 for `X-Ratelimit-Method-Limit`, but it only allows
+              // 40 requests in practice. This value matches `...Conn-Limit` and
+              // `...Connrate-Limit`, but their `*-Remaining` counterparts do
+              // not decrease with each request; when `...Method-Remaining`
+              // falls to 110 (150 - 40), the next request triggers to the same
+              // RPC method triggers the rate limit.
               const msg = e.message.trim();
               const maybeResponseStr = msg.substring(
                 msg.indexOf("{"),
@@ -142,16 +151,12 @@ export class BpfLoaderUpgradeable {
       );
       if (opts?.abortController?.signal.aborted) return;
 
-      // TODO: Make use of the `X-Ratelimit-Method-Remaining` response header.
-      // At the time of writing this comment, the default devnet RPC sets 150
-      // for `X-Ratelimit-Method-Limit`, but it only allows 40 requests in
-      // reality. This matches `...Conn-Limit` and `...Connrate-Limit`, but
-      // their `*-Remaining` counterparts do not decrease with each request;
-      // when `...Method-Remaining` falls to 110, the next request triggers to
-      // the same RPC method triggers the rate limit.
       if (isRateLimited) {
-        opts?.onRateLimit?.();
-        await PgCommon.sleep(10_000);
+        // TODO: Make use of the `Retry-After` response header
+        const retryAfter = 10; // this is what `Retry-After` returns currently
+        opts?.onRateLimit?.(retryAfter);
+        await PgCommon.sleep(retryAfter * 1000, opts?.abortController);
+        if (opts?.abortController?.signal.aborted) return;
       }
 
       // Wait for the last transaction to confirm
