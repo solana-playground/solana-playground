@@ -93,7 +93,7 @@ export const fillRandom = (
 const createAccountGenerator = (acc: IdlAccount): InstructionValueGenerator => {
   // Handle `seeds` feature
   // TODO: Re-evaluate this once Anchor package has proper types for PDA seeds
-  // https://github.com/coral-xyz/anchor/issues/2750
+  // https://github.com/otter-sec/anchor/issues/2750
   if (acc.pda) {
     return {
       type: "From seed",

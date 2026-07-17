@@ -2,7 +2,7 @@
 
 - Install tools
 
-Instructions on how to install [Anchor](https://github.com/coral-xyz/anchor) can be found [here](https://www.anchor-lang.com/docs/installation).
+Instructions on how to install [Anchor](https://github.com/otter-sec/anchor) can be found [here](https://www.anchor-lang.com/docs/installation).
 
 - Install dependencies
 

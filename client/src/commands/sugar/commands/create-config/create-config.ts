@@ -17,7 +17,7 @@ export const processCreateConfig = async () => {
   );
   term.println(
     `  -> ${PgTerminal.underline(
-      "https://docs.metaplex.com/tools/sugar/configuration"
+      "https://www.metaplex.com/docs/smart-contracts/candy-machine/sugar/configuration"
     )}\n`
   );
 

@@ -41,7 +41,7 @@ export class PgGithub {
    * @returns the parsed URL
    */
   static parseUrl(url: string) {
-    // https://github.com/solana-labs/solana-program-library/tree/master/token/program
+    // https://github.com/solana-program/token/tree/main/program
     const regex =
       /(https:\/\/)?(github\.com\/)([\w-]+)\/([\w-]+)(\/)?((tree|blob)\/([\w-.]+))?(\/)?([\w-/.]*)/;
     const res = regex.exec(url);
