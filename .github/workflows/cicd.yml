@@ -72,6 +72,9 @@ jobs:
       - name: Deploy to App Engine with specific version (no promote)
         working-directory: server
         run: |
+          # Rust release build alone is ~6m; full image build runs ~10.5m, past
+          # the 600s Cloud Build default. Raise the cap so the image can be pushed.
+          gcloud config set app/cloud_build_timeout 1800
           gcloud app deploy app.yaml \
             --version=${{ needs.resolve_version.outputs.version_tag }} \
             --no-promote \
