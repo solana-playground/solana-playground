@@ -359,12 +359,13 @@ export class PgJsRuntime {
       importMatch = importRegex.exec(code);
       if (!importMatch) continue;
 
+      // TODO: Save packages after adding version support
       const importPath = importMatch[6];
       const getPackage = importPath.startsWith(".")
         ? this._importFromPath
         : PgJsRuntimePackage.import;
-      const pkg = await getPackage(importPath);
-      this._overridePackage(importPath, pkg);
+      const rawPkg = await getPackage(importPath);
+      const pkg = this._overridePackage(importPath, rawPkg);
       setupImport(pkg);
     } while (importMatch);
 
@@ -396,8 +397,6 @@ export class PgJsRuntime {
   /**
    * Override the package.
    *
-   * NOTE: This method mutates the given `pkg` in place.
-   *
    * @param name package name
    * @param pkg package
    * @returns the overridden package
@@ -408,6 +407,9 @@ export class PgJsRuntime {
   ) {
     // Anchor
     if (name === "@coral-xyz/anchor" || name === "@project-serum/anchor") {
+      // Fix `Cannot assign to property 'workspace' of [object Module]`
+      pkg = { ...pkg };
+
       const providerName =
         name === "@coral-xyz/anchor" ? "AnchorProvider" : "Provider";
 
