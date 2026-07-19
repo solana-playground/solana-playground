@@ -271,13 +271,10 @@ class _PgWallet {
    * @param index account index
    */
   static rename(name: string, index: number = PgWallet.currentIndex) {
-    // Validate name
     PgWallet.validateAccountName(name);
-
-    PgWallet.accounts[index].name = name;
-
-    // Update the accounts
-    PgWallet.update({ accounts: PgWallet.accounts });
+    const accounts = structuredClone(PgWallet.accounts);
+    accounts[index].name = name;
+    PgWallet.update({ accounts });
   }
 
   /**
