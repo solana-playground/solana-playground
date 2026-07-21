@@ -76,7 +76,10 @@ export class PgExplorer {
 
   /** Get current file path */
   static get currentFilePath() {
-    return this.tabs.at(this._currentIndex);
+    // Do not use `Array.at` because it gives incorrect results when there is no
+    // current file (`this._currentIndex === -1`)
+    if (this._currentIndex === -1) return null;
+    return this.tabs[this._currentIndex];
   }
 
   /** Get current file path index */
