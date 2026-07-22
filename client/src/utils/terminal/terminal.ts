@@ -93,12 +93,6 @@ export class PgTerminal {
     this.println(msg);
   }
 
-  /** Execute the given command from string. */
-  static async executeFromStr(...args: Parameters<PgTerm["executeFromStr"]>) {
-    const term = await PgTerminal.get();
-    return await term.executeFromStr(...args);
-  }
-
   /** {@link PgTerm.process} */
   static async process<T>(cb: () => SyncOrAsync<T>) {
     const term = await PgTerminal.get();
