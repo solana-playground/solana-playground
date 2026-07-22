@@ -3,7 +3,10 @@ import { PgCommon } from "../../utils";
 import { createSetting } from "../create";
 
 const SOLANA_FOUNDATION_SERVER_URL =
-  "https://playground-server-dot-analytics-324114.de.r.appspot.com";
+  process.env.REACT_APP_FOUNDATION_SERVER_URL ??
+  "https://api.playground.solana.com";
+// TODO: swap to the line below once the foundation domain is bound.
+// const SOLANA_FOUNDATION_SERVER_URL = "https://api.playground.solana.com";
 
 export const server = [
   createSetting({
