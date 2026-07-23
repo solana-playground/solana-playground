@@ -56,7 +56,8 @@ export class BpfLoaderUpgradeable {
   /** Load programData to the initialized buffer account. */
   static async loadBuffer(
     bufferPk: PgWeb3.PublicKey,
-    programData: Buffer,
+    // TODO: Remove `Buffer`
+    bytes: Uint8Array | Buffer,
     opts?: {
       loadConcurrency?: number;
       abortController?: AbortController;
@@ -65,6 +66,7 @@ export class BpfLoaderUpgradeable {
       onRateLimit?: (retryAfter: number) => void;
     } & WalletOption
   ) {
+    const programBytes = bytes instanceof Buffer ? bytes : Buffer.from(bytes);
     const { wallet } = this._getOptions(opts);
     const { loadConcurrency } = PgCommon.setDefault(opts, {
       loadConcurrency: 8,
@@ -83,7 +85,7 @@ export class BpfLoaderUpgradeable {
     const { unitsConsumed: computeUnitLimit } = await PgTx.simulate(
       PgWeb3.BpfLoaderUpgradeableProgram.write({
         offset: 0,
-        bytes: programData.slice(0, WRITE_CHUNK_SIZE),
+        bytes: programBytes.slice(0, WRITE_CHUNK_SIZE),
         bufferPk,
         authorityPk: wallet.publicKey,
       }),
@@ -105,12 +107,12 @@ export class BpfLoaderUpgradeable {
             const offset = indices[i] * WRITE_CHUNK_SIZE;
             i++;
             const endOffset = offset + WRITE_CHUNK_SIZE;
-            const bytes = programData.slice(offset, endOffset);
-            if (bytes.length === 0) break;
+            const slice = programBytes.slice(offset, endOffset);
+            if (slice.length === 0) break;
 
             const ix = PgWeb3.BpfLoaderUpgradeableProgram.write({
               offset,
-              bytes,
+              bytes: slice,
               bufferPk,
               authorityPk: wallet.publicKey,
             });
@@ -170,7 +172,7 @@ export class BpfLoaderUpgradeable {
       }
     };
 
-    const txCount = Math.ceil(programData.length / WRITE_CHUNK_SIZE);
+    const txCount = Math.ceil(programBytes.length / WRITE_CHUNK_SIZE);
     const indices = new Array(txCount).fill(null).map((_, i) => i);
     let isMissing = false;
 
@@ -186,18 +188,18 @@ export class BpfLoaderUpgradeable {
         return acc;
       }, 1000);
 
-      const onChainProgramData = bufferAccount.data.slice(
+      const onChainProgramBytes = bufferAccount.data.slice(
         PgWeb3.BpfLoaderUpgradeableProgram.BUFFER_METADATA_SIZE,
         PgWeb3.BpfLoaderUpgradeableProgram.BUFFER_METADATA_SIZE +
-          programData.length
+          programBytes.length
       );
-      if (onChainProgramData.equals(programData)) break;
+      if (onChainProgramBytes.equals(programBytes)) break;
 
       const missingIndices = indices.filter((i) => {
         const start = i * WRITE_CHUNK_SIZE;
         const end = start + WRITE_CHUNK_SIZE;
-        const actualSlice = programData.slice(start, end);
-        const onChainSlice = onChainProgramData.slice(start, end);
+        const actualSlice = programBytes.slice(start, end);
+        const onChainSlice = onChainProgramBytes.slice(start, end);
         return !actualSlice.equals(onChainSlice);
       });
       await loadBuffer(missingIndices, isMissing);

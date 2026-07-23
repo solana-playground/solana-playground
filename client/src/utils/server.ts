@@ -64,12 +64,12 @@ export class PgServer {
    * client. The deployment process is done in the client.
    *
    * @param uuid unique project id
-   * @returns the program ELF as `Buffer`
+   * @returns the program binary bytes
    */
   static async deploy(uuid: string) {
     const response = await this._send(`/deploy/${uuid}`);
     const arrayBuffer = await response.arrayBuffer();
-    return Buffer.from(arrayBuffer);
+    return new Uint8Array(arrayBuffer);
   }
 
   /**
