@@ -55,7 +55,7 @@ impl<'a> StringFormat<'a> {
         )
     }
 
-    /// Like max_chars_with_indent but the indentation is not substracted.
+    /// Like max_chars_with_indent but the indentation is not subtracted.
     /// This allows to fit more graphemes from the string on a line when
     /// SnippetState::Overflow.
     fn max_chars_without_indent(&self) -> Option<usize> {
