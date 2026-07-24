@@ -1,0 +1,26 @@
+# Local Vercel deploy targets. See client/docs/deploy-client-vercel.md.
+# `vercel build` reads client/vercel.json (installCommand, buildCommand) so install/build chain isn't duplicated here.
+
+.PHONY: vercel-bootstrap vercel-link-preview deploy-client-to-vercel-preview
+
+# Resolve orgId from Vercel API + write .vercel/project.json. Requires jq.
+vercel-bootstrap: ## Link the local checkout to the dashboard project (run once; needs VERCEL_TOKEN, VERCEL_PROJECT_ID)
+	@: $${VERCEL_TOKEN:?VERCEL_TOKEN is unset}
+	@: $${VERCEL_PROJECT_ID:?VERCEL_PROJECT_ID is unset}
+	@command -v jq >/dev/null 2>&1 || { echo "jq required — see https://jqlang.org/download/" >&2; exit 1; }
+	@response=$$(curl -sH "Authorization: Bearer $${VERCEL_TOKEN}" "https://api.vercel.com/v9/projects/$${VERCEL_PROJECT_ID}"); \
+		org_id=$$(echo "$$response" | jq -r '.accountId // empty'); \
+		if [ -z "$$org_id" ]; then echo "Bootstrap failed. Vercel API response: $$response" >&2; exit 1; fi; \
+		mkdir -p .vercel; \
+		jq -n --arg org "$$org_id" --arg proj "$${VERCEL_PROJECT_ID}" '{orgId: $$org, projectId: $$proj}' > .vercel/project.json; \
+		echo "Wrote .vercel/project.json"
+
+vercel-link-preview: ## Pull preview env vars from Vercel
+	@: $${VERCEL_TOKEN:?VERCEL_TOKEN is unset}
+	npx vercel@latest pull --yes --environment=preview --token="$${VERCEL_TOKEN}"
+
+deploy-client-to-vercel-preview: vercel-link-preview ## Build + deploy a unique preview URL
+	@: $${VERCEL_TOKEN:?VERCEL_TOKEN is unset}
+	set -a && . ./.vercel/.env.preview.local && set +a && \
+		npx vercel@latest build --token="$${VERCEL_TOKEN}" && \
+		npx vercel@latest deploy --prebuilt --token="$${VERCEL_TOKEN}"
