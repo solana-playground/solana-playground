@@ -143,6 +143,9 @@ const Wrapper = styled.div`
   flex-direction: column;
   gap: 1rem;
   padding-top: 1rem;
+  /* Allow scrolling past the end so the last component can reach the top of the
+     view, similar to the "scroll beyond last line" behavior in editors. */
+  padding-bottom: 100vh;
 `;
 
 const ProgramNameWrapper = styled.div`
