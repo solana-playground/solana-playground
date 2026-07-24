@@ -181,7 +181,9 @@ const Tx: FC<PgWeb3.ConfirmedSignatureInfo> = ({
   }, [hover]);
 
   const now = new Date().getTime() / 1000;
-  const timePassed = blockTime ? PgCommon.secondsToTime(now - blockTime) : null;
+  const timePassed = blockTime
+    ? PgCommon.formatSeconds(now - blockTime, { shorten: true })
+    : null;
 
   const blockExplorer = useBlockExplorer();
 

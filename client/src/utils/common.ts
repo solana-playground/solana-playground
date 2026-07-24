@@ -504,20 +504,29 @@ export class PgCommon {
   }
 
   /**
-   * Convert seconds into human readable string format
+   * Convert seconds into human readable string format.
+   *
+   * @param secs duration in seconds
+   * @param opts options:
+   * - `shorten`: shorten the output to show only the highest duration kind
+   * @returns a formatted human-readable time
    */
-  static secondsToTime(secs: number) {
-    const d = Math.floor(secs / (60 * 60 * 24)),
-      h = Math.floor((secs % (60 * 60 * 24)) / (60 * 60)),
-      m = Math.floor((secs % (60 * 60)) / 60),
-      s = Math.floor(secs % 60);
+  static formatSeconds(secs: number, opts?: { shorten?: boolean }) {
+    const durations = [
+      ["d", Math.floor(secs / (60 * 60 * 24))],
+      ["h", Math.floor((secs % (60 * 60 * 24)) / (60 * 60))],
+      ["m", Math.floor((secs % (60 * 60)) / 60)],
+      ["s", Math.floor(secs % 60)],
+    ];
 
-    if (d) return `${d}d`;
-    if (h) return `${h}h`;
-    if (m) return `${m}m`;
-    if (s) return `${s}s`;
+    let parts = [];
+    for (const [abbr, dur] of durations) {
+      if (!dur) continue;
+      parts.push(`${dur}${abbr}`);
+      if (opts?.shorten) break;
+    }
 
-    return "";
+    return parts.join(" ");
   }
 
   /**
