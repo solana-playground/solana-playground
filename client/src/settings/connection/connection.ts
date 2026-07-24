@@ -50,7 +50,7 @@ export const connection = [
       },
       type: "micro lamports",
       placeholder: "9000",
-      tip: "Check out the priority fees [guide](https://solana.com/developers/guides/advanced/how-to-use-priority-fees) for more information.",
+      tip: "Check out the priority fees [guide](https://solana.com/docs/core/fees) for more information.",
     },
   }),
 ];
