@@ -526,7 +526,7 @@ export class PgCommon {
       if (opts?.shorten) break;
     }
 
-    return parts.join(" ");
+    return parts.join(" ") || "0s";
   }
 
   /**
