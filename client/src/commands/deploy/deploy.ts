@@ -49,7 +49,7 @@ export const deploy = createCmd({
       PgTerminal.println(
         `${PgTerminal.success(
           "Deployment successful."
-        )} Completed in ${PgCommon.secondsToTime(timePassed)}.`
+        )} Completed in ${PgCommon.formatSeconds(timePassed)}.`
       );
     } finally {
       PgView.setMainSecondaryProgress(0);
@@ -269,7 +269,9 @@ const processDeploy = async () => {
       },
       onRateLimit: (retryAfter) => {
         PgTerminal.println(
-          `Warning: Reached rate-limits, waiting ({${retryAfter}s)...`
+          `Warning: Reached rate-limits, waiting ({${PgCommon.formatSeconds(
+            retryAfter
+          )})...`
         );
       },
     }
