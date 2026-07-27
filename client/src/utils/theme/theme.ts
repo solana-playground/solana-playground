@@ -825,16 +825,15 @@ export class PgTheme {
     const theme = this._themeReady;
 
     // Default
-    bottom.default ??= {};
-    bottom.default.height ??= "1.5rem";
-    bottom.default.padding ??= "0 0.5rem";
-    bottom.default.bg ??= theme.colors.default.primary;
-    bottom.default.color ??= theme.colors.default.textPrimary;
-    bottom.default.fontSize ??= theme.font.code.size.small;
-    bottom.default.display ??= "flex";
-    bottom.default.flexWrap ??= "wrap";
-    bottom.default.alignItems ??= "center";
-    bottom.default.gap ??= "0 1rem";
+    bottom.height ??= "1.5rem";
+    bottom.padding ??= "0 0.5rem";
+    bottom.bg ??= theme.colors.default.primary;
+    bottom.color ??= theme.colors.default.textPrimary;
+    bottom.fontSize ??= theme.font.code.size.small;
+    bottom.display ??= "flex";
+    bottom.flexWrap ??= "wrap";
+    bottom.alignItems ??= "center";
+    bottom.gap ??= "0 1rem";
 
     return this;
   }

@@ -126,9 +126,7 @@ const PLAYGROUND: ThemeParam = {
 
   views: {
     bottom: {
-      default: {
-        bg: DARK_BLUE,
-      },
+      bg: DARK_BLUE,
     },
     main: {
       default: {

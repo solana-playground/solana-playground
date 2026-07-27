@@ -137,9 +137,7 @@ const LIGHT: ThemeParam = {
 
   views: {
     bottom: {
-      default: {
-        color: BG_WHITE,
-      },
+      color: BG_WHITE,
     },
     sidebar: {
       left: {

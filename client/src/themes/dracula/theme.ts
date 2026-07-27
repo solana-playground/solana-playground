@@ -82,9 +82,7 @@ const DRACULA: ThemeParam = {
 
   views: {
     bottom: {
-      default: {
-        bg: BG_DARKER,
-      },
+      bg: BG_DARKER,
     },
     sidebar: {
       left: {

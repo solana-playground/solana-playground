@@ -167,9 +167,7 @@ const SOLANA: ThemeParam = {
 
   views: {
     bottom: {
-      default: {
-        color: BG_BLACK,
-      },
+      color: BG_BLACK,
     },
     main: {
       default: {

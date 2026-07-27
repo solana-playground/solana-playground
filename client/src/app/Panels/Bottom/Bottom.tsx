@@ -35,7 +35,7 @@ const Wrapper = styled.div`
       align-items: center;
     }
 
-    ${PgTheme.convertToCSS(theme.views.bottom.default)};
+    ${PgTheme.convertToCSS(theme.views.bottom)};
   `}
 `;
 

@@ -115,7 +115,7 @@ const Wrapper = styled.div<{
   ${({ theme, width, oldWidth }) => css`
     display: flex;
     flex-direction: column;
-    height: calc(100vh - ${PgTheme.theme.views.bottom.default.height});
+    height: calc(100vh - ${PgTheme.theme.views.bottom.height});
     min-width: ${width ? width : oldWidth}px;
 
     ${PgTheme.convertToCSS(theme.views.sidebar.right.default)};

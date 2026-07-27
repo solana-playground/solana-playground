@@ -33,8 +33,7 @@ const ConnectButton = styled(Button)`
     border: none;
 
     &:hover {
-      background: ${theme.views.bottom.default.color +
-      theme.default.transparency.low};
+      background: ${theme.views.bottom.color + theme.default.transparency.low};
     }
   `}
 `;
