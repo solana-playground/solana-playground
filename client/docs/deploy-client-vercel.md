@@ -8,7 +8,7 @@ Vercel's native Git integration auto-deploys: `master` → production; any other
 
 | Setting | Value |
 | --- | --- |
-| Plan / Build Machine | Enterprise + **Enhanced** (~18 min cold) |
+| Plan / Build Machine | Enterprise + **Enhanced** |
 | Framework Preset | Other |
 | Root Directory | `client` |
 | Production Branch | `master` |
@@ -28,7 +28,7 @@ Vercel's native Git integration auto-deploys: `master` → production; any other
    VERCEL_PROJECT_ID=prj_xxx make vercel-bootstrap
    ```
 
-Add the Vercel deployment origin to the GAE server's `client_urls` or CORS will reject every request.
+Add the Vercel deployment origin to the server's [`PG_CLIENT_URLS`](https://github.com/solana-playground/solana-playground/blob/cd5555155c61572c8c49fb351890519af9e493ef/.env.example#L3) environment variable or CORS will reject every request.
 
 ## Deploy
 

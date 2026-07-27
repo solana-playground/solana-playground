@@ -1,4 +1,5 @@
 # Local Vercel deploy targets. See client/docs/deploy-client-vercel.md.
+# Targets assume repo-root cwd (Vercel Root Directory = client, .vercel/ state at root) — run via the root Makefile.
 # `vercel build` reads client/vercel.json (installCommand, buildCommand) so install/build chain isn't duplicated here.
 
 .PHONY: vercel-bootstrap vercel-link-preview deploy-client-to-vercel-preview

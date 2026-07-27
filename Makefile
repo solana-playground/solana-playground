@@ -8,4 +8,4 @@ help: ## Show this help
 	@printf 'Usage: make <target>\n\nTargets:\n'
 	@sed -nE 's/^([a-zA-Z_%-]+):.*## (.*)$$/  \1: \2/p' $(MAKEFILE_LIST)
 
-include Makefile.vercel
+include client/Makefile.vercel
