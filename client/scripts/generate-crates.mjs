@@ -213,7 +213,8 @@ export async function getCrates() {
  * @returns the registry path and crates
  */
 async function getRegistry() {
-  const registryPath = path.join(homedir(), ".cargo", "registry", "src");
+  const cargoHome = process.env.CARGO_HOME ?? path.join(homedir(), ".cargo");
+  const registryPath = path.join(cargoHome, "registry", "src");
   const registries = await fs.readdir(registryPath);
   const cratesIoRegistry = registries.find((registry) => {
     return registry.startsWith("index.crates.io");
