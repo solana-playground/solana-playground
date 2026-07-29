@@ -11,6 +11,8 @@ automatic_scaling:
 env_variables:
   # Each cargo-build-sbf peaks ~3.7GB and ~1 core; sized with resources below for 3 concurrent builds, leaving 1 core for serving.
   PG_BUILD_CONCURRENCY: "3"
+  # Prefix-matched against Origin (no trailing slashes). The `solana-playground-` prefix temporarily admits dynamic Vercel preview URLs and might be dropped later.
+  PG_CLIENT_URLS: "https://beta.solpg.io,https://solana-playground-two.vercel.app,https://solana-playground-,http://localhost"
 
 resources:
   cpu: 4
