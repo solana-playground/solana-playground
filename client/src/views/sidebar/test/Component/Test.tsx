@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import BN from "bn.js";
 
 import Account from "./Account";
@@ -138,11 +138,24 @@ const InitialWrapper = styled.div`
 `;
 
 const Wrapper = styled.div`
-  user-select: none;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  padding-top: 1rem;
+  ${({ theme }) => css`
+    user-select: none;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding-top: 1rem;
+    /**
+     * Allow scrolling past the end so the last component can reach the top of
+     * the view, similar to the "scroll beyond last line" behavior in editors.
+     */
+    padding-bottom: calc(
+      100vh -
+        (
+          ${theme.views.sidebar.right.title.height} +
+            ${theme.views.bottom.height}
+        )
+    );
+  `}
 `;
 
 const ProgramNameWrapper = styled.div`
