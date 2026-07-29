@@ -13,16 +13,14 @@ Vercel's native Git integration auto-deploys: `master` → production; any other
 | Root Directory | `client` |
 | Production Branch | `master` |
 | Ignored Build Step | Automatic |
-| Node | `22.x` (project); `^22.20.0` (`package.json` engines) |
 
 ## One-time setup
 
 1. Create the project. Framework: Other. Root Directory: `client`.
 2. Build Machine: Enhanced on Enterprise; default on Pro.
 3. Production Branch: `master`. Ignored Build Step: Automatic.
-4. Node.js Version: `22.x`.
-5. Account Settings → Tokens: team-scoped token, `export VERCEL_TOKEN=...` locally for the Makefile targets.
-6. Link the local checkout (from repo root):
+4. Account Settings → Tokens: team-scoped token, `export VERCEL_TOKEN=...` locally for the Makefile targets.
+5. Link the local checkout (from repo root):
 
    ```sh
    VERCEL_PROJECT_ID=prj_xxx make vercel-bootstrap

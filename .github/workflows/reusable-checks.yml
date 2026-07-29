@@ -145,5 +145,12 @@ jobs:
       - name: Check git status
         run: git status --porcelain | wc -l | grep -q -w "0"
 
+      # Unlike the build, `tsc --noEmit` also covers test files.
+      - name: Check types
+        run: yarn test-types
+
+      - name: Run unit tests
+        run: yarn test-unit
+
       - name: Build
         run: yarn build
