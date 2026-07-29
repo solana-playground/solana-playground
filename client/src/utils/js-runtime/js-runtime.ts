@@ -91,7 +91,7 @@ export class PgJsRuntime {
   class __Pg { async __run() {\n${code}\n} }
   const __pg = new __Pg();
   try { await __pg.__run(); }
-  catch (e) { console.log("Uncaught error:", e.message); }
+  catch (e) { console.log("Uncaught error:", e?.message ?? e); }
   finally { ${endCode} }
 })()`;
 
