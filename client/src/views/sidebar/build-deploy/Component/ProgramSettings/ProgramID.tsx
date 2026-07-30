@@ -119,12 +119,12 @@ const Export = () => {
 interface UpdateInfoProps {
   text?: string;
   error?: boolean;
+  changed?: boolean;
 }
 
 const InputPk = () => {
   const [val, setVal] = useState("");
   const [updateInfo, setUpdateInfo] = useState<UpdateInfoProps>({});
-  const [changed, setChanged] = useState(false);
 
   useEffect(() => {
     const { dispose } = PgProgramInfo.onDidChangePk((pk) => {
@@ -135,23 +135,21 @@ const InputPk = () => {
 
   const handleChange = (ev: ChangeEvent<HTMLInputElement>) => {
     setVal(ev.target.value);
-    setChanged(true);
-    setUpdateInfo({});
+    setUpdateInfo({ changed: true });
   };
 
   const handleClick = () => {
     try {
       PgProgramInfo.update({ customPk: new PgWeb3.PublicKey(val) });
-      setUpdateInfo({ text: "Updated program id." });
-      setChanged(false);
+      setUpdateInfo({ text: "Updated program ID" });
     } catch {
-      setUpdateInfo({ text: "Invalid public key.", error: true });
+      setUpdateInfo({ text: "Invalid public key", error: true });
     }
   };
 
   const handleRemoveCustomProgramId = () => {
     PgProgramInfo.update({ customPk: null });
-    setUpdateInfo({ text: "Removed custom id." });
+    setUpdateInfo({ text: "Removed custom ID" });
   };
 
   return (
@@ -159,7 +157,7 @@ const InputPk = () => {
       <InputLabelWrapper>
         <InputLabel>Program ID:</InputLabel>
         {updateInfo.text && (
-          <UpdateInfo error={updateInfo?.error}>{updateInfo.text}</UpdateInfo>
+          <UpdateInfo error={updateInfo.error}>{updateInfo.text}</UpdateInfo>
         )}
       </InputLabelWrapper>
 
@@ -174,13 +172,15 @@ const InputPk = () => {
       </InputWrapper>
       <InputWarning>
         <Warning color="warning" />
-        Note that you need to have this program's authority to upgrade
+        Only the authority can upgrade.
       </InputWarning>
-      {changed && <Button onClick={handleClick}>Change program id</Button>}
+      {updateInfo.changed && (
+        <Button onClick={handleClick}>Change program ID</Button>
+      )}
 
       {!!PgProgramInfo.customPk && (
         <Button onClick={handleRemoveCustomProgramId}>
-          Remove custom program id
+          Remove custom program ID
         </Button>
       )}
     </InputPkWrapper>
@@ -266,7 +266,7 @@ const InputWrapper = styled.div`
 
 const InputWarning = styled.div`
   ${({ theme }) => css`
-    margin-top: 0.375rem;
+    margin-top: 0.5rem;
     font-size: ${theme.font.code.size.small};
     color: ${theme.colors.default.textSecondary};
 
