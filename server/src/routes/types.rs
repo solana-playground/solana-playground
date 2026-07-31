@@ -1,7 +1,6 @@
 use axum::{extract::Path, response::IntoResponse, Json};
 use serde::Serialize;
-
-use crate::{error::Result, package::get_types, utils::Files};
+use solpg_server::{package::get_types, utils::Files, Result};
 
 /// Types response
 #[derive(Serialize)]

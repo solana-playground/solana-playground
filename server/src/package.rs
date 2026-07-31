@@ -1,8 +1,10 @@
-// TODO: Switch to `pnpm`
-// TODO: Version
 // TODO: Sandbox
-// TODO: All packages and all versions from NPM
+// TODO: Version
+// TODO: All packages and versions from NPM
+// TODO: Verify package names and versions are valid
 // TODO: Accept `package.json` (and optionally a lock file) instead of name and version?
+// TODO: Switch to `pnpm` without shared cache (simpler transition if we decide to use shared cache)
+// TODO: Use shared cache with `pnpm`? (shared cache is better for speed but worse for security)
 // TODO: Check if bundling client-side is feasible with a tool like `esbuild-wasm`?
 
 use std::path::{Path, PathBuf};
@@ -13,66 +15,13 @@ use tokio::task;
 use crate::{log::warn, utils::Files};
 
 /// Packages directory
-const PACKAGES_DIR: &str = "packages";
+pub const PACKAGES_DIR: &str = "packages";
 
 /// Build directory (`webpack`)
-const BUILD_DIR: &str = "dist";
+pub const BUILD_DIR: &str = "dist";
 
 /// The default directory of where the JS packages are stored
 const NODE_MODULES: &str = "node_modules";
-
-/// Get or generate an ESM package.
-pub async fn get_package(name: &str) -> anyhow::Result<String> {
-    match read_package(name).await {
-        Err(e) if e.kind() == tokio::io::ErrorKind::NotFound => build_package(name).await,
-        res => res.map_err(|e| anyhow!("Unexpected error: `{name}`: {e}")),
-    }
-}
-
-/// Read the generated package module file.
-///
-/// Packages can only exist if the [`build_package`] function has been run beforehand.
-async fn read_package(name: &str) -> tokio::io::Result<String> {
-    let path = get_package_out_path(name).join("index.js");
-    tokio::fs::read_to_string(path).await
-}
-
-/// Build the package.
-async fn build_package(name: &str) -> anyhow::Result<String> {
-    use tokio::{fs, process::Command};
-
-    let entry_path = Path::new("@solana-playground").join(name);
-    let pkg_path = get_node_modules_path().join(&entry_path);
-    let content = format!(
-        r#"import * as mod from "{name}";
-export default mod.default ?? mod;
-export * from "{name}";"#
-    );
-    fs::create_dir_all(&pkg_path).await?;
-    fs::write(pkg_path.join("index.js"), content).await?;
-
-    let output = Command::new("yarn")
-        .current_dir(PACKAGES_DIR)
-        .arg("--offline")
-        .arg("--ignore-scripts")
-        .arg("run")
-        .arg("webpack")
-        .arg("--entry")
-        .arg(entry_path)
-        .arg("--output-filename")
-        .arg(Path::new(name).join("index.js"))
-        .output()
-        .await?;
-
-    if !output.status.success() {
-        return Err(anyhow!(
-            "Failed to build package: `{name}`: {}",
-            String::from_utf8(output.stderr)?
-        ));
-    }
-
-    read_package(name).await.map_err(Into::into)
-}
 
 /// Get or generate type declarations.
 pub async fn get_types(name: &str) -> anyhow::Result<(Files, Vec<String>)> {
@@ -91,8 +40,8 @@ pub async fn get_types(name: &str) -> anyhow::Result<(Files, Vec<String>)> {
 async fn read_types(name: &str) -> tokio::io::Result<(Files, Vec<String>)> {
     use tokio::fs;
 
-    let types_path = get_package_types_path(name);
-    let deps_path = get_package_type_dependencies_path(name);
+    let types_path = get_package_out_types_path(name);
+    let deps_path = get_package_out_type_dependencies_path(name);
     let types = fs::read(types_path)
         .await
         .map(|b| serde_json::from_slice(&b))??;
@@ -123,8 +72,11 @@ fn generate_types(name: &str) -> anyhow::Result<(Files, Vec<String>)> {
         let content = fs::read_to_string(&types_node_path)?;
         let files = convert_files(vec![(types_node_path, content)])?;
         fs::create_dir_all(get_package_out_path(name))?;
-        fs::write(get_package_types_path(name), serde_json::to_string(&files)?)?;
-        fs::write(get_package_type_dependencies_path(name), "[]")?;
+        fs::write(
+            get_package_out_types_path(name),
+            serde_json::to_string(&files)?,
+        )?;
+        fs::write(get_package_out_type_dependencies_path(name), "[]")?;
         return Ok((files, vec![]));
     }
 
@@ -151,7 +103,10 @@ fn generate_types(name: &str) -> anyhow::Result<(Files, Vec<String>)> {
 
         // Save type declarations
         fs::create_dir_all(get_package_out_path(name))?;
-        fs::write(get_package_types_path(name), serde_json::to_string(&files)?)?;
+        fs::write(
+            get_package_out_types_path(name),
+            serde_json::to_string(&files)?,
+        )?;
 
         // Get transitive dependencies that are being referenced in type declarations
         let mut deps = vec![];
@@ -183,7 +138,7 @@ fn generate_types(name: &str) -> anyhow::Result<(Files, Vec<String>)> {
 
         // Save type dependencies
         fs::write(
-            get_package_type_dependencies_path(name),
+            get_package_out_type_dependencies_path(name),
             serde_json::to_string(&deps)?,
         )?;
 
@@ -240,22 +195,22 @@ fn get_all_declaration_files(path: &Path) -> std::io::Result<Vec<(PathBuf, Strin
 }
 
 /// Get the relative `node_modules` path.
-fn get_node_modules_path() -> PathBuf {
+pub fn get_node_modules_path() -> PathBuf {
     Path::new(PACKAGES_DIR).join(NODE_MODULES)
 }
 
 /// Get the path to the directory that stores the output package.
-fn get_package_out_path(name: &str) -> PathBuf {
+pub fn get_package_out_path(name: &str) -> PathBuf {
     Path::new(PACKAGES_DIR).join(BUILD_DIR).join(name)
 }
 
-/// Get the path to the file that stores all types of the given package in a single file.
-fn get_package_types_path(name: &str) -> PathBuf {
+/// Get the path to the output file that stores all types of the given package in a single file.
+fn get_package_out_types_path(name: &str) -> PathBuf {
     get_package_out_path(name).join("types.json")
 }
 
-/// Get the path to the file that stores the package's type dependencies.
-fn get_package_type_dependencies_path(name: &str) -> PathBuf {
+/// Get the path to the output file that stores the package's type dependencies.
+fn get_package_out_type_dependencies_path(name: &str) -> PathBuf {
     get_package_out_path(name).join("dependencies.json")
 }
 

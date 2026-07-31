@@ -2,8 +2,7 @@ use anyhow::anyhow;
 use axum::{extract::Path, response::IntoResponse, Json};
 use serde::Deserialize;
 use serde_json::Value;
-
-use crate::{db, error::Result};
+use solpg_server::{db, Result};
 
 /// Collection name of shares in database
 const COLLECTION: &str = "share";

@@ -1,8 +1,7 @@
 use anyhow::anyhow;
 use axum::{extract::Path, response::IntoResponse};
+use solpg_server::{program, Result};
 use tokio::io;
-
-use crate::{error::Result, program};
 
 /// Get the program binary.
 ///

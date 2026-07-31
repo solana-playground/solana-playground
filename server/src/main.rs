@@ -1,12 +1,7 @@
-mod config;
-mod db;
-mod error;
-mod log;
 mod middlewares;
-mod package;
-mod program;
 mod routes;
-mod utils;
+#[cfg(feature = "unstable")]
+mod setup;
 
 use std::net::{Ipv4Addr, SocketAddr};
 
@@ -16,15 +11,23 @@ use axum::{
     routing::{get, post},
     Router,
 };
+use solpg_server::{
+    db,
+    log::{self, info},
+    Config,
+};
 use tokio::net::TcpListener;
 
-use self::{config::Config, log::info, middlewares::*, routes::*};
+use self::{middlewares::*, routes::*};
 
 #[tokio::main]
 async fn main() -> Result<()> {
     let config = Config::from_env();
     log::init(config.verbose);
     info!("Config loaded: {config:#?}");
+
+    #[cfg(feature = "unstable")]
+    setup::setup().await?;
 
     db::init(&config.db_uri, config.db_name).await?;
     info!("DB initialized");
