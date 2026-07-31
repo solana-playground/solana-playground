@@ -63,6 +63,8 @@ WORKDIR /home/${USER}
 
 # Copy programs dir and build the default program
 COPY --chown=${USER}:${USER} programs programs
+# Cloud Build's legacy builder strips the owner write bit from context files; the server rewrites programs/<id>/Cargo.toml at runtime
+RUN chmod -R u+w programs
 RUN cargo-build-sbf --manifest-path programs/Cargo.toml
 
 # Start server
