@@ -61,7 +61,7 @@ export class BpfLoaderUpgradeable {
     opts?: {
       loadConcurrency?: number;
       abortController?: AbortController;
-      onWrite?: (offset: number) => void;
+      onWrite?: (current: number, total: number) => void;
       onMissing?: (missingCount: number) => void;
       onRateLimit?: (retryAfter: number) => void;
     } & WalletOption
@@ -92,10 +92,13 @@ export class BpfLoaderUpgradeable {
       { computeUnitLimit: PgWeb3.MAX_COMPUTE_UNIT_LIMIT, wallet }
     );
 
-    const loadBuffer = async (indices: number[], isMissing?: boolean) => {
-      if (isMissing) opts?.onMissing?.(indices.length);
+    const loadBuffer = async (missingIndices: number[]) => {
+      if (missingIndices.length < indices.length) {
+        opts?.onMissing?.(missingIndices.length);
+      }
 
       let i = 0;
+      let successCount = 0;
       let lastTxHash: string | undefined;
       let isRateLimited = false;
       await Promise.all(
@@ -104,7 +107,7 @@ export class BpfLoaderUpgradeable {
             if (opts?.abortController?.signal.aborted) return;
             if (isRateLimited) break;
 
-            const offset = indices[i] * WRITE_CHUNK_SIZE;
+            const offset = missingIndices[i] * WRITE_CHUNK_SIZE;
             i++;
             const endOffset = offset + WRITE_CHUNK_SIZE;
             const slice = programBytes.slice(offset, endOffset);
@@ -119,7 +122,10 @@ export class BpfLoaderUpgradeable {
 
             try {
               lastTxHash = await PgTx.send(ix, { wallet, computeUnitLimit });
-              if (!isMissing) opts?.onWrite?.(endOffset);
+              successCount++;
+              const total = indices.length;
+              const current = total - missingIndices.length + successCount;
+              opts?.onWrite?.(current, total);
             } catch (e: any) {
               if (isRateLimited) break;
 
@@ -174,7 +180,6 @@ export class BpfLoaderUpgradeable {
 
     const txCount = Math.ceil(programBytes.length / WRITE_CHUNK_SIZE);
     const indices = new Array(txCount).fill(null).map((_, i) => i);
-    let isMissing = false;
 
     // Retry until all bytes are written
     while (1) {
@@ -202,8 +207,7 @@ export class BpfLoaderUpgradeable {
         const onChainSlice = onChainProgramBytes.slice(start, end);
         return !actualSlice.equals(onChainSlice);
       });
-      await loadBuffer(missingIndices, isMissing);
-      isMissing = true;
+      await loadBuffer(missingIndices);
     }
   }
 

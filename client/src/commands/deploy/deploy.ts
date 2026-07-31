@@ -106,11 +106,11 @@ async function checkProgram() {
 
     if (!PgProgramInfo.kp.publicKey.equals(PgProgramInfo.pk)) {
       throw new Error(
-        `Entered program id doesn't match the program id derived from program's keypair.
+        `Entered program ID doesn't match the program ID derived from program's keypair.
 You can fix this in 3 different ways:
 
-1. Remove the custom program id from ${PgTerminal.bold("Program ID")}
-2. Import the program keypair for the current program id
+1. Remove the custom program ID from ${PgTerminal.bold("Program ID")}
+2. Import the program keypair for the current program ID
 3. Create a new program keypair`
       );
     }
@@ -255,8 +255,9 @@ const processDeploy = async () => {
     programData,
     {
       wallet: pgWallet,
-      onWrite: (offset) =>
-        PgView.setMainSecondaryProgress((offset / programLen) * 100),
+      onWrite: (current, total) => {
+        PgView.setMainSecondaryProgress((current / total) * 100);
+      },
       onMissing: (missingCount) => {
         PgTerminal.println(
           `Warning: ${PgTerminal.bold(
