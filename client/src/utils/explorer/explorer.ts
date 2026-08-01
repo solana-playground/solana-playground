@@ -75,6 +75,7 @@ export class PgExplorer {
   }
 
   /** Get current file path */
+  // TODO: Make this a regular method (implicit getter may cause bugs)
   static get currentFilePath() {
     // Do not use `Array.at` because it gives incorrect results when there is no
     // current file (`this._currentIndex === -1`)
@@ -778,9 +779,15 @@ export class PgExplorer {
     }
 
     // Update tabs and the current index
-    if (this.currentFilePath) {
+    //
+    // NOTE: This is actually required to be stored because removing the tab
+    // may make `this.currentFilePath` `undefined`, which then makes the current
+    // index `-1`. Custom getter is the source of the problem, as it makes it
+    // hard to spot when the value changed.
+    const currentFilePath = this.currentFilePath;
+    if (currentFilePath) {
       this._explorer.tabs.splice(this.tabs.indexOf(path), 1);
-      this._explorer.currentIndex = this.tabs.indexOf(this.currentFilePath);
+      this._explorer.currentIndex = this.tabs.indexOf(currentFilePath);
     }
 
     PgCommon.createAndDispatchCustomEvent(this.events.ON_DID_CLOSE_FILE);
