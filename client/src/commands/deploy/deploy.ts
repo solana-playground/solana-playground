@@ -60,7 +60,7 @@ export const deploy = createCmd({
 
 /** Check whether the state is valid for deployment. */
 async function checkProgram() {
-  if (!PgProgramInfo.uuid && !PgProgramInfo.importedProgram?.buffer.length) {
+  if (!PgProgramInfo.uuid && !PgProgramInfo.importedProgram?.bytes.length) {
     PgTerminal.println("Warning: Program is not built.");
     await PgCommand.build.execute();
   }
@@ -70,7 +70,7 @@ async function checkProgram() {
   // to proceed with the deployment using the server-cached binary.
   if (
     PgProgramInfo.lastBuildFailed &&
-    !PgProgramInfo.importedProgram?.buffer.length
+    !PgProgramInfo.importedProgram?.bytes.length
   ) {
     PgTerminal.println(
       "Warning: Your last build failed. Deploying now will upload the last successful build, not the current sources."
@@ -132,7 +132,7 @@ Your address: ${PgWallet.current!.publicKey}`);
 /** Deploy the current program. */
 const processDeploy = async () => {
   const programData =
-    PgProgramInfo.importedProgram?.buffer ??
+    PgProgramInfo.importedProgram?.bytes ??
     (await PgServer.deploy(PgProgramInfo.uuid!));
   const programLen = programData.length;
 

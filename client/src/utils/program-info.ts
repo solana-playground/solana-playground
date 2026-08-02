@@ -28,7 +28,7 @@ type ProgramInfo = Nullable<{
   idl: Idl;
   /** Imported program binary file */
   importedProgram: {
-    buffer: Buffer;
+    bytes: Uint8Array;
     fileName: string;
   };
   /** Whether the last build failed */

@@ -22,7 +22,7 @@ const Deploy = () => {
   const hasProgramKp = !!programInfo.kp;
   const hasUuid = !!programInfo.uuid;
   const importedProgram = programInfo.importedProgram;
-  const isImportedProgram = !!importedProgram?.buffer.length;
+  const isImportedProgram = !!importedProgram?.bytes.length;
 
   const wallet = useWallet();
   const hasAuthority = wallet

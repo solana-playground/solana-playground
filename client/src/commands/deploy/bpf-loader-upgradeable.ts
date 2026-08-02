@@ -56,8 +56,7 @@ export class BpfLoaderUpgradeable {
   /** Load programData to the initialized buffer account. */
   static async loadBuffer(
     bufferPk: PgWeb3.PublicKey,
-    // TODO: Remove `Buffer`
-    bytes: Uint8Array | Buffer,
+    bytes: Uint8Array,
     opts?: {
       loadConcurrency?: number;
       abortController?: AbortController;
@@ -66,7 +65,7 @@ export class BpfLoaderUpgradeable {
       onRateLimit?: (retryAfter: number) => void;
     } & WalletOption
   ) {
-    const programBytes = bytes instanceof Buffer ? bytes : Buffer.from(bytes);
+    const programBytes = Buffer.from(bytes);
     const { wallet } = this._getOptions(opts);
     const { loadConcurrency } = PgCommon.setDefault(opts, {
       loadConcurrency: 8,
