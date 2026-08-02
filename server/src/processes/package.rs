@@ -1,10 +1,10 @@
 use std::{
     env,
-    path::{Path, PathBuf},
+    path::{Path, PathBuf, MAIN_SEPARATOR},
 };
 
 use anyhow::{anyhow, Result};
-use solpg_server::package::{get_node_modules_path, BUILD_DIR, PACKAGES_DIR};
+use solpg_server::package::{get_build_path, get_node_modules_path, PACKAGES_DIR};
 use tokio::{fs, process::Command};
 
 #[tokio::main]
@@ -35,7 +35,8 @@ export * from "{name}";"#
         .arg(
             out.to_str()
                 .ok_or_else(|| anyhow!("Invalid out path: {out:?}"))?
-                .trim_start_matches(&format!("{PACKAGES_DIR}/{BUILD_DIR}/")),
+                .trim_start_matches(get_build_path().to_str().expect("Always valid"))
+                .trim_start_matches(MAIN_SEPARATOR),
         )
         .output()
         .await?;

@@ -35,3 +35,8 @@ uuid = { version = "1.23.1", features = ["v4", "fast-rng"] }
 name = "package"
 path = "src/processes/package.rs"
 required-features = ["unstable"]
+
+[[bin]]
+name = "types"
+path = "src/processes/types.rs"
+required-features = ["unstable"]
