@@ -26,10 +26,10 @@ docker compose -f ../compose.yaml --profile dev up --build
 
 ### Standalone (client only, without the server)
 
-To run only the client without building or depending on the server, use the `standalone` profile. The client will use the production API (`https://api.solpg.io`) instead of a local server:
+To run only the client without building or depending on the server, use the `client-standalone` profile. The client will use the production API (`https://api.solpg.io`) instead of a local server:
 
 ```sh
-docker compose -f ../compose.yaml --profile standalone up --build
+docker compose -f ../compose.yaml --profile client-standalone up --build
 ```
 
 See the [root README](../README.md#run-with-docker) for more options.
