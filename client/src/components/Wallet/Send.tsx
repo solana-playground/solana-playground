@@ -78,7 +78,10 @@ const SendExpanded = () => {
     });
   };
 
-  useKeybind("Enter", send);
+  // Make sure `Enter` is usable elsewhere, e.g. editor new line
+  //
+  // TODO: Only run when either of the inputs are in focus
+  useKeybind("Enter", { handle: send, opts: { noPreventDefault: true } });
 
   return (
     <ExpandedWrapper>
