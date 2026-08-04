@@ -1,14 +1,13 @@
 use std::{
-    env,
+    env, fs,
     path::{Path, PathBuf, MAIN_SEPARATOR},
+    process::Command,
 };
 
 use anyhow::{anyhow, Result};
 use solpg_server::package::{get_build_path, get_node_modules_path, PACKAGES_DIR};
-use tokio::{fs, process::Command};
 
-#[tokio::main]
-async fn main() -> Result<()> {
+fn main() -> Result<()> {
     let args = Args::from_env()?;
     let name = &args.name;
     let out = &args.out;
@@ -20,8 +19,8 @@ async fn main() -> Result<()> {
 export default mod.default ?? mod;
 export * from "{name}";"#
     );
-    fs::create_dir_all(&pkg_path).await?;
-    fs::write(pkg_path.join("index.js"), content).await?;
+    fs::create_dir_all(&pkg_path)?;
+    fs::write(pkg_path.join("index.js"), content)?;
 
     let output = Command::new("yarn")
         .current_dir(PACKAGES_DIR)
@@ -38,8 +37,7 @@ export * from "{name}";"#
                 .trim_start_matches(get_build_path().to_str().expect("Always valid"))
                 .trim_start_matches(MAIN_SEPARATOR),
         )
-        .output()
-        .await?;
+        .output()?;
 
     if !output.status.success() {
         return Err(anyhow!(
