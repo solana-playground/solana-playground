@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import styled, { css } from "styled-components";
 
 import Button from "../Button";
@@ -78,20 +78,32 @@ const SendExpanded = () => {
     });
   };
 
-  // Make sure `Enter` is usable elsewhere, e.g. editor new line
-  //
-  // TODO: Only run when either of the inputs are in focus
-  useKeybind("Enter", { handle: send, opts: { noPreventDefault: true } });
+  const recipientInputRef = useRef<HTMLInputElement>(null);
+  const amountInputRef = useRef<HTMLInputElement>(null);
+  useKeybind("Enter", {
+    handle: () => {
+      // Only send if one of the inputs is in focus
+      switch (document.activeElement) {
+        case recipientInputRef.current:
+        case amountInputRef.current:
+          return send();
+      }
+    },
+    // Make `Enter` usable elsewhere (e.g. editor new line)
+    opts: { noPreventDefault: true },
+  });
 
   return (
     <ExpandedWrapper>
       <ExpandedInput
+        ref={recipientInputRef}
         value={recipient}
         onChange={(ev) => setRecipient(ev.target.value)}
         validator={PgCommon.isPk}
         placeholder="Recipient address"
       />
       <ExpandedInput
+        ref={amountInputRef}
         value={amount}
         onChange={(ev) => setAmount(ev.target.value)}
         validator={(input) => {
