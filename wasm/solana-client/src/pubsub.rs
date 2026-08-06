@@ -206,7 +206,7 @@ impl WasmClient {
     ///
     /// This method corresponds directly to the [`accountSubscribe`] RPC method.
     ///
-    /// [`accountSubscribe`]: https://docs.solana.com/api/websocket#accountsubscribe
+    /// [`accountSubscribe`]: https://solana.com/docs/rpc/websocket/accountsubscribe
     pub async fn account_subscribe<F>(&self, pubkey: Pubkey, cb: F) -> SubscriptionId
     where
         F: Fn(GetAccountInfoResponse) + Send + 'static,
@@ -230,7 +230,7 @@ impl WasmClient {
     ///
     /// This method corresponds directly to the [`accountSubscribe`] RPC method.
     ///
-    /// [`accountSubscribe`]: https://docs.solana.com/api/websocket#accountsubscribe
+    /// [`accountSubscribe`]: https://solana.com/docs/rpc/websocket/accountsubscribe
     pub async fn account_subscribe_with_config<F>(
         &self,
         pubkey: Pubkey,
@@ -260,7 +260,7 @@ impl WasmClient {
     ///
     /// This method corresponds directly to the [`blockSubscribe`] RPC method.
     ///
-    /// [`blockSubscribe`]: https://docs.solana.com/api/websocket#blocksubscribe
+    /// [`blockSubscribe`]: https://solana.com/docs/rpc/websocket/blocksubscribe
     pub async fn block_subscribe<F>(
         &self,
         filter: RpcBlockSubscribeFilter,
@@ -283,7 +283,7 @@ impl WasmClient {
     ///
     /// This method corresponds directly to the [`logsSubscribe`] RPC method.
     ///
-    /// [`logsSubscribe`]: https://docs.solana.com/api/websocket#logssubscribe
+    /// [`logsSubscribe`]: https://solana.com/docs/rpc/websocket/logssubscribe
     pub async fn logs_subscribe<F>(
         &self,
         filter: RpcTransactionLogsFilter,
@@ -307,7 +307,7 @@ impl WasmClient {
     ///
     /// This method corresponds directly to the [`programSubscribe`] RPC method.
     ///
-    /// [`programSubscribe`]: https://docs.solana.com/api/websocket#programsubscribe
+    /// [`programSubscribe`]: https://solana.com/docs/rpc/websocket/programsubscribe
     pub async fn program_subscribe<F>(
         &self,
         pubkey: &Pubkey,
@@ -338,7 +338,7 @@ impl WasmClient {
     ///
     /// This method corresponds directly to the [`voteSubscribe`] RPC method.
     ///
-    /// [`voteSubscribe`]: https://docs.solana.com/api/websocket#votesubscribe
+    /// [`voteSubscribe`]: https://solana.com/docs/rpc/websocket/votesubscribe
     pub async fn vote_subscribe<F>(&self, cb: F) -> SubscriptionId
     where
         F: Fn(RpcVote) + Send + 'static,
@@ -358,7 +358,7 @@ impl WasmClient {
     ///
     /// This method corresponds directly to the [`signatureSubscribe`] RPC method.
     ///
-    /// [`signatureSubscribe`]: https://docs.solana.com/api/websocket#signaturesubscribe
+    /// [`signatureSubscribe`]: https://solana.com/docs/rpc/websocket/signaturesubscribe
     pub async fn signature_subscribe<F>(
         &self,
         signature: &Signature,
@@ -385,7 +385,7 @@ impl WasmClient {
     ///
     /// This method corresponds directly to the [`slotSubscribe`] RPC method.
     ///
-    /// [`slotSubscribe`]: https://docs.solana.com/api/websocket#slotsubscribe
+    /// [`slotSubscribe`]: https://solana.com/docs/rpc/websocket/slotsubscribe
     pub async fn slot_subscribe<F>(&self, cb: F) -> SubscriptionId
     where
         F: Fn(SlotInfo) + Send + 'static,
@@ -406,7 +406,7 @@ impl WasmClient {
     ///
     /// This method corresponds directly to the [`slotUpdatesSubscribe`] RPC method.
     ///
-    /// [`slotUpdatesSubscribe`]: https://docs.solana.com/api/websocket#slotsubscribe
+    /// [`slotUpdatesSubscribe`]: https://solana.com/docs/rpc/websocket/slotsupdatessubscribe
     pub async fn slot_updates_subscribe<F>(&self, cb: F) -> SubscriptionId
     where
         F: Fn(SlotUpdate) + Send + 'static,

@@ -141,9 +141,6 @@ ${programName} = "${PgProgramInfo.pk.toBase58()}"`
     : ""
 }
 
-[registry]
-url = "https://api.apr.dev"
-
 [provider]
 cluster = "Localnet"
 wallet = "~/.config/solana/id.json"

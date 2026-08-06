@@ -2,7 +2,7 @@
 
 - Install tools
 
-Instructions on how to install [Solana](https://github.com/solana-labs/solana) can be found [here](https://docs.solana.com/cli/install-solana-cli-tools).
+Instructions on how to install [Solana](https://github.com/solana-labs/solana) can be found [here](https://solana.com/docs/intro/installation).
 
 - Install dependencies
 

@@ -17,8 +17,8 @@ export const native = createFramework({
     // is to make everything that works in a local Node environment work in
     // Playground without any modifications.
     // TODO: Implement `fs` and `os` modules.
-    // url: "https://github.com/solana-developers/program-examples/tree/main/basics/hello-solana/native",
-    url: "https://github.com/solana-developers/program-examples/tree/main/basics/hello-solana/native/program",
+    // url: "https://github.com/solana-foundation/program-examples/tree/main/basics/hello-solana/native",
+    url: "https://github.com/solana-foundation/program-examples/tree/main/basics/hello-solana/native/program",
   },
   getIsCurrent: (files) => {
     for (const [path, content] of files) {
