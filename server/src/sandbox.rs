@@ -19,17 +19,20 @@ pub struct Sandbox<'a> {
 
 impl<'a> Sandbox<'a> {
     /// Create a new [`Sandbox`] instance.
+    #[must_use]
     pub fn new() -> Self {
         Self::default()
     }
 
     /// Set the timeout limit for the overall process.
+    #[must_use]
     pub fn timeout(mut self, timeout: u64) -> Self {
         self.cfg.timeout.replace(timeout);
         self
     }
 
     /// Set the Docker image.
+    #[must_use]
     pub fn image(mut self, image: impl ToString) -> Self {
         self.cfg.image.replace(image.to_string());
         self
@@ -37,30 +40,35 @@ impl<'a> Sandbox<'a> {
 
     /// Set the Docker image user (inside the container).
     // TODO: Make it default to what the image sets `USER` to (Docker defaults to `root`).
+    #[must_use]
     pub fn user(mut self, user: impl ToString) -> Self {
         self.cfg.user.replace(user.to_string());
         self
     }
 
     /// Set the CPU (cores) limit.
+    #[must_use]
     pub fn cpu_limit(mut self, cpu_limit: usize) -> Self {
         self.cfg.cpu_limit.replace(cpu_limit);
         self
     }
 
     /// Set the memory limit.
+    #[must_use]
     pub fn memory_limit(mut self, memory_limit: usize) -> Self {
         self.cfg.memory_limit.replace(memory_limit);
         self
     }
 
     /// Set the process (PIDs) limit.
+    #[must_use]
     pub fn process_limit(mut self, process_limit: usize) -> Self {
         self.cfg.process_limit.replace(process_limit);
         self
     }
 
     /// Command to run in a sandboxed environment.
+    #[must_use]
     pub fn command(mut self, cmd: &'a Command) -> Self {
         self.actions.push(Action::Run(cmd));
         self
@@ -73,6 +81,7 @@ impl<'a> Sandbox<'a> {
     /// # Arguments
     ///
     /// Regular paths with container being special-cased as: `container:<path>`.
+    #[must_use]
     pub fn copy<P1, P2>(mut self, src: P1, dst: P2) -> Self
     where
         P1: AsRef<Path>,
