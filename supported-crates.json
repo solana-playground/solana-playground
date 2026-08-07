@@ -15,6 +15,7 @@
   "pyth-sdk-solana": "0.8.0",
   "serde": "1.0.193",
   "solana-program": "1.16.24",
+  "solana-security-txt": "1.1.1",
   "spl-account-compression": "0.2.0",
   "spl-associated-token-account": "2.2.0",
   "spl-pod": "0.1.0",
