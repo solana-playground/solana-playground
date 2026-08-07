@@ -77,7 +77,7 @@ export class PgRouter {
         disposable = (await route?.handle(params!))!;
       } catch (e: any) {
         console.log("ROUTE ERROR:", e.message);
-        this.navigate();
+        this.navigate(PgCommon.joinPaths("/error", path));
       }
     });
   }
