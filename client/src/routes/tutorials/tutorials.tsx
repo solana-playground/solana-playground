@@ -54,13 +54,10 @@ const handleTutorial = (name: string, page: string) => {
   if (!tutorial) {
     return handleRoute({
       main: {
-        name: "NotFound",
+        name: "Error",
         props: {
           text: `Tutorial not found: ${PgCommon.toTitleFromKebab(name)}`,
-          navigate: {
-            name: "See all tutorials",
-            path: "/tutorials",
-          },
+          navigation: { name: "See all tutorials", path: "/tutorials" },
         },
       },
       sidebar: {

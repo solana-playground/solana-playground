@@ -8,25 +8,25 @@ import { PgRouter } from "../../../../utils";
 
 interface ErrorProps {
   text: string;
-  navigate?: {
+  navigation?: {
     name: string;
     path: RoutePath;
   };
 }
 
-const Error: FC<ErrorProps> = ({ text, navigate }) => (
+const Error: FC<ErrorProps> = ({ text, navigation }) => (
   <Wrapper>
     <Text kind="error" icon={<ErrorIcon />}>
       {text}
     </Text>
 
     <ButtonsWrapper>
-      {navigate && (
+      {navigation && (
         <Button
           kind="primary-transparent"
-          onClick={() => PgRouter.navigate(navigate.path)}
+          onClick={() => PgRouter.navigate(navigation.path)}
         >
-          {navigate.name}
+          {navigation.name}
         </Button>
       )}
 
