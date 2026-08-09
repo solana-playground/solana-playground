@@ -80,13 +80,16 @@ const SendExpanded = () => {
 
   const recipientInputRef = useRef<HTMLInputElement>(null);
   const amountInputRef = useRef<HTMLInputElement>(null);
+  const sendButtonRef = useRef<HTMLButtonElement>(null);
   useKeybind("Enter", {
     handle: () => {
       // Only send if one of the inputs is in focus
       switch (document.activeElement) {
         case recipientInputRef.current:
         case amountInputRef.current:
-          return send();
+          // Click the button instead of calling `send` manually, as the latter
+          // does not handle button state (e.g. loading)
+          sendButtonRef.current?.click();
       }
     },
     // Make `Enter` usable elsewhere (e.g. editor new line)
@@ -117,6 +120,7 @@ const SendExpanded = () => {
         placeholder="SOL amount"
       />
       <ExpandedButton
+        ref={sendButtonRef}
         onClick={send}
         disabled={disabled}
         loading={{ text: "Sending..." }}
