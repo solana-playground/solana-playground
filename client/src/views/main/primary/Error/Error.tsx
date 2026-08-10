@@ -3,7 +3,7 @@ import styled from "styled-components";
 
 import Button from "../../../../components/Button";
 import Text from "../../../../components/Text";
-import { Error as ErrorIcon } from "../../../../components/Icons";
+import { Error as ErrorIcon, Home } from "../../../../components/Icons";
 import { PgRouter } from "../../../../utils";
 
 interface ErrorProps {
@@ -30,7 +30,9 @@ const Error: FC<ErrorProps> = ({ text, navigation }) => (
         </Button>
       )}
 
-      <Button onClick={() => PgRouter.navigate()}>Go home</Button>
+      <Button onClick={() => PgRouter.navigate()} leftIcon={<Home />}>
+        Go home
+      </Button>
     </ButtonsWrapper>
   </Wrapper>
 );
