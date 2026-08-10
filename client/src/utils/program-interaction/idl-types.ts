@@ -551,7 +551,7 @@ const f64 = createIdlType({
   },
   toBuffer: (value) => {
     const buf = Buffer.alloc(8);
-    buf.writeFloatLE(value);
+    buf.writeDoubleLE(value);
     return buf;
   },
   generateRandom: () => Math.random().toString(),
