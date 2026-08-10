@@ -2,6 +2,8 @@ import webpack from "webpack";
 import path from "path";
 import { createRequire } from "module";
 
+import PgImportChunkPlugin from "./plugins/pg-import-chunk.js";
+
 const require = createRequire(import.meta.url);
 
 export default {
@@ -9,14 +11,18 @@ export default {
   target: ["web", "es2020"],
   output: {
     library: { type: "module" },
+    chunkLoading: "import", // required for `PgImportChunkPlugin`
   },
   experiments: {
     outputModule: true,
   },
-  // Resolve Node polyfills
   plugins: [
+    // Resolve Node polyfills
     new webpack.ProvidePlugin({ Buffer: ["buffer", "Buffer"] }),
     new webpack.ProvidePlugin({ process: "process/browser" }),
+
+    // Playground chunk loader
+    new PgImportChunkPlugin(),
   ],
   resolve: {
     fallback: {

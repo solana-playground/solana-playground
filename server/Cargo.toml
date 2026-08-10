@@ -32,8 +32,8 @@ tracing-subscriber = { version = "0.3.23", features = ["env-filter"] }
 uuid = { version = "1.23.1", features = ["v4", "fast-rng"] }
 
 [[bin]]
-name = "package"
-path = "src/processes/package.rs"
+name = "bundle"
+path = "src/processes/bundle.rs"
 required-features = ["unstable"]
 
 [[bin]]

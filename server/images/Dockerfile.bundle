@@ -27,17 +27,18 @@ RUN cargo build --release
 
 # Actual build
 COPY src src
-RUN cargo build --release --bin package --features unstable
+RUN cargo build --release --bin bundle --features unstable
 
 FROM base AS final
 
 ARG USER
 
 # Copy files
-COPY --chown=${USER}:{USER} packages packages
+COPY --chown=${USER}:${USER} packages packages
 
 # Install dependencies
+# TODO: Remove and install in process
 RUN yarn --ignore-scripts --cwd packages
 
 # Copy the built binary
-COPY --from=binary ${HOME}/target/release/package /usr/local/bin/
+COPY --from=binary ${HOME}/target/release/bundle /usr/local/bin/

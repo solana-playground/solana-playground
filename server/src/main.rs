@@ -43,7 +43,7 @@ async fn main() -> Result<()> {
 
     let unstable_routes = if cfg!(feature = "unstable") {
         Router::new()
-            .route("/packages/{*name}", get(packages))
+            .route("/bundle", post(bundle))
             .route("/types/{*name}", get(types))
     } else {
         Router::new()

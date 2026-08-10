@@ -5,7 +5,7 @@ import { PgSettings } from "./settings";
 import type { TupleFiles } from "./explorer";
 
 /** Rust `Option` type */
-type Option<T> = T | null | undefined;
+type Option<T> = T | null;
 
 /** `/build` request */
 interface BuildRequest {
@@ -22,6 +22,14 @@ interface BuildRequest {
     /** Whether to enable Anchor safety checks */
     safetyChecks?: Option<boolean>;
   }>;
+}
+
+/** `/unstable/bundle` request */
+interface BundleRequest {
+  /** Package manifest file (`package.json`) */
+  manifest: string;
+  /** Package lock file */
+  lock?: Option<string>;
 }
 
 /** `/new` request */
@@ -45,15 +53,14 @@ export class PgServer {
       /** Build output */
       stderr: string;
       /** UUID of the program */
-      uuid: string | null;
+      uuid: Option<string>;
       /** Anchor IDL */
-      idl: Idl | null;
+      idl: Option<Idl>;
     }
 
     const response = await this._send("/build", {
       post: { body: JSON.stringify(req) },
     });
-
     return (await response.json()) as BuildResponse;
   }
 
@@ -73,21 +80,22 @@ export class PgServer {
   }
 
   /**
-   * Get the ESM package.
+   * Bundle ESM.
    *
-   * @param name package name
-   * @returns the package module
+   * @param req bundle request
+   * @returns the bundle response
    */
-  static async packages(name: string) {
-    const response = await this._send(`/unstable/packages/${name}`);
-    const text = await response.text();
-    const blob = new Blob([text], { type: "text/javascript" });
-    const blobUrl = URL.createObjectURL(blob);
-    try {
-      return await import(/* webpackIgnore: true */ blobUrl);
-    } finally {
-      URL.revokeObjectURL(blobUrl);
+  static async bundle(req: BundleRequest) {
+    interface BundleResponse {
+      bundle: TupleFiles;
+      manifest: string;
+      lock: Option<string>;
     }
+
+    const response = await this._send("/unstable/bundle", {
+      post: { body: JSON.stringify(req) },
+    });
+    return (await response.json()) as BundleResponse;
   }
 
   /**

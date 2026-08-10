@@ -24,6 +24,7 @@ server/packages/*
 !server/packages/package.json
 !server/packages/webpack.config.js
 !server/packages/yarn.lock
+!server/packages/plugins
 server/programs/*
 !server/programs/Cargo.*
 !server/programs/default

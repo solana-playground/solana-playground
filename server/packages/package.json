@@ -34,8 +34,5 @@
   "resolutions": {
     "@solana/buffer-layout": "^4.0.0",
     "typescript": "5.0.4"
-  },
-  "engines": {
-    "node": "=22.20.0"
   }
 }

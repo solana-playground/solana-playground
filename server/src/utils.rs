@@ -1,14 +1,34 @@
-use std::ops::{Deref, DerefMut};
+use std::{
+    ops::{Deref, DerefMut},
+    path::PathBuf,
+};
 
+use anyhow::{anyhow, Result};
 use serde::{Deserialize, Serialize};
 
 /// A vector of [`FileEntry`]
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Default, Deserialize, Serialize)]
 #[serde(transparent)]
 pub struct Files(Vec<FileEntry>);
 
 /// (Path, Content)
 type FileEntry = (String, String);
+
+impl TryFrom<Vec<(PathBuf, String)>> for Files {
+    type Error = anyhow::Error;
+    fn try_from(value: Vec<(PathBuf, String)>) -> Result<Self, Self::Error> {
+        value
+            .into_iter()
+            .map(|(path, content)| {
+                let path = path
+                    .to_str()
+                    .ok_or_else(|| anyhow!("Invalid path: {path:?}"))?
+                    .to_owned();
+                Ok((path, content))
+            })
+            .collect()
+    }
+}
 
 impl Deref for Files {
     type Target = Vec<FileEntry>;
