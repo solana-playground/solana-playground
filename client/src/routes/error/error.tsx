@@ -9,7 +9,7 @@ export const error = PgRouter.create({
         name: "Error",
         props: {
           text: `Unexpected error occured in path: ${path}`,
-          navigate: { name: "Go back", path },
+          navigation: { name: "Go back", path },
         },
       },
     }),
