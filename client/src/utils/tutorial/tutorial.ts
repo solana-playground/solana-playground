@@ -341,9 +341,10 @@ class _PgTutorial {
       }
 
       /** Relative path to the tutorial storage JSON file */
-      // TODO: Use a constant for `.workspace` (same directory is used in the
-      // explorer)
-      private static _PATH = ".workspace/tutorial-storage.json";
+      private static _PATH = PgCommon.joinPaths(
+        PgExplorer.PATHS.WORKSPACE_DIRNAME,
+        "tutorial-storage.json"
+      );
     }
 
     return new PgTutorialStorage();

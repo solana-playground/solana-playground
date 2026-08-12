@@ -55,7 +55,10 @@ const defaultState: ProgramInfo = {
 
 const storage = {
   /** Relative path to program info */
-  PATH: ".workspace/program-info.json",
+  PATH: PgCommon.joinPaths(
+    PgExplorer.PATHS.WORKSPACE_DIRNAME,
+    "program-info.json"
+  ),
 
   /** Read from storage and deserialize the data. */
   async read(): Promise<ProgramInfo> {

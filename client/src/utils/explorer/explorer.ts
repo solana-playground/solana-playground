@@ -1326,6 +1326,7 @@ export class PgExplorer {
     SRC_DIRNAME: "src",
     CLIENT_DIRNAME: "client",
     TESTS_DIRNAME: "tests",
+    WORKSPACE_DIRNAME: ".workspace",
   };
 
   /**

@@ -69,7 +69,10 @@ export class PgJsPackage {
 
   /** Known package-related paths */
   private static readonly _PATHS = {
-    INTERNAL_ROOT_DIR: PgCommon.joinPaths(".workspace", "js-packages"),
+    INTERNAL_ROOT_DIR: PgCommon.joinPaths(
+      PgExplorer.PATHS.WORKSPACE_DIRNAME,
+      "js-packages"
+    ),
     MANIFEST_FILE: "package.json",
     // TODO: Support `npm` and `pnpm`
     LOCK_FILE: "yarn.lock",
