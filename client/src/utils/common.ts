@@ -1210,16 +1210,6 @@ export class PgCommon {
   }
 
   /**
-   * Get the string without '/' prefix
-   *
-   * @param str string input
-   * @returns the string without slash prefix
-   */
-  static withoutPreSlash(str: string) {
-    return str[0] === "/" ? str.substring(1) : str;
-  }
-
-  /**
    * Join the paths without caring about incorrect '/' inside paths.
    *
    * @param paths paths to join
@@ -1227,7 +1217,7 @@ export class PgCommon {
    */
   static joinPaths(...paths: string[]) {
     return paths.reduce(
-      (acc, cur) => this.appendSlash(acc) + this.withoutPreSlash(cur)
+      (acc, p) => this.appendSlash(acc) + (p[0] === "/" ? p.substring(1) : p)
     );
   }
 
