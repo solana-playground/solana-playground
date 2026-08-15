@@ -87,33 +87,20 @@ export class PgServer {
    */
   static async bundle(req: BundleRequest) {
     interface BundleResponse {
+      /** Bundle files */
       bundle: TupleFiles;
+      /** Type declaration files */
+      types: TupleFiles;
+      /** Manifest file */
       manifest: string;
-      lock: Option<string>;
+      /** Lock file */
+      lock: string;
     }
 
     const response = await this._send("/unstable/bundle", {
       post: { body: JSON.stringify(req) },
     });
     return (await response.json()) as BundleResponse;
-  }
-
-  /**
-   * Get the package type declarations.
-   *
-   * @param name package name
-   * @returns the package module
-   */
-  static async types(name: string) {
-    interface TypesResponse {
-      /** Type declaration files */
-      files: TupleFiles;
-      /** Type dependencies */
-      dependencies: string[];
-    }
-
-    const response = await this._send(`/unstable/types/${name}`);
-    return (await response.json()) as TypesResponse;
   }
 
   /**

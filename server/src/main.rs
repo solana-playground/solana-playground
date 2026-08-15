@@ -42,9 +42,7 @@ async fn main() -> Result<()> {
         .route("/new", post(share_new));
 
     let unstable_routes = if cfg!(feature = "unstable") {
-        Router::new()
-            .route("/bundle", post(bundle))
-            .route("/types/{*name}", get(types))
+        Router::new().route("/bundle", post(bundle))
     } else {
         Router::new()
     };

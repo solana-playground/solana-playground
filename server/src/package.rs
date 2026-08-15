@@ -26,10 +26,10 @@ pub const LOCK_FILE: &str = "yarn.lock";
 pub const BUNDLE_FILE: &str = "bundle.json";
 
 /// Type declarations
-const TYPES_FILE: &str = "types.json";
+pub const TYPES_FILE: &str = "types.json";
 
 /// Type dependencies
-const DEPENDENCIES_FILE: &str = "dependencies.json";
+pub const DEPENDENCIES_FILE: &str = "dependencies.json";
 
 /// Get the relative `node_modules` path.
 pub fn get_node_modules_path() -> PathBuf {
@@ -39,19 +39,4 @@ pub fn get_node_modules_path() -> PathBuf {
 /// Get the path to the directory that stores the `webpack` build directory.
 pub fn get_build_path() -> PathBuf {
     Path::new(PACKAGES_DIR).join(BUILD_DIR)
-}
-
-/// Get the path to the directory that stores the output package.
-pub fn get_package_out_path(name: &str) -> PathBuf {
-    get_build_path().join(name)
-}
-
-/// Get the path to the output file that stores all types of the given package in a single file.
-pub fn get_package_out_types_path(name: &str) -> PathBuf {
-    get_package_out_path(name).join(TYPES_FILE)
-}
-
-/// Get the path to the output file that stores the package's type dependencies.
-pub fn get_package_out_type_dependencies_path(name: &str) -> PathBuf {
-    get_package_out_path(name).join(DEPENDENCIES_FILE)
 }

@@ -2,7 +2,7 @@ use anyhow::anyhow;
 use axum::{response::IntoResponse, Json};
 use serde::{Deserialize, Serialize};
 use solpg_server::{
-    package::{get_build_path, BUNDLE_FILE, LOCK_FILE, MANIFEST_FILE, PACKAGES_DIR},
+    package::{get_build_path, BUNDLE_FILE, LOCK_FILE, MANIFEST_FILE, PACKAGES_DIR, TYPES_FILE},
     utils::Files,
     Result, Sandbox,
 };
@@ -19,8 +19,10 @@ pub struct BundleRequest {
 
 #[derive(Serialize)]
 struct BundleResponse {
-    /// Bundle filess
+    /// Bundle files
     bundle: Files,
+    /// Type declaration files
+    types: Files,
     /// Package manifest (`package.json`)
     manifest: String,
     /// Lock file
@@ -31,12 +33,10 @@ struct BundleResponse {
 //
 // TODO: Concurrency limit
 // TODO: Cache
-// TODO: Types
 pub async fn bundle(Json(payload): Json<BundleRequest>) -> Result<impl IntoResponse> {
     let uuid = Uuid::new_v4();
     let container_path = get_build_path();
     let host_path = container_path.join(uuid.to_string());
-    // TODO: Make `Sandbox::copy` automatically create this
     fs::create_dir_all(&host_path)
         .await
         .map_err(|e| anyhow!("Failed to create host dir: {host_path:?}: {e}"))?;
@@ -88,6 +88,13 @@ pub async fn bundle(Json(payload): Json<BundleRequest>) -> Result<impl IntoRespo
         .map(|b| serde_json::from_slice::<Files>(&b))?
         .map_err(|e| anyhow!("Unexpected files for bundle: {e}"))?;
 
+    let types_path = host_path.join(TYPES_FILE);
+    let types = fs::read(types_path)
+        .await
+        .map_err(|e| anyhow!("Could not get files: {e}"))
+        .map(|b| serde_json::from_slice::<Files>(&b))?
+        .map_err(|e| anyhow!("Unexpected files for types: {e}"))?;
+
     let manifest = fs::read_to_string(manifest_path)
         .await
         .map_err(|e| anyhow!("Could not get manifest: {e}"))?;
@@ -98,6 +105,7 @@ pub async fn bundle(Json(payload): Json<BundleRequest>) -> Result<impl IntoRespo
 
     Ok(Json(BundleResponse {
         bundle,
+        types,
         manifest,
         lock,
     }))
