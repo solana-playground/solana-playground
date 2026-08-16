@@ -1,4 +1,5 @@
 import { PgCommon } from "./common";
+import { PgCompression } from "./compression";
 import { PgExplorer, TupleFiles } from "./explorer";
 import type { RequiredKey, SyncOrAsync } from "./types";
 
@@ -175,14 +176,7 @@ export class PgFramework {
     }
 
     // Compress Zip
-    const { default: JSZip } = await import("jszip");
-    const zip = new JSZip();
-    files.forEach(([path, content]) => {
-      const isFile = PgExplorer.getItemTypeFromName(path).file;
-      if (isFile) zip.file(path, content);
-      else zip.folder(path);
-    });
-    const blob = await zip.generateAsync({ type: "blob" });
+    const blob = await PgCompression.createZip(files);
     PgCommon.export(PgExplorer.currentWorkspaceName + ".zip", blob);
 
     return { readme } as { readme: C extends true ? string : undefined };
