@@ -1,4 +1,4 @@
-import { PgPackage } from "../../utils";
+import { PgWasmPackage } from "../../utils";
 import { createCmd } from "../create";
 import { checkPgWallet } from "../checks";
 
@@ -7,10 +7,9 @@ export const solana = createCmd({
   description: "Commands for interacting with Solana",
   preChecks: checkPgWallet,
   handle: async (input) => {
-    const { runSolana } = await PgPackage.import("solana-cli", {
+    const { runSolana } = await PgWasmPackage.import("solana-cli", {
       log: true,
     });
-
     await runSolana(input.raw);
   },
 });

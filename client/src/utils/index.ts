@@ -13,7 +13,6 @@ export * from "./js-package";
 export * from "./js-runtime/";
 export * from "./keybind";
 export * from "./language";
-export * from "./package";
 export * from "./playnet/";
 export * from "./program-info";
 export * from "./router";
@@ -27,6 +26,7 @@ export * from "./tx";
 export * from "./types";
 export * from "./view";
 export * from "./wallet/";
+export * from "./wasm-package";
 export * from "./web3/";
 
 export { initAll } from "./decorators";

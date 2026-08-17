@@ -13,11 +13,11 @@ interface ImportResult {
   "sugar-cli": typeof import("@solana-playground/sugar-cli");
 }
 
-/** All package names */
+/** All WASM package names */
 type PackageName = keyof ImportResult;
 
-/** Utility class to manage packages */
-export class PgPackage {
+/** WASM package manager */
+export class PgWasmPackage {
   /**
    * Import the given package asynchronously.
    *
@@ -39,7 +39,7 @@ export class PgPackage {
     } catch (e: any) {
       throw new Error(
         `Failed to load ${PgTerminal.bold(uiName)}. Reason: ${e.message}
-          
+
 If the problem continues, consider filing a bug report in ${PgTerminal.underline(
           GITHUB_URL + "/issues"
         )}`

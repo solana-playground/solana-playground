@@ -1,7 +1,7 @@
 import { PgPlaynetRpc } from "./rpc";
 import { PgCommon } from "../common";
 import { PgExplorer } from "../explorer";
-import { PgPackage } from "../package";
+import { PgWasmPackage } from "../wasm-package";
 import type { OverridableConnection } from "./types";
 
 export class PgPlaynet {
@@ -26,7 +26,7 @@ export class PgPlaynet {
     const saveData = await this._getSaveData();
 
     // Only load when Playnet needs to get initialized
-    const { Playnet } = await PgPackage.import("playnet");
+    const { Playnet } = await PgWasmPackage.import("playnet");
     const playnet = new Playnet(saveData);
     this._playnet = playnet;
 

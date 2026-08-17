@@ -1,4 +1,4 @@
-import { PgPackage } from "../../utils";
+import { PgWasmPackage } from "../../utils";
 import { createCmd } from "../create";
 import { checkPgWallet } from "../checks";
 
@@ -7,10 +7,9 @@ export const anchor = createCmd({
   description: "Anchor CLI",
   preChecks: checkPgWallet,
   handle: async (input) => {
-    const { runAnchor } = await PgPackage.import("anchor-cli", {
+    const { runAnchor } = await PgWasmPackage.import("anchor-cli", {
       log: true,
     });
-
     await runAnchor(input.raw);
   },
 });

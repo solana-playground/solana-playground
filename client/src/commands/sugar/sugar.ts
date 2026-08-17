@@ -1,4 +1,4 @@
-import { PgPackage } from "../../utils";
+import { PgWasmPackage } from "../../utils";
 import { createCmd } from "../create";
 import { checkPgWallet } from "../checks";
 
@@ -8,10 +8,7 @@ export const sugar = createCmd({
     "Command line tool for creating and managing Metaplex Candy Machines",
   preChecks: checkPgWallet,
   handle: async (input) => {
-    const { runSugar } = await PgPackage.import("sugar-cli", {
-      log: true,
-    });
-
+    const { runSugar } = await PgWasmPackage.import("sugar-cli", { log: true });
     await runSugar(input.raw);
   },
 });

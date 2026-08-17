@@ -10,11 +10,11 @@ import {
   PgEditor,
   PgExplorer,
   PgLanguage,
-  PgPackage,
   PgProgramInfo,
   PgSettings,
   PgTerminal,
   PgTheme,
+  PgWasmPackage,
 } from "../../../utils";
 import {
   useAsyncEffect,
@@ -454,7 +454,7 @@ const Monaco = () => {
           const model = editor.getModel();
           if (!model) return;
 
-          const { rustfmt } = await PgPackage.import("rustfmt");
+          const { rustfmt } = await PgWasmPackage.import("rustfmt");
 
           let result;
           try {

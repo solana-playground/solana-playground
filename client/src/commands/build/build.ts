@@ -3,11 +3,11 @@ import {
   PgExplorer,
   PgGlobal,
   PgLanguage,
-  PgPackage,
   PgProgramInfo,
   PgServer,
   PgSettings,
   PgTerminal,
+  PgWasmPackage,
   PgWeb3,
   TupleFiles,
 } from "../../utils";
@@ -177,7 +177,7 @@ const getBuildFiles = () => {
  * @returns the build response
  */
 const buildPython = async (pythonFiles: TupleFiles) => {
-  const { compileSeahorse } = await PgPackage.import("seahorse-compile");
+  const { compileSeahorse } = await PgWasmPackage.import("seahorse-compile");
 
   const rustFiles = pythonFiles.flatMap(([path, content]) => {
     const seahorseProgramName =
