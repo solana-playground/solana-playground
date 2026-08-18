@@ -154,7 +154,7 @@ const processDeploy = async () => {
   // Get the balance required to deploy/upgrade (without fees)
   const programExists = PgProgramInfo.onChain!.deployed;
   const getAdditionalLen = programExists
-    ? () => getProgramDataAccountSize(programLen) - getOnChainProgramDataSize()
+    ? () => getAdditionalUpgradeLen(programLen)
     : () => 0;
   const additionalLen = getAdditionalLen();
   const requiredBalanceWithoutFees =
@@ -363,21 +363,26 @@ const processDeploy = async () => {
   );
 };
 
-/** {@link PgWeb3.BpfLoaderUpgradeableProgram.getProgramDataAccountSize} */
-const getProgramDataAccountSize = (
-  ...args: Parameters<
-    typeof PgWeb3.BpfLoaderUpgradeableProgram.getProgramDataAccountSize
-  >
-) => PgWeb3.BpfLoaderUpgradeableProgram.getProgramDataAccountSize(...args);
-
-/** Get the current program's on-chain program data account length */
-const getOnChainProgramDataSize = () => {
-  const programDataLen = PgProgramInfo.onChain?.programDataLen;
-  if (typeof programDataLen !== "number") {
+/**
+ * Get the additional length necessary for upgrades.
+ *
+ * This function takes [SIMD-0431] into account.
+ *
+ * [SIMD-0431]: https://github.com/solana-foundation/solana-improvement-documents/pull/431
+ */
+const getAdditionalUpgradeLen = (programLen: number) => {
+  const requiredLen =
+    PgWeb3.BpfLoaderUpgradeableProgram.getProgramDataAccountSize(programLen);
+  const actualLen = PgProgramInfo.onChain?.programDataLen;
+  if (typeof actualLen !== "number") {
     throw new Error("Failed to get program data length");
   }
 
-  return programDataLen;
+  const additionalLen = requiredLen - actualLen;
+  return Math.max(
+    additionalLen,
+    PgWeb3.BpfLoaderUpgradeableProgram.MINIMUM_EXTEND_PROGRAM_BYTES
+  );
 };
 
 /** Load buffer with the ability to pause, resume and cancel on demand. */

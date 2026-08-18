@@ -125,6 +125,17 @@ export class BpfLoaderUpgradeableProgram {
   /** Program data account size */
   static PROGRAM_DATA_METADATA_SIZE = 45; // `u64 + Option<Pubkey>`
 
+  /**
+   * Minimum number of bytes for an `extendProgram` instruction.
+   *
+   * After the SIMD-0431 feature gate is activated, `extendProgram` will reject
+   * requests smaller than this value, unless the program data account is within
+   * this many bytes of the max permitted data length of an account: 10 MiB.
+   *
+   * https://github.com/anza-xyz/solana-sdk/blob/822be4736ed01c4170740c804da3b22c39a2bfe7/loader-v3-interface/src/instruction.rs#L25
+   */
+  static MINIMUM_EXTEND_PROGRAM_BYTES = 10_240;
+
   /** Get buffer account size. */
   static getBufferAccountSize(programLen: number) {
     return this.BUFFER_METADATA_SIZE + programLen;
