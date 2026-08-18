@@ -1,6 +1,4 @@
-// TODO: Version
 // TODO: All packages and versions from NPM
-// TODO: Verify package names and versions are valid
 // TODO: Switch to `pnpm` without shared cache (simpler transition if we decide to use shared cache)
 // TODO: Use shared cache with `pnpm`? (shared cache is better for speed but worse for security)
 // TODO: Check if bundling client-side is feasible with a tool like `esbuild-wasm`?
@@ -30,11 +28,6 @@ pub const TYPES_FILE: &str = "types.json";
 
 /// Type dependencies
 pub const DEPENDENCIES_FILE: &str = "dependencies.json";
-
-/// Get the relative `node_modules` path.
-pub fn get_node_modules_path() -> PathBuf {
-    Path::new(PACKAGES_DIR).join(NODE_MODULES)
-}
 
 /// Get the path to the directory that stores the `webpack` build directory.
 pub fn get_build_path() -> PathBuf {

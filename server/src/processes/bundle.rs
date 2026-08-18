@@ -9,8 +9,8 @@ use anyhow::{anyhow, Result};
 use serde::{Deserialize, Serialize};
 use solpg_server::{
     package::{
-        get_build_path, get_node_modules_path, BUNDLE_FILE, DEPENDENCIES_FILE, MANIFEST_FILE,
-        NODE_MODULES, PACKAGES_DIR, TYPES_FILE,
+        get_build_path, BUNDLE_FILE, DEPENDENCIES_FILE, MANIFEST_FILE, NODE_MODULES, PACKAGES_DIR,
+        TYPES_FILE,
     },
     utils::Files,
 };
@@ -182,17 +182,15 @@ fn generate_package_types(name: &str) -> Result<()> {
     let pkg_roots = [&node_modules, &node_modules.join("@types")];
     for pkg_root in pkg_roots {
         let pkg_path = pkg_root.join(name);
-        let pkg_json = match fs::read(pkg_path.join("package.json")) {
-            Ok(b) => serde_json::from_slice::<serde_json::Value>(&b)?,
+        let manifest = match fs::read(pkg_path.join(MANIFEST_FILE)) {
+            Ok(b) => serde_json::from_slice::<Manifest>(&b)?,
             Err(e) if e.kind() == std::io::ErrorKind::NotFound => continue,
             Err(e) => return Err(anyhow!("Unexpected fs error: {e}")),
         };
-        let Some(types) = pkg_json.get("types") else {
-            continue;
-        };
 
-        let type_root = types
-            .as_str()
+        let type_root = manifest
+            .types
+            .as_ref()
             .ok_or_else(|| anyhow!("Unexpected `types` field: `{name}`"))
             .map(Path::new)
             .map(|type_root| pkg_path.join(type_root))?;
@@ -205,32 +203,19 @@ fn generate_package_types(name: &str) -> Result<()> {
         fs::write(types_path, serde_json::to_string(&files)?)?;
 
         // Get transitive dependencies that are being referenced in type declarations
-        let mut deps = vec![];
-        for dep_key in [
-            "dependencies",
-            "devDependencies",
-            "peerDependencies",
-            "optionalDependencies",
-        ] {
-            let Some(dep) = pkg_json.get(dep_key) else {
-                continue;
-            };
-            let Some(dep) = dep.as_object() else {
-                return Err(anyhow!("Unexpected dependency value: `{dep_key}`"));
-            };
-
-            for dep in dep
-                .keys()
-                // TODO: Make this more robust (if necesssary)
-                .filter(|dep| files.iter().any(|(_, content)| content.contains(*dep)))
-            {
-                // Not all dependencies have types
+        let deps = manifest
+            .get_all_dependencies()
+            .keys()
+            // TODO: Make this more robust (if necesssary)
+            .filter(|dep| files.iter().any(|(_, content)| content.contains(*dep)))
+            .fold(vec![], |mut acc, dep| {
                 match generate_package_types(dep) {
-                    Ok(_) => deps.push(dep.to_owned()),
-                    Err(e) => eprintln!("Failed to generate types for dependency `{dep}`: {e}"),
+                    Ok(_) => acc.push(dep.to_owned()),
+                    Err(e) => eprintln!("Failed to generate types for `{dep}`: {e}"),
                 }
-            }
-        }
+
+                acc
+            });
 
         // Save type dependencies
         fs::write(deps_path, serde_json::to_string(&deps)?)?;
@@ -242,8 +227,6 @@ fn generate_package_types(name: &str) -> Result<()> {
 }
 
 /// Get all type declaration files recursively.
-///
-/// This function is intentionally synchronous due to recursion.
 fn get_all_declaration_files(path: &Path) -> io::Result<Vec<(PathBuf, String)>> {
     let mut files = vec![];
     let initial_path = path;
@@ -327,4 +310,9 @@ fn extend_generated_types(types: &mut Vec<(PathBuf, String)>, path: &Path) -> Re
     }
 
     Ok(())
+}
+
+/// Get the relative `node_modules` path.
+fn get_node_modules_path() -> PathBuf {
+    Path::new(PACKAGES_DIR).join(NODE_MODULES)
 }
