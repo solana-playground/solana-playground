@@ -153,10 +153,7 @@ const processDeploy = async () => {
 
   // Get the balance required to deploy/upgrade (without fees)
   const programExists = PgProgramInfo.onChain!.deployed;
-  const getAdditionalLen = programExists
-    ? () => getAdditionalUpgradeLen(programLen)
-    : () => 0;
-  const additionalLen = getAdditionalLen();
+  const additionalLen = getAdditionalLen(programLen);
   const requiredBalanceWithoutFees =
     additionalLen > 0
       ? bufferBalance +
@@ -228,7 +225,7 @@ const processDeploy = async () => {
           { wallet: pgWallet }
         );
       },
-      () => getAdditionalLen() <= 0
+      () => getAdditionalLen(programLen) <= 0
     );
   }
 
@@ -366,19 +363,35 @@ const processDeploy = async () => {
 /**
  * Get the additional length necessary for upgrades.
  *
+ * The return value (`r`) can be interpreted as:
+ *
+ * - If `r < 0` : The program has `-r` amount of extra space - no need to extend
+ * - If `r == 0`: The program either has the exact space or hasn't been deployed
+ * - If `r > 0` : The program needs `r` amount of space for upgrade
+ *
  * This function takes [SIMD-0431] into account.
  *
  * [SIMD-0431]: https://github.com/solana-foundation/solana-improvement-documents/pull/431
  */
-const getAdditionalUpgradeLen = (programLen: number) => {
+const getAdditionalLen = (programLen: number) => {
+  if (!PgProgramInfo.onChain) {
+    throw new Error("Failed to get on-chain program info");
+  }
+
+  const deployed = PgProgramInfo.onChain.deployed;
+  if (!deployed) return 0;
+
   const requiredLen =
     PgWeb3.BpfLoaderUpgradeableProgram.getProgramDataAccountSize(programLen);
-  const actualLen = PgProgramInfo.onChain?.programDataLen;
-  if (typeof actualLen !== "number") {
+  const onChainLen = PgProgramInfo.onChain.programDataLen;
+  if (typeof onChainLen !== "number") {
     throw new Error("Failed to get program data length");
   }
 
-  const additionalLen = requiredLen - actualLen;
+  const additionalLen = requiredLen - onChainLen;
+  if (additionalLen <= 0) return additionalLen;
+
+  // SIMD-0431
   return Math.max(
     additionalLen,
     PgWeb3.BpfLoaderUpgradeableProgram.MINIMUM_EXTEND_PROGRAM_BYTES
