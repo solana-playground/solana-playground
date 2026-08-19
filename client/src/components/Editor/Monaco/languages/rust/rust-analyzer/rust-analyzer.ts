@@ -7,6 +7,7 @@ import {
   AsyncMethods,
   Disposable,
   PgCommon,
+  PgEditor,
   PgExplorer,
 } from "../../../../../../utils";
 
@@ -41,9 +42,11 @@ export const initRustAnalyzer = async (): Promise<Disposable> => {
   // unknown reasons. Retry until success in order to mitigate this problem.
   // The try interval should take into account the initial download time of the
   // Rust Analyzer WASM files(~9MB) on slower connections.
+  PgEditor.setRustAnalyzerStatus("Starting");
   state = await PgCommon.tryUntilSuccess(createWorker, 10000);
 
   // Initialize and load the default crates
+  PgEditor.setRustAnalyzerStatus("Loading default crates");
   await state.loadDefaultCrates(
     ...(await Promise.all([
       PgCommon.fetchText("/crates/core.rs"),
@@ -52,6 +55,7 @@ export const initRustAnalyzer = async (): Promise<Disposable> => {
     ]))
   );
 
+  PgEditor.setRustAnalyzerStatus("Loading workspace");
   const { dispose: disposeUpdateCurrentCrate } = await PgCommon.executeInitial(
     (cb) => {
       // Both `onDidInit` and `onDidSwitchWorkspace` is required to catch all
@@ -99,6 +103,9 @@ export const initRustAnalyzer = async (): Promise<Disposable> => {
   // Register providers at the end in order to avoid out of bound errors due to
   // a possible mismatch between the LSP and the client files before initialization
   const { dispose: disposeProviders } = registerProviders();
+
+  // Initialization is complete
+  PgEditor.setRustAnalyzerStatus(null);
 
   return {
     dispose: () => {
