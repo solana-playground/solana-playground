@@ -8,11 +8,8 @@ use std::path::{Path, PathBuf};
 /// Packages directory
 pub const PACKAGES_DIR: &str = "packages";
 
-/// Build directory (`webpack`)
-const BUILD_DIR: &str = "dist";
-
-/// The default directory of where the JS packages are stored
-pub const NODE_MODULES: &str = "node_modules";
+/// Process output directory
+const OUT_DIR: &str = "out";
 
 /// `package.json`
 pub const MANIFEST_FILE: &str = "package.json";
@@ -26,10 +23,7 @@ pub const BUNDLE_FILE: &str = "bundle.json";
 /// Type declarations
 pub const TYPES_FILE: &str = "types.json";
 
-/// Type dependencies
-pub const DEPENDENCIES_FILE: &str = "dependencies.json";
-
-/// Get the path to the directory that stores the `webpack` build directory.
-pub fn get_build_path() -> PathBuf {
-    Path::new(PACKAGES_DIR).join(BUILD_DIR)
+/// Get the path to the process output directory.
+pub fn get_out_path() -> PathBuf {
+    Path::new(PACKAGES_DIR).join(OUT_DIR)
 }

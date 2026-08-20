@@ -1,4 +1,7 @@
-packages/dist
-mongodb
+packages/*
+!packages/package.json
+!packages/webpack.config.js
+!packages/yarn.lock
+!packages/plugins
 target
 programs/target

@@ -9,8 +9,13 @@ const require = createRequire(import.meta.url);
 export default {
   mode: "production",
   target: ["web", "es2020"],
+  entry: {
+    /* <DYNAMIC_ENTRIES> */
+  },
   output: {
-    library: { type: "module" },
+    path: path.resolve("dist"), // already the default but keep for safety
+    filename: "[name]/bundle.js", // split each package to a its own dir
+    library: { type: "module" }, // required ESM
     chunkLoading: "import", // required for `PgImportChunkPlugin`
   },
   experiments: {

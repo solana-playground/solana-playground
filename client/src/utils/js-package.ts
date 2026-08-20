@@ -43,7 +43,9 @@ export class PgJsPackage {
    */
   static async import(name: string) {
     // TODO: Cache
-    const mod = await this.importChunk("bundle.js");
+    const mod = await this.importChunk(
+      PgCommon.joinPaths(name, this._PATHS.BUNDLE_FILE)
+    );
     const pkg = mod[this._toModuleName(name)];
     if (!pkg) throw new Error(`Failed to import: ${name}`);
     return pkg;
@@ -93,6 +95,7 @@ export class PgJsPackage {
     MANIFEST_FILE: "package.json",
     // TODO: Support `npm` and `pnpm`
     LOCK_FILE: "yarn.lock",
+    BUNDLE_FILE: "bundle.js",
     TYPES_FILE: "types.json",
     DEPENDENCIES_FILE: "dependencies.json",
   };

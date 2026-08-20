@@ -2,7 +2,7 @@ use anyhow::anyhow;
 use axum::{response::IntoResponse, Json};
 use serde::{Deserialize, Serialize};
 use solpg_server::{
-    package::{get_build_path, BUNDLE_FILE, LOCK_FILE, MANIFEST_FILE, PACKAGES_DIR, TYPES_FILE},
+    package::{get_out_path, BUNDLE_FILE, LOCK_FILE, MANIFEST_FILE, PACKAGES_DIR, TYPES_FILE},
     utils::Files,
     Result, Sandbox,
 };
@@ -35,7 +35,7 @@ struct BundleResponse {
 // TODO: Cache
 pub async fn bundle(Json(payload): Json<BundleRequest>) -> Result<impl IntoResponse> {
     let uuid = Uuid::new_v4();
-    let container_path = get_build_path();
+    let container_path = get_out_path();
     let host_path = container_path.join(uuid.to_string());
     fs::create_dir_all(&host_path)
         .await
@@ -57,10 +57,10 @@ pub async fn bundle(Json(payload): Json<BundleRequest>) -> Result<impl IntoRespo
         .image("solpg-server-sandbox-bundle")
         .user("solpg")
         // TODO: Set limits from config
-        .cpu_limit(3) // Diminishing returns after 3
-        .memory_limit(2 * 1024 * 1024 * 1024) // 2 GiB
+        .cpu_limit(4) // diminishing returns after 4
+        .memory_limit(4 * 1024 * 1024 * 1024) // 4 GiB (also affects speed)
         .process_limit(64)
-        .timeout(120)
+        .timeout(300)
         .copy(
             format!("{}/.", host_path.display()),
             format!("container:{PACKAGES_DIR}"),

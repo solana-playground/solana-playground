@@ -1,6 +1,7 @@
 use std::{
     collections::HashMap,
-    fs, io,
+    fs::{self, DirEntry},
+    io,
     path::{Path, PathBuf},
     process::Command,
 };
@@ -8,18 +9,13 @@ use std::{
 use anyhow::{anyhow, Result};
 use serde::{Deserialize, Serialize};
 use solpg_server::{
-    package::{
-        get_build_path, BUNDLE_FILE, DEPENDENCIES_FILE, MANIFEST_FILE, NODE_MODULES, PACKAGES_DIR,
-        TYPES_FILE,
-    },
+    package::{get_out_path, BUNDLE_FILE, LOCK_FILE, MANIFEST_FILE, PACKAGES_DIR, TYPES_FILE},
     utils::Files,
 };
 
 // TODO: Make the process output a single compressed archive with all the files in it
 fn main() -> Result<()> {
-    let manifest_path = Path::new(PACKAGES_DIR).join(MANIFEST_FILE);
-    let manifest = fs::read(manifest_path).map(|b| serde_json::from_slice(&b))??;
-    install_packages()?;
+    let manifest = install_packages()?;
     generate_bundle(&manifest)?;
     generate_types(&manifest)?;
     Ok(())
@@ -58,69 +54,79 @@ impl Manifest {
 type Dependencies = HashMap<String, String>;
 
 /// Install packages.
-fn install_packages() -> Result<()> {
-    // TODO: install
-    Ok(())
+fn install_packages() -> Result<Manifest> {
+    // TODO: Install
+    // TODO: Validate?
+
+    let packages_path = Path::new(PACKAGES_DIR);
+    let out_path = get_out_path();
+    fs::create_dir_all(&out_path)?;
+
+    let manifest_path = packages_path.join(MANIFEST_FILE);
+    fs::copy(&manifest_path, out_path.join(MANIFEST_FILE))?;
+
+    let lock_file_path = packages_path.join(LOCK_FILE);
+    fs::copy(lock_file_path, out_path.join(LOCK_FILE))?;
+
+    fs::read(manifest_path)
+        .map(|b| serde_json::from_slice(&b))?
+        .map_err(Into::into)
 }
 
 /// Generate an ESM bundle.
 fn generate_bundle(manifest: &Manifest) -> Result<()> {
-    let entry_path = Path::new(&manifest.name);
-    let pkg_path = get_node_modules_path().join(entry_path);
+    // Create a separate directory for each package
+    let packages_path = Path::new(PACKAGES_DIR);
+    let src_path = packages_path.join(SRC_DIR);
+    let mut entries = vec![];
     // TODO: Other deps (`optionalDependencies`...)
-    // TODO: Make packages lazy-loadable
-    // TODO: Bundle each package to a separate directory
-    let (imports, exports) = manifest
-        .dependencies
-        .keys()
-        .map(|pkg| (pkg, to_module_name(pkg)))
-        .fold(
-            (String::new(), String::new()),
-            |(mut imports, mut exports), (pkg, module)| {
-                imports.push_str(&format!(r#"import * as {module} from "{pkg}";"#));
+    for pkg in manifest.dependencies.keys() {
+        let module = to_module_name(pkg);
+        let pkg_path = src_path.join(pkg);
+        let entry_path = pkg_path.join("index.js");
+        fs::create_dir_all(&pkg_path)?;
+        fs::write(
+            &entry_path,
+            format!(r#"import * as {module} from "{pkg}"; export {{ {module} }}"#),
+        )?;
+        entries.push(format!(
+            r#""{pkg}": {:?}"#,
+            entry_path
+                .strip_prefix(PACKAGES_DIR)
+                .map(|entry| Path::new(".").join(entry))?
+        ));
+    }
 
-                if !exports.is_empty() {
-                    exports.push(',');
-                }
-                exports.push_str(&module);
+    // Add entries to the webpack config
+    let webpack_cfg_path = packages_path.join(WEBPACK_CONFIG_FILE);
+    let webpack_cfg = fs::read_to_string(&webpack_cfg_path)?
+        .replace("/* <DYNAMIC_ENTRIES> */", &entries.join(","));
+    fs::write(webpack_cfg_path, webpack_cfg)?;
 
-                (imports, exports)
-            },
-        );
-    fs::create_dir_all(&pkg_path)?;
-    fs::write(
-        pkg_path.join("index.js"),
-        format!(r#"{imports} export {{ {exports} }}"#),
-    )?;
-
-    // TODO: Create a separate entrypoint for each package for better lazy-loading
+    // TODO: Test `webpack` alternatives for faster builds
     let status = Command::new("yarn")
         .current_dir(PACKAGES_DIR)
         .arg("--offline")
         .arg("--ignore-scripts")
         .arg("run")
         .arg("webpack")
-        .arg("--entry")
-        .arg(entry_path)
-        .arg("--output-filename")
-        .arg("bundle.js")
         .status()?;
 
     if !status.success() {
         return Err(anyhow!("Failed to bundle"));
     }
 
-    let build_path = get_build_path();
-    let mut files = vec![];
-    for entry in fs::read_dir(&build_path)? {
-        let entry = entry?;
-        let path = entry.path();
-        let content = fs::read_to_string(&path)?;
-        let path = path.strip_prefix(&build_path)?.to_owned();
-        files.push((path, content));
-    }
-    let files = Files::try_from(files)?;
-    fs::write(build_path.join(BUNDLE_FILE), serde_json::to_string(&files)?)?;
+    let files = get_output_files(|entry| {
+        entry
+            .path()
+            .extension()
+            .map(|ext| ext == "js")
+            .unwrap_or_default()
+    })?;
+    fs::write(
+        get_out_path().join(BUNDLE_FILE),
+        serde_json::to_string(&files)?,
+    )?;
 
     Ok(())
 }
@@ -136,6 +142,42 @@ fn to_module_name(pkg_name: &str) -> String {
     pkg_name.replace(['@', '/', '-', '_', '.'], "")
 }
 
+/// Get the output files from the build directory.
+fn get_output_files<F>(filter: F) -> Result<Files>
+where
+    F: Fn(&DirEntry) -> bool,
+{
+    let build_path = get_build_path();
+    let mut files = vec![];
+    extend_files(&mut files, &build_path, &filter)?;
+    Files::try_from(files)
+}
+
+/// Recursively extend the given files from the output directory.
+fn extend_files<F>(files: &mut Vec<(PathBuf, String)>, path: &Path, filter: &F) -> Result<()>
+where
+    F: Fn(&DirEntry) -> bool,
+{
+    for entry in fs::read_dir(path)? {
+        let entry = entry?;
+        let path = entry.path();
+        let file_type = entry.file_type()?;
+        if file_type.is_dir() {
+            extend_files(files, &path, filter)?;
+        } else if file_type.is_file() {
+            if filter(&entry) {
+                let content = fs::read_to_string(&path)?;
+                let path = path.strip_prefix(get_build_path())?.to_owned();
+                files.push((path, content));
+            }
+        } else {
+            eprintln!("Unexpected file type: {file_type:?}");
+        }
+    }
+
+    Ok(())
+}
+
 /// Generate type declaration files.
 fn generate_types(manifest: &Manifest) -> Result<()> {
     for dep in manifest.get_all_dependencies().keys() {
@@ -144,11 +186,14 @@ fn generate_types(manifest: &Manifest) -> Result<()> {
         }
     }
 
-    let build_path = get_build_path();
-    let mut types = vec![];
-    extend_generated_types(&mut types, &build_path)?;
-    let types = Files::try_from(types)?;
-    fs::write(build_path.join(TYPES_FILE), serde_json::to_string(&types)?)?;
+    let files = get_output_files(|entry| {
+        let file_name = entry.file_name();
+        file_name == TYPES_FILE || file_name == DEPENDENCIES_FILE
+    })?;
+    fs::write(
+        get_out_path().join(TYPES_FILE),
+        serde_json::to_string(&files)?,
+    )?;
 
     Ok(())
 }
@@ -157,7 +202,6 @@ fn generate_types(manifest: &Manifest) -> Result<()> {
 ///
 /// [`generate-packages.mjs`]: https://github.com/solana-playground/solana-playground/blob/7d9f365a5009fd65aaa388e85bc541e5f4f51ae9/client/scripts/generate-packages.mjs
 fn generate_package_types(name: &str) -> Result<()> {
-    let node_modules = get_node_modules_path();
     let build_path = get_build_path();
     let out_path = build_path.join(name);
     let types_path = out_path.join(TYPES_FILE);
@@ -165,6 +209,7 @@ fn generate_package_types(name: &str) -> Result<()> {
 
     // Node built-ins are handled differently because each file is a different module and we don't
     // need all of them
+    let node_modules = Path::new(PACKAGES_DIR).join(NODE_MODULES);
     let types_node_path = node_modules
         .join("@types")
         .join("node")
@@ -289,30 +334,22 @@ fn convert_type_files(files: Vec<(PathBuf, String)>) -> anyhow::Result<Files> {
         .collect()
 }
 
-/// Recursively extend the given types from the created files.
-fn extend_generated_types(types: &mut Vec<(PathBuf, String)>, path: &Path) -> Result<()> {
-    for entry in fs::read_dir(path)? {
-        let entry = entry?;
-        let path = entry.path();
-        let file_type = entry.file_type()?;
-        if file_type.is_dir() {
-            extend_generated_types(types, &path)?;
-        } else if file_type.is_file() {
-            let file_name = entry.file_name();
-            if file_name == TYPES_FILE || file_name == DEPENDENCIES_FILE {
-                let content = fs::read_to_string(&path)?;
-                let path = path.strip_prefix(get_build_path())?.to_owned();
-                types.push((path, content));
-            }
-        } else {
-            eprintln!("Unexpected file type: {file_type:?}");
-        }
-    }
+/// Build directory (`webpack`)
+const BUILD_DIR: &str = "dist";
 
-    Ok(())
-}
+/// `weppack` config file
+const WEBPACK_CONFIG_FILE: &str = "webpack.config.js";
 
-/// Get the relative `node_modules` path.
-fn get_node_modules_path() -> PathBuf {
-    Path::new(PACKAGES_DIR).join(NODE_MODULES)
+/// The default directory of where the JS packages are stored
+const NODE_MODULES: &str = "node_modules";
+
+/// Source directory
+const SRC_DIR: &str = "src";
+
+/// Type dependencies
+const DEPENDENCIES_FILE: &str = "dependencies.json";
+
+/// Get the path to the directory that stores the `webpack` build directory.
+fn get_build_path() -> PathBuf {
+    Path::new(PACKAGES_DIR).join(BUILD_DIR)
 }
