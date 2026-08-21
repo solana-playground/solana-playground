@@ -1,4 +1,4 @@
-import { PgJsPackage, PgTerminal } from "../../utils";
+import { PgCommon, PgJsPackage, PgTerminal } from "../../utils";
 import { createCmd, createSubcmd } from "../create";
 
 // TODO: `yarn`
@@ -13,8 +13,14 @@ export const packageManager = createCmd({
       name: "install",
       description: "Install packages",
       handle: async () => {
+        const startTime = performance.now();
         await PgJsPackage.install();
-        PgTerminal.println(PgTerminal.success("Installation successful."));
+        const timePassed = (performance.now() - startTime) / 1000;
+        PgTerminal.println(
+          `${PgTerminal.success(
+            "Installation successful."
+          )} Completed in ${PgCommon.formatSeconds(timePassed)}.`
+        );
       },
     }),
   ],
