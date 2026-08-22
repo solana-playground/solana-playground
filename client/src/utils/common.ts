@@ -516,7 +516,7 @@ export class PgCommon {
       ["d", Math.floor(secs / (60 * 60 * 24))],
       ["h", Math.floor((secs % (60 * 60 * 24)) / (60 * 60))],
       ["m", Math.floor((secs % (60 * 60)) / 60)],
-      ["s", (secs % 60).toFixed(2)],
+      ["s", secs < 60 ? (secs % 60).toFixed(2) : Math.floor(secs % 60)],
     ];
 
     let parts = [];
