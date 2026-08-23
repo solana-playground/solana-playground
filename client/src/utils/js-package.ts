@@ -12,6 +12,11 @@ export class PgJsPackage {
     const lock = await this._getLock();
     const result = await PgServer.bundle({ manifest, lock });
 
+    // Clear the existing data for fresh installs each time
+    const internalRootDirPath = this._PATHS.INTERNAL_ROOT_DIR;
+    const hasData = await fs.exists(internalRootDirPath);
+    if (hasData) await fs.removeDir(internalRootDirPath, { recursive: true });
+
     // Save manifest
     await fs.writeFile(this._PATHS.MANIFEST_FILE, result.manifest);
 
