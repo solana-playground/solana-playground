@@ -1287,7 +1287,6 @@ export class PgExplorer {
     const workspaces = await this._getWorkspaces();
     this._workspace ??= new PgWorkspace();
     this._workspace.setCurrent(workspaces);
-
     await this._saveWorkspaces();
   }
 
@@ -1422,7 +1421,7 @@ export class PgExplorer {
   }
 
   /**
-   * Get the eleemnt from its path.
+   * Get the element from its path.
    *
    * @param path item path
    * @returns the element
@@ -1487,8 +1486,9 @@ export class PgExplorer {
 
     // Toggle inside folder
     const insideFolderEl = el.nextElementSibling;
-    if (insideFolderEl)
+    if (insideFolderEl) {
       insideFolderEl.classList.remove(PgView.classNames.HIDDEN);
+    }
   }
 
   /**
@@ -1594,7 +1594,6 @@ export class PgExplorer {
    */
   private static _convertToExplorerFiles(tupleFiles: TupleFiles) {
     const explorerFiles: ExplorerFiles = {};
-
     for (const [path, content] of tupleFiles) {
       const fullPath = PgCommon.joinPaths(PgExplorer.PATHS.ROOT_DIR_PATH, path);
       explorerFiles[fullPath] = { content };
