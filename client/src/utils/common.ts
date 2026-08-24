@@ -1,3 +1,5 @@
+import camelcase from "camelcase";
+
 import type {
   AllPartial,
   Disposable,
@@ -794,13 +796,18 @@ export class PgCommon {
   }
 
   /**
+   * Convert the given string to camelCase.
+   *
+   * NOTE: This uses the same implementation as Anchor(`camelcase` package) in
+   * order to derive the same names for IDL items such as enum variants and
+   * accounts. Rust identifiers are not always PascalCase, e.g. `ADD` or
+   * `ADD_ITEM` are valid enum variants and Anchor converts them to `add` and
+   * `addItem` respectively.
+   *
    * @returns camelCase converted version of the string input
    */
   static toCamelCase(str: string) {
-    return str.replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, (match, index) => {
-      if (+match === 0) return ""; // or if (/\s+/.test(match)) for white spaces
-      return index === 0 ? match.toLowerCase() : match.toUpperCase();
-    });
+    return camelcase(str);
   }
 
   /**
