@@ -111,6 +111,7 @@ const derive = () => ({
     noCache: true,
   }),
 
+  // TODO: Use the raw lamports value?
   /** Balance of the current wallet in SOL */
   balance: createDerivable({
     derive: async (value): Promise<number | null> => {

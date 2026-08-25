@@ -289,11 +289,10 @@ export class BpfLoaderUpgradeable {
     return await PgTx.send(ix, { wallet });
   }
 
-  /** Get the connection and wallet instance. */
+  /** Get the wallet option. */
   private static _getOptions(opts?: WalletOption) {
     const wallet = opts?.wallet ?? PgWallet.current;
     if (!wallet) throw new Error("Wallet is not connected");
-
     return { wallet };
   }
 }
