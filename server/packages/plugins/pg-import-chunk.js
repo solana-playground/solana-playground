@@ -1,6 +1,3 @@
-import RuntimeGlobals from "webpack/lib/RuntimeGlobals.js";
-import RuntimeModule from "webpack/lib/RuntimeModule.js";
-
 export default class PgImportChunkPlugin {
   apply(compiler) {
     compiler.hooks.compilation.tap("PgImportChunkPlugin", (compilation) => {

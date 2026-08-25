@@ -1,10 +1,15 @@
-import webpack from "webpack";
 import path from "path";
 import { createRequire } from "module";
+import { execSync } from "child_process";
 
 import PgImportChunkPlugin from "./plugins/pg-import-chunk.js";
 
 const require = createRequire(import.meta.url);
+const webpack = require((process.env.NODE_PATH = path.join(
+  execSync("yarn global dir", { encoding: "utf-8" }).trim(),
+  "node_modules",
+  "webpack"
+)));
 
 export default {
   mode: "production",

@@ -33,6 +33,12 @@ FROM base AS final
 
 ARG USER
 
+# Make global `yarn` installs available
+ENV PATH="${HOME}/.yarn/bin:${PATH}"
+
+# Install `webpack` globally (matching client versions)
+RUN yarn global add webpack@=5.71.0 webpack-cli@=5.1.4
+
 # Copy files
 COPY --chown=${USER}:${USER} packages packages
 

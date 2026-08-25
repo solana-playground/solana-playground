@@ -104,14 +104,7 @@ fn generate_bundle(manifest: &Manifest) -> Result<()> {
     fs::write(webpack_cfg_path, webpack_cfg)?;
 
     // TODO: Test `webpack` alternatives for faster builds
-    let status = Command::new("yarn")
-        .current_dir(PACKAGES_DIR)
-        .arg("--offline")
-        .arg("--ignore-scripts")
-        .arg("run")
-        .arg("webpack")
-        .status()?;
-
+    let status = Command::new("webpack").current_dir(PACKAGES_DIR).status()?;
     if !status.success() {
         return Err(anyhow!("Failed to bundle"));
     }
