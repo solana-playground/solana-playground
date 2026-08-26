@@ -3,6 +3,7 @@ use std::{fs, io, path::Path, process::Command, sync::LazyLock};
 use anchor_syn::idl::{parse::file::parse as parse_idl, types::Idl};
 use anyhow::anyhow;
 use regex::Regex;
+use serde::{Deserialize, Serialize};
 
 use crate::{
     log::{info, warn},
@@ -10,16 +11,33 @@ use crate::{
 };
 
 /// Directory name of where the programs are stored
-const PROGRAMS_DIR: &str = "programs";
+pub const PROGRAMS_DIR: &str = "programs";
 
 /// Maximum amount of files to pass to the [`build`] function
-const MAX_FILE_AMOUNT: usize = 64;
+pub const MAX_FILE_AMOUNT: usize = 64;
 
 /// Maximum length of the file paths to pass to the [`build`] function
-const MAX_PATH_LEN: usize = 128;
+pub const MAX_PATH_LEN: usize = 128;
 
 /// Max program build output stderr length
-const MAX_STDERR_LEN: usize = 1024 * 1024 * 1024;
+pub const MAX_STDERR_LEN: usize = 1024 * 1024 * 1024; // 1 MiB
+
+/// IDL file name
+pub const IDL_FILE: &str = "idl.json";
+
+#[derive(Default, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BuildFlags {
+    /// Enable Anchor `seeds` feature
+    #[serde(default)]
+    pub seeds_feature: bool,
+    /// Remove doc comments from the IDL
+    #[serde(default)]
+    pub no_docs: bool,
+    /// Enable safety checks
+    #[serde(default)]
+    pub safety_checks: bool,
+}
 
 /// Build the program from the given program name and files.
 ///
@@ -30,6 +48,7 @@ const MAX_STDERR_LEN: usize = 1024 * 1024 * 1024;
 /// otherwise.
 ///
 /// NOTE: This function doesn't return an error in the case of a compiler error.
+// TODO: Remove
 pub fn build(
     concurrency_id: usize,
     program_name: &str,
@@ -163,7 +182,13 @@ pub fn build(
 ///
 /// In order for the program binary to exist, the program must be built using the [`build`] function
 /// before this command is executed.
+// TODO: Remove
 pub async fn get_binary(program_name: &str) -> tokio::io::Result<Vec<u8>> {
     let binary_path = Path::new(PROGRAMS_DIR).join(program_name).join("solpg.so");
     tokio::fs::read(binary_path).await
+}
+
+/// Get the path to the process output directory.
+pub fn get_out_path() -> std::path::PathBuf {
+    Path::new(PROGRAMS_DIR).join("out")
 }

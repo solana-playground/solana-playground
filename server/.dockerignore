@@ -1,7 +1,9 @@
 packages/*
+!packages/plugins
 !packages/package.json
 !packages/webpack.config.js
 !packages/yarn.lock
-!packages/plugins
+programs/*
+!programs/default
+!programs/Cargo.*
 target
-programs/target

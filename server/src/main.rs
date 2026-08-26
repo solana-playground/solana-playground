@@ -42,7 +42,14 @@ async fn main() -> Result<()> {
         .route("/new", post(share_new));
 
     let unstable_routes = if cfg!(feature = "unstable") {
-        Router::new().route("/bundle", post(bundle))
+        Router::new()
+            .route(
+                "/build",
+                post(unstable::build)
+                    .with_state(unstable::BuildState::new(config.build_concurrency)),
+            )
+            .route("/deploy/{uuid}", get(unstable::deploy))
+            .route("/bundle", post(unstable::bundle))
     } else {
         Router::new()
     };
