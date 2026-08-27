@@ -24,7 +24,7 @@ interface BuildRequest {
   }>;
 }
 
-/** `/unstable/bundle` request */
+/** `/bundle` request */
 interface BundleRequest {
   /** Package manifest file (`package.json`) */
   manifest: string;
@@ -60,6 +60,7 @@ export class PgServer {
 
     const response = await this._send("/build", {
       post: { body: JSON.stringify(req) },
+      unstable: process.env.NODE_ENV !== "production",
     });
     return (await response.json()) as BuildResponse;
   }
@@ -74,7 +75,9 @@ export class PgServer {
    * @returns the program binary bytes
    */
   static async deploy(uuid: string) {
-    const response = await this._send(`/deploy/${uuid}`);
+    const response = await this._send(`/deploy/${uuid}`, {
+      unstable: process.env.NODE_ENV !== "production",
+    });
     const arrayBuffer = await response.arrayBuffer();
     return new Uint8Array(arrayBuffer);
   }
@@ -97,8 +100,9 @@ export class PgServer {
       lock: string;
     }
 
-    const response = await this._send("/unstable/bundle", {
+    const response = await this._send("/bundle", {
       post: { body: JSON.stringify(req) },
+      unstable: process.env.NODE_ENV !== "production",
     });
     return (await response.json()) as BundleResponse;
   }
@@ -146,7 +150,12 @@ export class PgServer {
    */
   private static async _send(
     path: string,
-    opts?: { cache?: boolean; post?: { body: string }; useDbServer?: boolean }
+    opts?: {
+      cache?: boolean;
+      post?: { body: string };
+      useDbServer?: boolean;
+      unstable?: boolean;
+    }
   ) {
     const requestInit: RequestInit = {};
     if (!opts?.cache) requestInit.cache = "no-store";
@@ -160,6 +169,7 @@ export class PgServer {
     const serverUrl = opts?.useDbServer
       ? "https://api.solpg.io"
       : PgSettings.server.endpoint;
+    if (opts?.unstable) path = PgCommon.joinPaths("unstable", path);
     const requestUrl = PgCommon.joinPaths(serverUrl, path);
     try {
       const response = await fetch(requestUrl, requestInit);
