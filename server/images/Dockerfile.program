@@ -1,5 +1,5 @@
 ARG USER=solpg
-ARG SOLANA_VERSION="1.17.34"
+ARG BIN="build-program"
 
 FROM ubuntu:24.04@sha256:80dd3c3b9c6cecb9f1667e9290b3bc61b78c2678c02cbdae5f0fea92cc6734ab AS base
 
@@ -32,21 +32,34 @@ RUN echo "fn main() {}" > src/main.rs
 RUN cargo build --release
 
 # Actual build
+ARG BIN
 COPY src src
-RUN cargo build --release --bin build-program --features unstable
+RUN cargo build --release --bin ${BIN} --features unstable
 
 FROM base AS final
 
-ARG USER
-ARG SOLANA_VERSION
-
 # Install Solana
+ARG SOLANA_VERSION
 RUN sh -c "$(curl -sSfL https://release.anza.xyz/v${SOLANA_VERSION}/install)"
 ENV PATH="${HOME}/.local/share/solana/install/active_release/bin:${PATH}"
 
-# Copy programs dir and build the default program
-COPY --chown=${USER}:${USER} programs programs
-RUN cargo-build-sbf --manifest-path programs/Cargo.toml
+# Run the installation command
+ARG INSTALLATION_COMMAND
+RUN sh -c "${INSTALLATION_COMMAND}"
+
+# Switch Rust version
+ARG RUST_VERSION
+RUN rustup default ${RUST_VERSION}
+
+# Copy the contents of the template directory
+ARG USER
+ARG TEMPLATE
+COPY --chown=${USER}:${USER} templates/${TEMPLATE}/ .
+
+# Build the default program to cache
+ARG INITIAL_BUILD_COMMAND
+RUN sh -c "${INITIAL_BUILD_COMMAND}"
 
 # Copy the built binary
-COPY --from=binary ${HOME}/target/release/build-program /usr/local/bin/
+ARG BIN
+COPY --from=binary ${HOME}/target/release/${BIN} /usr/local/bin/

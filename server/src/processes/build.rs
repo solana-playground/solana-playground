@@ -1,10 +1,8 @@
-use std::{env, fs, path::Path, process::Command};
+use std::{env, fs, path::PathBuf};
 
-use anchor_syn::idl::parse::file::parse as parse_idl;
 use anyhow::{anyhow, Result};
-use regex::Regex;
 use solpg_server::{
-    program::{get_out_path, BuildFlags, IDL_FILE, MAX_FILE_AMOUNT, MAX_PATH_LEN, PROGRAMS_DIR},
+    templates::{get_template, Template},
     utils::Files,
 };
 
@@ -14,64 +12,59 @@ fn main() -> Result<()> {
 }
 
 struct Args {
+    template: &'static Template,
     files: Files,
-    flags: BuildFlags,
+    binary_path: PathBuf,
+    idl_path: PathBuf,
+    build_args: Vec<String>,
 }
 
 impl Args {
     fn from_env() -> Result<Self> {
         let mut args = env::args();
         if args.next().is_none() {
-            return Err(anyhow!("Program not given"));
+            return Err(anyhow!("Missing program"));
         };
 
+        let template = args
+            .next()
+            .ok_or_else(|| anyhow!("Missing template name"))
+            .map(get_template)?
+            .ok_or_else(|| anyhow!("Invalid template name"))?;
         let files = args
             .next()
-            .ok_or_else(|| anyhow!("Files path not given"))
+            .ok_or_else(|| anyhow!("Missing files path"))
             .map(fs::read)?
             .map(|bytes| serde_json::from_slice(&bytes))??;
-        let flags = args
+        let binary_path = args
             .next()
-            .ok_or_else(|| anyhow!("Build flags not given"))
-            .map(|s| serde_json::from_str(&s))??;
+            .ok_or_else(|| anyhow!("Missing binary path"))
+            .map(PathBuf::from)?;
+        let idl_path = args
+            .next()
+            .ok_or_else(|| anyhow!("Missing idl path"))
+            .map(PathBuf::from)?;
+        let build_args = args.collect();
 
-        Ok(Self { files, flags })
+        Ok(Self {
+            template,
+            files,
+            binary_path,
+            idl_path,
+            build_args,
+        })
     }
 }
 
 /// Build the program from the given files.
 ///
-/// Only Rust source files starting with `/src` are allowed to be passed in, an error is returned
-/// otherwise.
-///
 /// NOTE: This function doesn't return an error in the case of a compiler error.
 fn build(args: &Args) -> Result<()> {
-    let files = &args.files;
-
-    // Check file count
-    if files.len() > MAX_FILE_AMOUNT {
-        return Err(anyhow!(
-            "Exceeded maximum file amount: {} > {MAX_FILE_AMOUNT}",
-            files.len()
-        ));
-    }
-
-    // Check file paths
-    let allowed_regex = Regex::new(r"^/src/[\w/-]+\.rs$")?;
-    for (path, _) in files {
-        let is_valid = path.len() <= MAX_PATH_LEN
-            && !path.contains("..")
-            && !path.contains("//")
-            && allowed_regex.is_match(path);
-        if !is_valid {
-            return Err(anyhow!("Invalid path: {path}"));
-        }
-    }
+    let template = args.template;
 
     // Write files
-    let programs_path = Path::new(PROGRAMS_DIR);
-    let program_path = programs_path.join("default");
-    for (path, content) in files {
+    let program_path = template.program_path();
+    for (path, content) in &args.files {
         let relative_path = path.trim_start_matches('/');
         let path = program_path.join(relative_path);
         let parent_path = path
@@ -81,34 +74,50 @@ fn build(args: &Args) -> Result<()> {
         fs::write(path, content)?;
     }
 
-    // Build the program
-    let out_path = get_out_path();
-    let status = Command::new("cargo-build-sbf")
-        .arg("--offline")
-        .arg("--manifest-path")
-        .arg(programs_path.join("Cargo.toml"))
-        .arg("--sbf-out-dir")
-        .arg(&out_path)
-        .status()?;
+    // TODO: Remove existing binary and IDL
+
+    // Build
+    let status = template.processor().build(&args.build_args)?;
     if !status.success() {
+        // Compilation errors are expected; others are not
         return Ok(());
     }
 
-    // Generate IDL if it's an Anchor program
-    let lib_path = program_path.join("src").join("lib.rs");
-    let is_anchor = fs::read_to_string(&lib_path)?.contains("anchor_lang");
-    if is_anchor {
-        // TODO: Run `anchor idl parse` instead for output consistency
-        match parse_idl(
-            lib_path,
-            "0.1.0".into(),
-            args.flags.seeds_feature,
-            args.flags.no_docs,
-            args.flags.safety_checks,
-        ) {
-            Ok(idl) => fs::write(out_path.join(IDL_FILE), serde_json::to_string(&idl)?)?,
-            Err(e) => eprintln!("IDL error: {e}"),
+    // Move files to the expected output location
+    //
+    // 1. Move binary
+    let binary_path = 'outer: {
+        for entry in fs::read_dir(template.binary_path())? {
+            let path = entry?.path();
+            if path.extension().map(|ext| ext == "so").unwrap_or_default() {
+                break 'outer path;
+            }
+        }
+
+        return Err(anyhow!("Unable to find program binary"));
+    };
+    fs::create_dir_all(args.binary_path.parent().expect("Always has parent"))?;
+    fs::rename(&binary_path, &args.binary_path)?;
+
+    // 2. Move IDL
+    if let Some(idl_path) = template.idl_path() {
+        let idl_path = 'outer: {
+            for entry in fs::read_dir(idl_path)? {
+                let path = entry?.path();
+                if path
+                    .extension()
+                    .map(|ext| ext == "json")
+                    .unwrap_or_default()
+                {
+                    break 'outer path;
+                }
+            }
+
+            return Err(anyhow!("Unable to find IDL"));
         };
+
+        fs::create_dir_all(args.idl_path.parent().expect("Always has parent"))?;
+        fs::rename(&idl_path, &args.idl_path)?;
     }
 
     Ok(())

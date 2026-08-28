@@ -1,6 +1,6 @@
 use std::{
     path::Path,
-    sync::{Arc, Mutex},
+    sync::{Arc, LazyLock, Mutex},
 };
 
 use anchor_syn::idl::types::Idl;
@@ -9,17 +9,27 @@ use axum::{
     extract::{Json, State},
     response::IntoResponse,
 };
+use regex::Regex;
 use serde::{Deserialize, Serialize};
 use solpg_server::{
-    program::{get_out_path, BuildFlags, IDL_FILE, MAX_STDERR_LEN, PROGRAMS_DIR},
-    utils::Files,
+    program::{get_out_path, BINARY_FILE, MAX_FILE_AMOUNT, MAX_PATH_LEN, MAX_STDERR_LEN},
+    utils::{get_image_name, Files},
     Result, Sandbox,
 };
 use tokio::{fs, io, process::Command, sync::Semaphore};
 use uuid::Uuid;
 
+/// Input directory name
+const INPUT_DIR: &str = "in";
+
+/// Output directory name
+const OUTPUT_DIR: &str = "out";
+
 /// Build files name
-const BUILD_FILES: &str = "files.json";
+const FILES_FILE: &str = "files.json";
+
+/// IDL file name
+const IDL_FILE: &str = "idl.json";
 
 /// Build request
 #[derive(Deserialize)]
@@ -32,8 +42,8 @@ pub struct BuildRequest {
     /// return a `uuid`. Client is responsible for saving the `uuid` and using it with every
     /// subseqent requests in order to save resources and be able to get the program binary.
     uuid: Option<String>,
-    /// Build flags
-    flags: Option<BuildFlags>,
+    /// Arguments to pass to the build command
+    args: Option<Vec<String>>,
 }
 
 /// Build response
@@ -83,23 +93,55 @@ pub async fn build(
         None => (Uuid::new_v4().to_string(), true),
     };
 
-    let container_out_path = get_out_path();
-    let host_out_path = container_out_path.join(&uuid);
-    fs::create_dir_all(&host_out_path)
-        .await
-        .map_err(|e| anyhow!("Failed to create host dir: {host_out_path:?}: {e}"))?;
+    // Check file count
+    let files = &payload.files;
+    if files.len() > MAX_FILE_AMOUNT {
+        return Err(anyhow!(
+            "Exceeded maximum file amount: {} > {MAX_FILE_AMOUNT}",
+            files.len()
+        ))?;
+    }
 
-    let files_path = host_out_path.join(BUILD_FILES);
+    // Check file paths
+    static ALLOWED_REGEX: LazyLock<Regex> =
+        LazyLock::new(|| Regex::new(r"^/src/[\w/-]+\.rs$").unwrap());
+    for (path, _) in files {
+        let is_valid = path.len() <= MAX_PATH_LEN
+            && !path.contains("..")
+            && !path.contains("//")
+            && ALLOWED_REGEX.is_match(path);
+        if !is_valid {
+            return Err(anyhow!("Invalid path: {path}"))?;
+        }
+    }
+
+    let host_path = get_out_path(&uuid);
+    fs::create_dir_all(&host_path)
+        .await
+        .map_err(|e| anyhow!("Failed to create host dir: {host_path:?}: {e}"))?;
+
+    let files_path = host_path.join(FILES_FILE);
     fs::write(
         files_path,
-        serde_json::to_string(&payload.files).map_err(|e| anyhow!("Invalid build files: {e}"))?,
+        serde_json::to_string(files).map_err(|e| anyhow!("Invalid build files: {e}"))?,
     )
     .await
     .map_err(|e| anyhow!("Failed to write build files: {e}"))?;
 
-    let programs_path = Path::new(PROGRAMS_DIR);
+    // TODO: Dynamic based on request
+    let template_name = "anchor-0.29.0";
+    let image = get_image_name(format!("program-{template_name}"));
+
+    // Container paths
+    let input_path = Path::new(INPUT_DIR);
+    let output_path = Path::new(OUTPUT_DIR);
+    let input_files_path = input_path.join(FILES_FILE);
+    let output_binary_path = output_path.join(BINARY_FILE);
+    let output_idl_path = output_path.join(IDL_FILE);
+
+    // Sandboxed build
     let output = Sandbox::new()
-        .image("solpg-server-sandbox-program")
+        .image(image)
         .user("solpg")
         // TODO: Set limits from config
         .cpu_limit(1)
@@ -107,30 +149,22 @@ pub async fn build(
         .process_limit(64)
         .timeout(30)
         .copy(
-            format!("{}/.", host_out_path.display()),
-            format!("container:{}", programs_path.display()),
+            format!("{}/.", host_path.display()),
+            format!("container:{}", input_path.display()),
         )
         .command(
             Command::new("build-program")
-                .arg(programs_path.join(BUILD_FILES))
-                .arg(
-                    serde_json::to_string(&payload.flags.unwrap_or_default())
-                        .map_err(|e| anyhow!("Failed to convert build flags to string: {e}"))?,
-                ),
+                .arg(template_name)
+                .arg(input_files_path)
+                .arg(output_binary_path)
+                .arg(output_idl_path)
+                .args(payload.args.unwrap_or_default()),
         )
-        .copy(
-            format!("container:{}/.", container_out_path.display()),
-            &host_out_path,
-        )
+        // Make sure the output directory always exists so that the following copy always works
+        .command(Command::new("mkdir").arg("-p").arg(output_path))
+        .copy(format!("container:{}/.", output_path.display()), &host_path)
         .run()
         .await?;
-
-    if !output.status.success() {
-        return Err(anyhow!(
-            "Failed to build: {}",
-            str::from_utf8(&output.stderr).map_err(|e| anyhow!("Invalid build output: {e}"))?
-        ))?;
-    }
 
     // Check output length
     if output.stderr.len() > MAX_STDERR_LEN {
@@ -140,10 +174,18 @@ pub async fn build(
         ))?;
     }
 
+    // Check unexpected build process errors (not regular compilation errors)
+    if !output.status.success() {
+        return Err(anyhow!(
+            "Failed to build: {}",
+            str::from_utf8(&output.stderr).map_err(|e| anyhow!("Invalid build output: {e}"))?
+        ))?;
+    }
+
     let stderr = String::from_utf8(output.stderr)
         .map_err(|e| anyhow!("Failed to convert stderr output to UTF-8: {e}"))?;
 
-    let idl = match fs::read(host_out_path.join(IDL_FILE)).await {
+    let idl = match fs::read(host_path.join(IDL_FILE)).await {
         Ok(b) => serde_json::from_slice(&b).map_err(|e| anyhow!("Invalid IDL: {e}"))?,
         Err(e) if e.kind() == io::ErrorKind::NotFound => None,
         Err(e) => return Err(anyhow!("Failed to read IDL file: {e}"))?,

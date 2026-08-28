@@ -3,7 +3,7 @@ use axum::{response::IntoResponse, Json};
 use serde::{Deserialize, Serialize};
 use solpg_server::{
     package::{get_out_path, BUNDLE_FILE, LOCK_FILE, MANIFEST_FILE, PACKAGES_DIR, TYPES_FILE},
-    utils::Files,
+    utils::{get_image_name, Files},
     Result, Sandbox,
 };
 use tokio::{fs, process::Command};
@@ -54,7 +54,7 @@ pub async fn bundle(Json(payload): Json<BundleRequest>) -> Result<impl IntoRespo
     }
 
     let output = Sandbox::new()
-        .image("solpg-server-sandbox-bundle")
+        .image(get_image_name("bundle"))
         .user("solpg")
         // TODO: Set limits from config
         .cpu_limit(4) // diminishing returns after 4

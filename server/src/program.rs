@@ -1,9 +1,13 @@
-use std::{fs, io, path::Path, process::Command, sync::LazyLock};
+use std::{
+    fs, io,
+    path::{Path, PathBuf},
+    process::Command,
+    sync::LazyLock,
+};
 
 use anchor_syn::idl::{parse::file::parse as parse_idl, types::Idl};
 use anyhow::anyhow;
 use regex::Regex;
-use serde::{Deserialize, Serialize};
 
 use crate::{
     log::{info, warn},
@@ -11,7 +15,10 @@ use crate::{
 };
 
 /// Directory name of where the programs are stored
-pub const PROGRAMS_DIR: &str = "programs";
+const PROGRAMS_DIR: &str = "programs";
+
+/// Program binary file name
+pub const BINARY_FILE: &str = "binary.so";
 
 /// Maximum amount of files to pass to the [`build`] function
 pub const MAX_FILE_AMOUNT: usize = 64;
@@ -21,23 +28,6 @@ pub const MAX_PATH_LEN: usize = 128;
 
 /// Max program build output stderr length
 pub const MAX_STDERR_LEN: usize = 1024 * 1024 * 1024; // 1 MiB
-
-/// IDL file name
-pub const IDL_FILE: &str = "idl.json";
-
-#[derive(Default, Deserialize, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct BuildFlags {
-    /// Enable Anchor `seeds` feature
-    #[serde(default)]
-    pub seeds_feature: bool,
-    /// Remove doc comments from the IDL
-    #[serde(default)]
-    pub no_docs: bool,
-    /// Enable safety checks
-    #[serde(default)]
-    pub safety_checks: bool,
-}
 
 /// Build the program from the given program name and files.
 ///
@@ -189,6 +179,6 @@ pub async fn get_binary(program_name: &str) -> tokio::io::Result<Vec<u8>> {
 }
 
 /// Get the path to the process output directory.
-pub fn get_out_path() -> std::path::PathBuf {
-    Path::new(PROGRAMS_DIR).join("out")
+pub fn get_out_path(uuid: &str) -> PathBuf {
+    Path::new(PROGRAMS_DIR).join("out").join(uuid)
 }

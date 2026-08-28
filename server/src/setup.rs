@@ -1,4 +1,5 @@
 use anyhow::{anyhow, Result};
+use solpg_server::{templates::get_all_templates, utils::get_image_name};
 use tokio::{fs, process::Command};
 
 /// Images directory path
@@ -20,24 +21,37 @@ async fn build_images() -> Result<()> {
             let name = entry
                 .file_name()
                 .to_str()
-                .map(|name| name.trim_start_matches("Dockerfile."))
-                .map(|name| format!("solpg-server-sandbox-{name}"))
-                .ok_or_else(|| anyhow!("Invalid file name: {path:?}"))?;
-            images.push((name, path))
+                .ok_or_else(|| anyhow!("Invalid file name: {path:?}"))
+                .map(|name| name.trim_start_matches("Dockerfile.").to_owned())?;
+            match name.as_str() {
+                "program" => {
+                    for template in get_all_templates() {
+                        let name = format!("{name}-{}", template.name());
+                        let args = template.image_build_args();
+                        images.push((path.clone(), name, args));
+                    }
+                }
+                _ => {
+                    images.push((path, name, vec![]));
+                }
+            }
         }
         images
     };
 
-    for (name, path) in images {
-        let status = Command::new("docker")
-            .arg("build")
+    for (path, name, args) in images {
+        let name = get_image_name(&name);
+        let mut cmd = Command::new("docker");
+        cmd.arg("build")
             .arg("--file")
-            .arg(&path)
+            .arg(path)
             .arg("--tag")
-            .arg(&name)
-            .arg(".")
-            .status()
-            .await?;
+            .arg(&name);
+        for arg in args {
+            cmd.arg("--build-arg").arg(arg);
+        }
+
+        let status = cmd.arg(".").status().await?;
         if !status.success() {
             return Err(anyhow!("Failed to build image: `{name}`"));
         }

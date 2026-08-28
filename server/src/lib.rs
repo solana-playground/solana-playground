@@ -8,6 +8,9 @@ pub mod package;
 pub mod program;
 pub mod utils;
 
+#[cfg(feature = "unstable")]
+pub mod templates;
+
 pub use config::Config;
 pub use error::{Error, Result};
 pub use sandbox::Sandbox;
