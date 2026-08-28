@@ -34,6 +34,11 @@ const ImportButton: FC<ImportButtonProps> = ({
     const files = ev.target.files;
     if (!files?.length) setImportText("");
     else setImportText(files[0].name);
+
+    // If a user chooses the same file name, browsers do not trigger a change
+    // event, even when the file has been modified. Resetting the input value
+    // fixes the problem.
+    ev.target.value = "";
   };
 
   const dirProps = dir
