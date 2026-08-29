@@ -259,7 +259,7 @@ const improveOutput = (output: string) => {
     .replace(/(\/home\/\w+)\//gm, (match, home) => match.replace(home, "~"))
 
     // Remove compiling output
-    .replace(/\s*Compiling\ssolpg.*/, "")
+    .replace(/\s+Compiling\s.*/, "")
 
     // Replace `solpg` name with the current workspace name
     .replaceAll("solpg", PgExplorer.currentWorkspaceName ?? "solpg")
