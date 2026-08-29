@@ -2,7 +2,7 @@
 
 Thank you for your interest in contributing to Solana Playground! These guidelines will help ensure a smooth contribution process.
 
-These are not rules, but following them will greatly improve the chances of getting your PR merged in the shortest time possible.
+These are not *strict* rules, but following them will greatly improve the chances of getting your PR merged in the shortest time possible.
 
 ## General
 
@@ -15,7 +15,7 @@ These are not rules, but following them will greatly improve the chances of gett
 
 - Try to write clear, present-tense commit messages (e.g. "Add feature" not "added feature")
 - Prefix the commit message with the change location (e.g. for server, use "server: Add feature" not "feat(server): add feature")
-- If making a client PR, do not add any prefix to messages (e.g. "Add feature" not "client: Add feature")
+- If making a client commit, do not add any prefix to messages (e.g. "Add feature" not "client: Add feature")
 
 ### Description
 
@@ -39,10 +39,11 @@ Try to follow the existing styles.
 
 ### General
 
-- Prefer inlining over creating a new function (if the function is used only once)
-- Order functions based on importance and usage order (i.e. the main function at the top, the last function to call at the bottom)
 - Prefer no new dependency when feasible
+- Minimize imports and exports
 - Avoid too much duplication
+- Prefer inlining over creating a new function if the function is used only once
+- Order functions based on importance and usage order (i.e. the main function at the top, the last function to call at the bottom)
 - Do not use non-[ASCII](https://en.wikipedia.org/wiki/ASCII) characters (e.g. emojis) in source code (fine for MarkDown)
 
 ### TypeScript
@@ -51,14 +52,17 @@ Try to follow the existing styles.
 - Avoid disabling TS checks with things like `any` and `// @ts-ignore`
 - Avoid importing `@solana/web3.js` directly (use `PgWeb3` instead)
 - Avoid importing Anchor package(s) directly (WIP to reduce dependence)
+- Avoid harcoding UI styles like colors (use dynamic theme values instead)
 - Prefer `react external internal` import order (with an extra newline between `external` and `internal`)
 - Prefer `import type` for types
 - Prefer default exports for React components and named exports for everything else
 - Prefer lazy loading for big imports
 - Prefer functional programming over [OOP](https://en.wikipedia.org/wiki/Object-oriented_programming) (no inheritence)
 - Prefer constant functions `const f = () => {}` over regular `function f() {}`
+- Prefer static classes in `/utils` (reasoning: functional-ish style with decorator support)
+- Prefer using the existing decorators for state and persistance management
 - Prefer at most 1 optional function parameter (if multiple, use a single object parameter for all optionals `opts?: {...}`)
-- Prefer less than 4 function parameters (create an object parameter(s) instead)
+- Prefer less than 4 function parameters (if more, create an object parameter(s) instead)
 - Prefer verb + object naming convention for functions (e.g. `doSomething`)
 - Prefer a single function definition without overrides
 - Prefer `async/await/try/catch/finally` over `Promise/then/catch/finally`
@@ -67,6 +71,8 @@ Try to follow the existing styles.
 - Prefer using `index.ts` files for import/export logic only
 - Prefer not creating a new scope (`{ ... }`) for single statements if it fits into a single line (create a new scope if it doesn't fit)
 - Prefer explicit returns inside closures if the implicit return results in an indented statement in the next line
+- Prefer TypeScript to infer types over explicit annotation when possible (including function return types)
+- Prefer dedicated `styled-component` styles over inlining raw React/HTML style attributes
 - Add TSDoc comments to all outer definitions in `/utils`
 
 ### Rust
