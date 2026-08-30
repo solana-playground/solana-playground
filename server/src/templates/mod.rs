@@ -34,6 +34,9 @@ pub struct Template {
     initial_build_command: &'static str,
     /// Program directory path
     program_path: &'static Path,
+    // TODO: Maybe use `&'static str` for the following 2 paths as well because target images use
+    // Linux, and Rust's default path normalization may cause unexpected paths to be passed in on
+    // Windows.
     /// Program binary directory path (build output)
     binary_path: &'static Path,
     /// Program IDL directory path (build output)
@@ -78,9 +81,13 @@ impl Template {
             format!("SOLANA_VERSION={}", self.solana_version),
             format!("RUST_VERSION={}", self.rust_version),
             format!("INITIAL_BUILD_COMMAND={}", self.initial_build_command),
+            format!("BINARY_PATH={}", self.binary_path.display()),
         ];
         if let Some(installation_command) = &self.installation_command {
             image_build_args.push(format!("INSTALLATION_COMMAND={installation_command}"));
+        };
+        if let Some(idl_path) = self.idl_path {
+            image_build_args.push(format!("IDL_PATH={}", idl_path.display()));
         };
 
         image_build_args

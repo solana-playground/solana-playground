@@ -60,6 +60,11 @@ COPY --chown=${USER}:${USER} templates/${TEMPLATE}/ .
 ARG INITIAL_BUILD_COMMAND
 RUN sh -c "${INITIAL_BUILD_COMMAND}"
 
+# Remove the binary and IDL directories for clean start
+ARG BINARY_PATH
+ARG IDL_PATH
+RUN rm -rf ${BINARY_PATH} ${IDL_PATH}
+
 # Copy the built binary
 ARG BIN
 COPY --from=binary ${HOME}/target/release/${BIN} /usr/local/bin/

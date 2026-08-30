@@ -74,8 +74,6 @@ fn build(args: &Args) -> Result<()> {
         fs::write(path, content)?;
     }
 
-    // TODO: Remove existing binary and IDL
-
     // Build
     let status = template.processor().build(&args.build_args)?;
     if !status.success() {
