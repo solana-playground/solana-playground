@@ -1,12 +1,15 @@
 mod anchor;
+mod legacy;
 
-use std::{path::Path, process::ExitStatus, sync::LazyLock};
+use std::{fs, path::Path, process::ExitStatus, sync::LazyLock};
 
 use anchor::*;
+use anyhow::Result;
+use legacy::*;
 
 /// All templates
 static ALL: LazyLock<Vec<Template>> =
-    LazyLock::new(|| vec![Anchor0_29_0::template(), Anchor1_1_2::template()]);
+    LazyLock::new(|| vec![Legacy::template(), Anchor1_1_2::template()]);
 
 /// Get all templates.
 ///
@@ -93,6 +96,29 @@ impl Template {
 
         image_build_args
     }
+
+    /// Get whether the given cargo files matches the template.
+    pub fn matches(&self, manifest: &str, lock: &str) -> Result<bool> {
+        // TODO: Cache
+        let template_dir = Path::new("templates").join(self.name);
+        let manifest_path = template_dir.join(self.program_path).join("Cargo.toml");
+        let actual_manifest = fs::read_to_string(manifest_path)?;
+
+        let lock_path = template_dir.join("Cargo.lock");
+        let actual_lock = fs::read_to_string(lock_path)?;
+
+        Ok(manifest == &actual_manifest && lock == &actual_lock)
+    }
+}
+
+impl Default for &Template {
+    fn default() -> Self {
+        let legacy = Legacy::template();
+        get_all_templates()
+            .iter()
+            .find(|t| t.name == legacy.name)
+            .expect("Legacy template must exist")
+    }
 }
 
 /// Program build process
@@ -101,5 +127,5 @@ pub trait Process {
     ///
     /// This method should **not** return an error for compiler errors. Everything else, such as,
     /// `fs` errors, are classified as unexpected errors, and therefore should return an error.
-    fn build(&self, args: &[String]) -> anyhow::Result<ExitStatus>;
+    fn build(&self, args: &[String]) -> Result<ExitStatus>;
 }

@@ -3,7 +3,6 @@ use std::{
     sync::{Arc, LazyLock, Mutex},
 };
 
-use anchor_syn::idl::types::Idl;
 use anyhow::anyhow;
 use axum::{
     extract::{Json, State},
@@ -13,6 +12,7 @@ use regex::Regex;
 use serde::{Deserialize, Serialize};
 use solpg_server::{
     program::{get_out_path, BINARY_FILE, MAX_FILE_AMOUNT, MAX_PATH_LEN, MAX_STDERR_LEN},
+    templates::get_all_templates,
     utils::{get_image_name, Files},
     Result, Sandbox,
 };
@@ -53,8 +53,8 @@ struct BuildResponse {
     stderr: String,
     /// UUID of the program, `None` if the [`BuildRequest`] includes `uuid`
     uuid: Option<String>,
-    /// Anchor IDL of the program, `None` for native programs
-    idl: Option<Idl>,
+    /// IDL of the program
+    idl: Option<serde_json::Value>,
 }
 
 /// Build state
@@ -103,13 +103,15 @@ pub async fn build(
     }
 
     // Check file paths
-    static ALLOWED_REGEX: LazyLock<Regex> =
-        LazyLock::new(|| Regex::new(r"^/src/[\w/-]+\.rs$").unwrap());
+    static SRC_REGEX: LazyLock<Regex> =
+        LazyLock::new(|| Regex::new(r"^/?src/[\w/-]+\.rs$").unwrap());
+    static CARGO_REGEX: LazyLock<Regex> =
+        LazyLock::new(|| Regex::new(r"^Cargo.(toml|lock)$").unwrap());
     for (path, _) in files {
         let is_valid = path.len() <= MAX_PATH_LEN
             && !path.contains("..")
             && !path.contains("//")
-            && ALLOWED_REGEX.is_match(path);
+            && (SRC_REGEX.is_match(path) || CARGO_REGEX.is_match(path));
         if !is_valid {
             return Err(anyhow!("Invalid path: {path}"))?;
         }
@@ -120,6 +122,7 @@ pub async fn build(
         .await
         .map_err(|e| anyhow!("Failed to create host dir: {host_path:?}: {e}"))?;
 
+    // TODO: Filter out `cargo` files
     let files_path = host_path.join(FILES_FILE);
     fs::write(
         files_path,
@@ -128,8 +131,28 @@ pub async fn build(
     .await
     .map_err(|e| anyhow!("Failed to write build files: {e}"))?;
 
-    // TODO: Dynamic based on request
-    let template_name = "anchor-0.29.0";
+    // Get which templete to use from the files
+    let cargo_files = files.iter().fold((None, None), |acc, (path, content)| {
+        match path.trim_start_matches('/') {
+            "Cargo.toml" => (Some(content), acc.1),
+            "Cargo.lock" => (acc.0, Some(content)),
+            _ => acc,
+        }
+    });
+    let template_name = match cargo_files {
+        (Some(manifest), Some(lock)) => 'outer: {
+            for template in get_all_templates() {
+                if template.matches(manifest, lock)? {
+                    break 'outer Some(template);
+                }
+            }
+
+            None
+        }
+        _ => None,
+    }
+    .unwrap_or_default()
+    .name();
     let image = get_image_name(format!("program-{template_name}"));
 
     // Container paths

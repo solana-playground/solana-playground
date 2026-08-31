@@ -99,8 +99,17 @@ fn build(args: &Args) -> Result<()> {
 
     // 2. Move IDL
     if let Some(idl_path) = template.idl_path() {
+        let Ok(dir) = fs::read_dir(idl_path) else {
+            // Do not treat not having an IDL as an error case even when the template specifies
+            // `Some` for `idl_path` because the legacy template uses the same template for both
+            // Anchor and Native.
+            //
+            // TODO: Consider adding a field to toggle making IDL required or not.
+            return Ok(());
+        };
+
         let idl_path = 'outer: {
-            for entry in fs::read_dir(idl_path)? {
+            for entry in dir {
                 let path = entry?.path();
                 if path
                     .extension()
