@@ -169,7 +169,7 @@ const Tx: FC<PgWeb3.ConfirmedSignatureInfo> = ({
   // `hover` state inconsistent i.e. `hover === true` when the pointer is not on
   // the element. This `useEffect` fixes the mentioned inconsistency.
   //
-  // https://github.com/facebook/react/issues/4492
+  // https://github.com/react/react/issues/4492
   useEffect(() => {
     if (!hover) return;
 
