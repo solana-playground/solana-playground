@@ -5,7 +5,8 @@ use std::{path::Path, process::ExitStatus, sync::LazyLock};
 use anchor::*;
 
 /// All templates
-static ALL: LazyLock<Vec<Template>> = LazyLock::new(|| vec![Anchor0_29_0::template()]);
+static ALL: LazyLock<Vec<Template>> =
+    LazyLock::new(|| vec![Anchor0_29_0::template(), Anchor1_1_2::template()]);
 
 /// Get all templates.
 ///

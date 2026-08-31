@@ -1,0 +1,18 @@
+[package]
+name = "program"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+
+[features]
+idl-build = ["anchor-lang/idl-build", "anchor-spl/idl-build"]
+
+[dependencies]
+anchor-lang = { version = "=1.1.2", features = ["allow-missing-optionals", "event-cpi", "init-if-needed", "lazy-account"] }
+anchor-spl = { version = "=1.1.2", features = ["governance", "memo", "metadata"] }
+bytemuck = { version = "1", features = ["derive", "min_const_generics"] }
+
+[lints.rust]
+unexpected_cfgs = "allow"
