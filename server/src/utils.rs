@@ -73,6 +73,12 @@ impl FromIterator<FileEntry> for Files {
     }
 }
 
+impl Extend<FileEntry> for Files {
+    fn extend<T: IntoIterator<Item = FileEntry>>(&mut self, iter: T) {
+        self.0.extend(iter);
+    }
+}
+
 /// Image name (tag) prefix
 const IMAGE_PREFIX: &str = concat!(env!("CARGO_PKG_NAME"), "-sandbox");
 

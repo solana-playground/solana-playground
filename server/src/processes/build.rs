@@ -65,8 +65,7 @@ fn build(args: &Args) -> Result<()> {
     // Write files
     let program_path = template.program_path();
     for (path, content) in &args.files {
-        let relative_path = path.trim_start_matches('/');
-        let path = program_path.join(relative_path);
+        let path = program_path.join(path);
         let parent_path = path
             .parent()
             .ok_or_else(|| anyhow!("No parent: {path:?}"))?;

@@ -107,7 +107,7 @@ impl Template {
         let lock_path = template_dir.join("Cargo.lock");
         let actual_lock = fs::read_to_string(lock_path)?;
 
-        Ok(manifest == &actual_manifest && lock == &actual_lock)
+        Ok(manifest == actual_manifest && lock == actual_lock)
     }
 }
 
