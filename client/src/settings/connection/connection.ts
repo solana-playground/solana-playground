@@ -20,7 +20,10 @@ export const connection = [
       { name: "Testnet", value: Endpoint.TESTNET },
       { name: "Mainnet Beta", value: Endpoint.MAINNET_BETA },
     ],
-    default: Endpoint.DEVNET,
+    default:
+      process.env.NODE_ENV === "production"
+        ? Endpoint.DEVNET
+        : Endpoint.LOCALNET,
     custom: {
       parse: (v) => {
         if (PgCommon.isUrl(v)) return v;
