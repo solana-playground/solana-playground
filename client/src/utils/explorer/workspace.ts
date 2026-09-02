@@ -24,7 +24,8 @@ export class PgWorkspace {
     CURRENT_NOT_FOUND: "Current workspace not found",
   };
 
-  constructor(workspaces: Workspaces = PgWorkspace.DEFAULT) {
+  // NOTE: Must clone so that the default never gets overwritten.
+  constructor(workspaces: Workspaces = structuredClone(PgWorkspace.DEFAULT)) {
     this._state = workspaces;
   }
 
