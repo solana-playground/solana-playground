@@ -217,6 +217,7 @@ fn generate_package_types(name: &str) -> Result<()> {
         return Ok(());
     }
 
+    // FIXME: `@types` are broken
     let pkg_roots = [&node_modules, &node_modules.join("@types")];
     for pkg_root in pkg_roots {
         let pkg_path = pkg_root.join(name);
