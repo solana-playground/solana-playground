@@ -1,3 +1,4 @@
+mod concurrency;
 mod config;
 mod error;
 mod sandbox;
@@ -9,6 +10,7 @@ pub mod program;
 pub mod templates;
 pub mod utils;
 
+pub use concurrency::ConcurrencyPermit;
 pub use config::Config;
 pub use error::{Error, Result};
 pub use sandbox::Sandbox;

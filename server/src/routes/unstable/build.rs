@@ -1,13 +1,7 @@
-use std::{
-    path::Path,
-    sync::{Arc, LazyLock, Mutex},
-};
+use std::{path::Path, sync::LazyLock};
 
 use anyhow::anyhow;
-use axum::{
-    extract::{Json, State},
-    response::IntoResponse,
-};
+use axum::{extract::Json, response::IntoResponse};
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use solpg_server::{
@@ -17,7 +11,7 @@ use solpg_server::{
     utils::{get_image_name, Files},
     Result, Sandbox,
 };
-use tokio::{fs, io, process::Command, sync::Semaphore};
+use tokio::{fs, io, process::Command};
 use uuid::Uuid;
 
 /// Input directory name
@@ -58,35 +52,8 @@ struct BuildResponse {
     idl: Option<serde_json::Value>,
 }
 
-/// Build state
-#[derive(Clone)]
-pub struct BuildState {
-    /// Semaphore to limit concurrent requests
-    sem: Arc<Semaphore>,
-    /// A set of current requests based on availability (capped by `sem`)
-    ids: Arc<Mutex<Vec<bool>>>,
-}
-
-impl BuildState {
-    /// Create a new value with the maximum amount of concurrent builds.
-    pub fn new(concurrency: usize) -> Self {
-        Self {
-            sem: Arc::new(Semaphore::new(concurrency)),
-            ids: Arc::new(Mutex::new(vec![false; concurrency])),
-        }
-    }
-}
-
 /// Build the program.
-pub async fn build(
-    State(state): State<BuildState>,
-    Json(payload): Json<BuildRequest>,
-) -> Result<impl IntoResponse> {
-    // Only permit a certain number of builds concurrently
-    // TODO: Share with others
-    let permit = concurrent::Permit::acquire(state).await?;
-    let _id = permit.id();
-
+pub async fn build(Json(payload): Json<BuildRequest>) -> Result<impl IntoResponse> {
     let (uuid, respond_with_uuid) = match payload.uuid {
         Some(uuid) => Uuid::try_parse(&uuid)
             .map(|_| (uuid, false))
@@ -235,73 +202,4 @@ pub async fn build(
         uuid: respond_with_uuid.then_some(uuid),
         idl,
     }))
-}
-
-/// Concurrency helpers
-mod concurrent {
-    use tokio::sync::OwnedSemaphorePermit;
-
-    use super::*;
-    use crate::log::error;
-
-    /// A utility type to manage concurrent permits.
-    pub(super) struct Permit {
-        /// Permit id
-        id: usize,
-        /// An owned semaphore permit used to limit concurrent requests
-        #[allow(unused)]
-        permit: OwnedSemaphorePermit,
-        /// Build state
-        state: BuildState,
-    }
-
-    impl Permit {
-        /// Acquire a permit.
-        ///
-        /// # Note
-        ///
-        /// This function takes ownership of [`BuildState`], even though it doesn't need to, in
-        /// order to help make sure the ids [`Mutex`] doesn't get used anywhere else. This is done
-        /// to limit the usage of `state.ids` and make sure it never gets poisoned.
-        pub async fn acquire(state: BuildState) -> Result<Self> {
-            let permit = state
-                .sem
-                .clone()
-                .acquire_owned()
-                .await
-                .map_err(|e| anyhow!("Failed to acquire `Semaphore`: {e}"))?;
-
-            let mut ids = state
-                .ids
-                .lock()
-                .map_err(|e| anyhow!("Failed to lock ids: {e}"))?;
-            let id = ids
-                .iter()
-                .enumerate()
-                .find_map(|(id, used)| (!used).then_some(id))
-                .ok_or_else(|| anyhow!("Failed to find concurrency id"))?;
-            ids[id] = true;
-            drop(ids);
-
-            Ok(Self { id, permit, state })
-        }
-
-        /// Get the permit ID.
-        pub fn id(&self) -> usize {
-            self.id
-        }
-    }
-
-    impl Drop for Permit {
-        fn drop(&mut self) {
-            let Ok(mut ids) = self.state.ids.lock() else {
-                // TODO: Figure out whether this could happen. It shouldn't happen, but if it does,
-                // should we ignore poisoned locks?
-                error!("Failed to lock ids for id {}", self.id);
-                return;
-            };
-
-            ids[self.id] = false;
-        }
-    }
 }

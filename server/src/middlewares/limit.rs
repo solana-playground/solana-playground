@@ -1,4 +1,10 @@
+use tower::limit::ConcurrencyLimitLayer;
 use tower_http::limit::RequestBodyLimitLayer;
+
+/// Create a concurrency limit middleware.
+pub fn concurrency_limit(limit: usize) -> ConcurrencyLimitLayer {
+    ConcurrencyLimitLayer::new(limit)
+}
 
 /// Create a payload limit middleware.
 ///

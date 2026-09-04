@@ -45,8 +45,7 @@ async fn main() -> Result<()> {
         Router::new()
             .route(
                 "/build",
-                post(unstable::build)
-                    .with_state(unstable::BuildState::new(config.build_concurrency)),
+                post(unstable::build).layer(concurrency_limit(config.build_concurrency)),
             )
             .route("/deploy/{uuid}", get(unstable::deploy))
             .route("/bundle", post(unstable::bundle))
