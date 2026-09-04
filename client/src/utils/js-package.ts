@@ -49,7 +49,8 @@ export class PgJsPackage {
   static async import(name: string) {
     // TODO: Cache
     const mod = await this.importChunk(
-      PgCommon.joinPaths(name, this._PATHS.BUNDLE_FILE)
+      PgCommon.joinPaths(name, this._PATHS.BUNDLE_FILE),
+      { cache: true }
     );
     const pkg = mod[this._toModuleName(name)];
     if (!pkg) throw new Error(`Failed to import: ${name}`);
@@ -64,11 +65,17 @@ export class PgJsPackage {
    * @param path chunk path
    * @returns the imported chunk
    */
-  static async importChunk(path: string) {
+  static async importChunk(path: string, opts?: { cache?: boolean }) {
+    if (opts?.cache) {
+      const blobUrl = this._importCache.get(path);
+      if (blobUrl) return await import(/* webpackIgnore: true */ blobUrl);
+    }
+
     const chunk = await fs.readToString(this._getInternalPath(path));
     const blob = new Blob([chunk], { type: "text/javascript" });
     // TODO: Revoke the URL
     const blobUrl = URL.createObjectURL(blob);
+    this._importCache.set(path, blobUrl);
     return await import(/* webpackIgnore: true */ blobUrl);
   }
 
@@ -104,6 +111,9 @@ export class PgJsPackage {
     TYPES_FILE: "types.json",
     DEPENDENCIES_FILE: "dependencies.json",
   };
+
+  /** Package entrypoint path -> Blob URL */
+  private static _importCache = new Map<string, string>();
 
   /** Get the path relative to the internal root directory. */
   private static _getInternalPath(relativePath: string) {
