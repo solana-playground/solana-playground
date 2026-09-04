@@ -106,6 +106,9 @@ export const initRustAnalyzer = async (): Promise<Disposable> => {
       disposeLoadLocalFiles();
       disposeImportTypes();
       disposeProviders();
+      // The next start creates a new worker that has loaded no crates
+      cachedNames.clear();
+      monaco.editor.removeAllMarkers(LANGUAGE_ID);
     },
   };
 };
