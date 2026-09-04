@@ -51,6 +51,9 @@ RUN sh -c "${INSTALLATION_COMMAND}"
 ARG RUST_VERSION
 RUN rustup default ${RUST_VERSION}
 
+# Language server for the editor (`/unstable/lsp`)
+RUN rustup component add rust-analyzer rust-src
+
 # Copy the contents of the template directory
 ARG USER
 ARG TEMPLATE
@@ -59,6 +62,11 @@ COPY --chown=${USER}:${USER} templates/${TEMPLATE}/ .
 # Build the default program to cache
 ARG INITIAL_BUILD_COMMAND
 RUN sh -c "${INITIAL_BUILD_COMMAND}"
+
+# Warm the host-target check the language server runs: builds the proc-macro
+# crates it needs to expand `#[program]` and friends, and makes the first
+# diagnostics seconds instead of minutes
+RUN cargo check --locked
 
 # Remove the binary and IDL directories for clean start
 ARG BINARY_PATH

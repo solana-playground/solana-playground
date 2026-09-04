@@ -1,5 +1,5 @@
 use anyhow::{anyhow, Result};
-use solpg_server::{templates::get_all_templates, utils::get_image_name};
+use solpg_server::{log::info, lsp, templates::get_all_templates, utils::get_image_name};
 use tokio::{fs, process::Command};
 
 /// Images directory path
@@ -8,6 +8,12 @@ const IMAGES_DIR: &str = "images";
 /// Setup the server.
 pub async fn setup() -> Result<()> {
     build_images().await?;
+
+    let killed = lsp::kill_leftovers().await?;
+    if killed > 0 {
+        info!("Killed {killed} language server container(s) left over from a previous run");
+    }
+
     Ok(())
 }
 

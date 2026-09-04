@@ -23,6 +23,20 @@ This will:
 
 See the [root README](../README.md#run-with-docker) for more options.
 
+### Language server (unstable)
+
+With `--features unstable`, `GET /unstable/lsp` bridges a WebSocket to a `rust-analyzer` running inside the template's program image, so the editor gets intellisense and `cargo check` diagnostics for the exact toolchain the build uses. The client enables it with the **Rust Analyzer: Server** setting.
+
+Each session is one container for as long as the editor stays connected, so the limits are separate from builds:
+
+| Variable | Default | Meaning |
+| --- | --- | --- |
+| `PG_LSP_CONCURRENCY` | `4` | Maximum concurrent sessions |
+| `PG_LSP_IDLE_TIMEOUT` | `600` | Seconds without a client message before a session is closed |
+| `PG_LSP_MAX_LIFETIME` | `14400` | Seconds after which a session is closed regardless of activity |
+
+`PG_PAYLOAD_LIMIT` also caps the project size a session accepts, and only origins listed in `PG_CLIENT_URLS` may open one (browsers do not apply CORS to WebSockets). Containers carry the `solpg.lsp` label; leftovers from a crashed server are killed on the next start.
+
 # Deployment
 
 The server is deployed to **Google App Engine** as the `playground-server` service via [`.github/workflows/cicd.yml`](../.github/workflows/cicd.yml). The workflow triggers on pushes to `master` and on manual dispatch, but checks and deploy run only for a tagged commit — untagged pushes exit early.

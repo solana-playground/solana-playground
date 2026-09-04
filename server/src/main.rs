@@ -4,7 +4,10 @@ mod routes;
 #[cfg(feature = "unstable")]
 mod setup;
 
-use std::net::{Ipv4Addr, SocketAddr};
+use std::{
+    net::{Ipv4Addr, SocketAddr},
+    time::Duration,
+};
 
 use anyhow::Result;
 use axum::{
@@ -57,6 +60,19 @@ async fn main() -> Result<()> {
                 post(unstable::bundle)
                     .with_state(unstable::BundleState::new(config.unstable_bundle))
                     .layer(concurrency_limit(bundle_concurrency)),
+            )
+            .route(
+                "/lsp",
+                get(unstable::lsp).with_state(unstable::LspState::new(
+                    config.lsp_concurrency,
+                    solpg_server::lsp::Limits {
+                        idle_timeout: Duration::from_secs(config.lsp_idle_timeout),
+                        max_lifetime: Duration::from_secs(config.lsp_max_lifetime),
+                        max_files_bytes: config.payload_limit,
+                        ..Default::default()
+                    },
+                    config.client_urls.clone(),
+                )),
             )
     } else {
         Router::new()
