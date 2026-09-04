@@ -856,7 +856,7 @@ export class PgExplorer {
     if (PgExplorer.isTemporary) return fullPath.substring(1);
 
     // /name/src/lib.rs -> src/lib.rs
-    return fullPath.replace(this.getRequiredCurrentWorkspacePath(), "");
+    return fullPath.replace(PgExplorer.getRequiredCurrentWorkspacePath(), "");
   }
 
   /**
