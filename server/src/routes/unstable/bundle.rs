@@ -1,13 +1,19 @@
+use std::{collections::HashMap, sync::Arc};
+
 use anyhow::anyhow;
-use axum::{response::IntoResponse, Json};
-use blake3::Hasher;
+use axum::{extract::State, response::IntoResponse, Json};
+use blake3::{Hash, Hasher};
 use serde::{Deserialize, Serialize};
 use solpg_server::{
     package::{get_out_path, BUNDLE_FILE, LOCK_FILE, MANIFEST_FILE, PACKAGES_DIR, TYPES_FILE},
     utils::{get_image_name, Files},
     Result, Sandbox,
 };
-use tokio::{fs, process::Command};
+use tokio::{
+    fs,
+    process::Command,
+    sync::{Mutex, OwnedSemaphorePermit, Semaphore},
+};
 
 #[derive(Deserialize)]
 pub struct BundleRequest {
@@ -29,23 +35,50 @@ struct BundleResponse {
     lock: String,
 }
 
+/// Bundle state
+#[derive(Clone, Default)]
+pub struct BundleState {
+    /// Permits for sequential processing based on hash
+    permits: Arc<Mutex<HashMap<Hash, Arc<Semaphore>>>>,
+}
+
+impl BundleState {
+    /// Acquire a sequential processing permit for the given hash.
+    async fn acquire_sequential(&self, hash: Hash) -> Result<OwnedSemaphorePermit> {
+        let mut permits = self.permits.lock().await;
+        let semaphore = permits
+            .entry(hash)
+            .or_insert_with(|| Arc::new(Semaphore::new(1)))
+            .clone();
+        drop(permits);
+
+        let permit = semaphore
+            .acquire_owned()
+            .await
+            .map_err(|e| anyhow!("Semaphore is closed: {e}"))?;
+        Ok(permit)
+    }
+}
+
 /// Bundle ESM packages.
-//
-// TODO: Concurrency limit
-pub async fn bundle(Json(payload): Json<BundleRequest>) -> Result<impl IntoResponse> {
-    // TODO: Concurrency limit should also take the hash into account; no concurrent builds for the
-    // same hash
+pub async fn bundle(
+    State(state): State<BundleState>,
+    Json(payload): Json<BundleRequest>,
+) -> Result<impl IntoResponse> {
     let hash = {
         let mut hasher = Hasher::new();
         hasher.update(payload.manifest.as_bytes());
         if let Some(lock) = &payload.lock {
             hasher.update(lock.as_bytes());
         }
-        hasher.finalize().to_string()
+        hasher.finalize()
     };
 
+    // No concurrent builds for the same hash to avoid potential conflicts
+    let _permit = state.acquire_sequential(hash).await?;
+
     let container_path = get_out_path();
-    let host_path = container_path.join(&hash);
+    let host_path = container_path.join(hash.to_string());
     let is_cached = fs::try_exists(&host_path)
         .await
         .map_err(|e| anyhow!("Failed to read host dir: {host_path:?}: {e}"))?;

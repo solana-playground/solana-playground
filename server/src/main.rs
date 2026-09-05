@@ -1,3 +1,4 @@
+mod config;
 mod middlewares;
 mod routes;
 #[cfg(feature = "unstable")]
@@ -14,11 +15,10 @@ use axum::{
 use solpg_server::{
     db,
     log::{self, info},
-    Config,
 };
 use tokio::net::TcpListener;
 
-use self::{middlewares::*, routes::*};
+use self::{config::Config, middlewares::*, routes::*};
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -48,7 +48,12 @@ async fn main() -> Result<()> {
                 post(unstable::build).layer(concurrency_limit(config.build_concurrency)),
             )
             .route("/deploy/{uuid}", get(unstable::deploy))
-            .route("/bundle", post(unstable::bundle))
+            .route(
+                "/bundle",
+                post(unstable::bundle)
+                    .with_state(unstable::BundleState::default())
+                    .layer(concurrency_limit(config.bundle_concurrency)),
+            )
     } else {
         Router::new()
     };
