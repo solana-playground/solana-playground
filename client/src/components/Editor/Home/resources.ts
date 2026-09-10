@@ -13,21 +13,21 @@ export const RESOURCES: ResourceProps[] = [
     name: "Cookbook",
     description:
       "Detailed explanations and guides for building applications on Solana.",
-    url: "https://solanacookbook.com/",
+    url: "https://solana.com/developers/cookbook",
     icon: "https://solanacookbook.com/solana_cookbook_darkmode.svg",
   },
   {
-    name: "SolDev",
+    name: "Developer Courses",
     description:
-      "Solana content aggregator with easy discoverability for all your development needs.",
-    url: "https://soldev.app/",
+      "Structured courses covering Solana development fundamentals and beyond.",
+    url: "https://github.com/solana-foundation/developer-content/tree/main/content/courses",
     icon: ROOT_DIR + "soldev.png",
   },
   {
     name: "Metaplex Docs",
     description:
       "Documentation for understanding how to work with NFTs on Solana using the Metaplex Standards.",
-    url: "https://developers.metaplex.com/",
+    url: "https://www.metaplex.com/docs/",
     icon: ROOT_DIR + "metaplex.png",
   },
 ];
