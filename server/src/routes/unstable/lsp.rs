@@ -131,7 +131,15 @@ async fn handle(mut socket: WebSocket, state: LspState) -> Result<()> {
     info!("Starting language server using image: {image}");
 
     let session = LspSession::start(template, &image, &state.limits).await?;
-    let result = run(&mut socket, &session, &state.limits, open_id, &files).await;
+    let result = run(
+        &mut socket,
+        &session,
+        &state.limits,
+        open_id,
+        &files,
+        template.name(),
+    )
+    .await;
     session.stop().await;
     result
 }
@@ -143,6 +151,7 @@ async fn run(
     limits: &Limits,
     open_id: Value,
     files: &Files,
+    template_name: &str,
 ) -> Result<()> {
     session.write_files(files).await?;
     let mut server = session.spawn_server()?;
@@ -155,6 +164,7 @@ async fn run(
         json!({
             "rootUri": session.root_uri(),
             "programPath": session.program_path(),
+            "template": template_name,
         }),
     )
     .await?;
@@ -276,7 +286,13 @@ fn find_template(files: &Files) -> Result<&'static Template> {
         (Some((_, manifest)), Some((_, lock))) => get_all_templates()
             .iter()
             .find(|t| t.matches(manifest, lock).unwrap_or(false))
-            .ok_or_else(|| anyhow!("Failed to find a build template")),
+            .ok_or_else(|| {
+                anyhow!(
+                    "The `cargo` files match no build template: the dependency set \
+                    is fixed by the build images. Revert `Cargo.toml` to restore \
+                    builds and intellisense"
+                )
+            }),
         _ => Err(anyhow!("Missing `cargo` file")),
     }
 }

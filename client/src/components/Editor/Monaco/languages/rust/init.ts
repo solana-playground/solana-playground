@@ -1,4 +1,8 @@
-import { connect as connectRustAnalyzerServer } from "./lsp";
+import {
+  connect as connectRustAnalyzerServer,
+  setRestartHandler,
+  setStatus,
+} from "./lsp";
 import { initRustAnalyzer } from "./rust-analyzer";
 import { PgExplorer, PgSettings, PgTerminal } from "../../../../../utils";
 import type { Disposable } from "../../../../../utils";
@@ -24,6 +28,7 @@ export const init = () => {
     const current = ++generation;
     active?.dispose();
     active = null;
+    setStatus(backend === "server" ? "connecting" : "off");
 
     try {
       const disposable =
@@ -33,14 +38,22 @@ export const init = () => {
 
       // The setting changed again while this backend was starting
       if (current !== generation) disposable.dispose();
-      else active = disposable;
+      else {
+        active = disposable;
+        if (backend === "server") setStatus("connected");
+      }
     } catch (e) {
+      if (backend === "server" && current === generation) {
+        setStatus("disconnected");
+      }
       const message = e instanceof Error ? e.message : String(e);
       PgTerminal.println(
         PgTerminal.error(`Rust Analyzer (${backend}): ${message}`)
       );
     }
   };
+
+  setRestartHandler(() => start(PgSettings.editor.rustAnalyzer));
 
   // Setting change events fire once on subscription with the current value
   PgSettings.onDidChangeEditorRustAnalyzer(start);

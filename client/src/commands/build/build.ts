@@ -11,6 +11,7 @@ import {
   PgWeb3,
   TupleFiles,
 } from "../../utils";
+import { withCargoLock } from "../../frameworks/anchor/cargo";
 import { createCmd } from "../create";
 
 export const build = createCmd({
@@ -167,9 +168,15 @@ const getBuildFiles = () => {
     buildFiles.push([buildPath, content]);
   }
 
-  // TODO: Add `cargo` files
+  // Root `cargo` files decide which build template (toolchain image) the
+  // server uses; the canonical lock fills in when only a manifest exists
+  const rootPath = PgExplorer.getProjectRootPath();
+  for (const name of ["Cargo.toml", "Cargo.lock"]) {
+    const content = files[PgCommon.joinPaths(rootPath, name)]?.content;
+    if (content !== undefined) buildFiles.push([name, content]);
+  }
 
-  return buildFiles;
+  return withCargoLock(buildFiles);
 };
 
 /**

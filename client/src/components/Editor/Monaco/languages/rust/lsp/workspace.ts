@@ -1,5 +1,6 @@
 import * as monaco from "monaco-editor";
 
+import { withCargoLock } from "../../../../../../frameworks/anchor/cargo";
 import { PgCommon, PgExplorer } from "../../../../../../utils";
 
 /** Files sent to the server: `[relative path, content]` pairs */
@@ -11,6 +12,8 @@ export interface WorkspaceInfo {
   rootUri: string;
   /** Program directory relative to the root, e.g. `programs/program` */
   programPath: string;
+  /** Name of the build template the session runs on, e.g. `anchor-1.1.2` */
+  template: string;
 }
 
 /**
@@ -49,21 +52,21 @@ export class Workspace {
 
       const content = PgExplorer.files[path].content;
       if (content === undefined) continue;
-      files.push([PgExplorer.getRelativePath(path), content]);
+      files.push([PgExplorer.toRelativePath(path), content]);
     }
-    return files;
+    return withCargoLock(files);
   }
 
   /** Explorer full path -> server document URI */
   toUri(path: string) {
-    return this._programUri + PgExplorer.getRelativePath(path);
+    return this._programUri + PgExplorer.toRelativePath(path);
   }
 
   /** Server document URI -> explorer full path (`null` if outside the project) */
   toPath(uri: string) {
     if (!uri.startsWith(this._programUri)) return null;
     const relativePath = decodeURIComponent(uri.slice(this._programUri.length));
-    return PgExplorer.convertToFullPath(relativePath);
+    return PgExplorer.toAbsolutePath(relativePath);
   }
 
   /** Server document URI -> Monaco model URI (`null` if outside the project) */

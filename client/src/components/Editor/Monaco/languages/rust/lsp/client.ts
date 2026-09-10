@@ -4,6 +4,7 @@ import * as lsp from "./protocol";
 import { toMonacoMarker } from "./convert";
 import { JsonRpcConnection } from "./jsonrpc";
 import { registerProviders } from "./providers";
+import { pulseActivity, setStatus, setTemplate } from "./status";
 import { Workspace } from "./workspace";
 import type { WorkspaceInfo } from "./workspace";
 import { importTypes } from "../../common";
@@ -69,6 +70,7 @@ const SERVER_CONFIG = {
 export const connect = async (): Promise<Disposable> => {
   const url = getUrl();
   const { conn, info } = await open(url);
+  setTemplate(info.template);
 
   try {
     return await attach(conn, info);
@@ -116,7 +118,9 @@ const attach = async (
     init.capabilities
   );
 
+  let deliberate = false;
   const dispose = () => {
+    deliberate = true;
     providers.dispose();
     documents.dispose();
     diagnostics.dispose();
@@ -132,8 +136,12 @@ const attach = async (
       });
   };
 
-  // The server going away is the same as disposing on our side
-  conn.onClose(dispose);
+  // The server going away is the same as disposing on our side; a close the
+  // client did not initiate is the signal the status indicator reports
+  conn.onClose(() => {
+    if (!deliberate) setStatus("disconnected");
+    dispose();
+  });
 
   return { dispose };
 };
@@ -157,7 +165,7 @@ const open = async (url: string) => {
       reject(new Error(`Could not connect to the language server at ${url}`));
   });
 
-  const conn = new JsonRpcConnection(socket);
+  const conn = new JsonRpcConnection(socket, pulseActivity);
   try {
     const info = await PgCommon.timeout(
       conn.request<WorkspaceInfo>(BRIDGE.open, { files: Workspace.getFiles() }),

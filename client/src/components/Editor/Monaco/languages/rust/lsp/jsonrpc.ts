@@ -74,7 +74,11 @@ export class JsonRpcConnection {
   private _closeListeners: Array<() => void> = [];
   private _closed = false;
 
-  constructor(private readonly _socket: MessageSocket) {
+  constructor(
+    private readonly _socket: MessageSocket,
+    /** Runs on every message sent or received, e.g. for a traffic indicator */
+    private readonly _onActivity?: () => void
+  ) {
     _socket.addEventListener("message", (ev) => this._receive(ev.data));
     _socket.addEventListener("close", () => this._handleClose());
     _socket.addEventListener("error", () => this._handleClose());
@@ -153,6 +157,7 @@ export class JsonRpcConnection {
   }
 
   private _send(msg: Message) {
+    this._onActivity?.();
     this._socket.send(JSON.stringify(msg));
   }
 
@@ -165,6 +170,7 @@ export class JsonRpcConnection {
     } catch {
       return;
     }
+    this._onActivity?.();
 
     if ("method" in msg) {
       if ("id" in msg) this._handleRequest(msg);
