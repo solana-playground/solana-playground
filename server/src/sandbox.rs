@@ -259,6 +259,8 @@ impl<'a> Sandbox<'a> {
                             .arg(cmd.get_program())
                             .args(cmd.get_args())
                             .env_clear()
+                            // Without `PATH`, `docker` resolves only via the OS fallback path, which lacks `/usr/local/bin` on macOS
+                            .envs(std::env::var_os("PATH").map(|path| ("PATH", path)))
                             .envs(cmd.get_envs().filter_map(|(k, v)| v.map(|v| (k, v))))
                             .output()
                             .await?;
