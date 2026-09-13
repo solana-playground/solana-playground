@@ -30,7 +30,9 @@ export class PgCompression {
     const zip = await JSZip.loadAsync(file);
     const files: TupleFiles = [];
     for (const [path, item] of Object.entries(zip.files)) {
-      const content = item.dir ? "" : await item.async("text");
+      if (item.dir) continue;
+
+      const content = await item.async("text");
       files.push([path, content]);
     }
 
