@@ -115,6 +115,8 @@ pub async fn bundle(
         let output = Sandbox::new()
             .image(get_image_name("bundle"))
             .user("solpg")
+            // TODO: Allow networking only during the installation step
+            .allow_networking()
             .limits(state.config.limits.sandbox)
             .copy(
                 format!("{}/.", temp_host_path.display()),

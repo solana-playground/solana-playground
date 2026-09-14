@@ -1,4 +1,5 @@
 {
+  "name": "legacy",
   "type": "module",
   "dependencies": {
     "@clockwork-xyz/sdk": "^0.3.1",

@@ -58,8 +58,7 @@ fn install_packages() -> Result<Manifest> {
     let status = Command::new("yarn")
         .current_dir(PACKAGES_DIR)
         .arg("--ignore-scripts")
-        // TODO: Remove
-        .arg("--offline")
+        .arg("--prefer-offline")
         .status()?;
     if !status.success() {
         return Err(anyhow!("Failed to install"));

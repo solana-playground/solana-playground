@@ -39,6 +39,17 @@ impl<'a> Sandbox<'a> {
         self
     }
 
+    /// Allow networking.
+    ///
+    /// # Note
+    ///
+    /// This is dangerous. Only allow if it's absolutely necessary.
+    #[must_use]
+    pub fn allow_networking(mut self) -> Self {
+        self.cfg.allow_networking = true;
+        self
+    }
+
     /// Set the limits for the overall process.
     #[must_use]
     pub fn limits(mut self, limits: Limits) -> Self {
@@ -116,15 +127,16 @@ impl<'a> Sandbox<'a> {
                 .arg("--rm")
                 .arg("--cap-drop=ALL")
                 .arg("--memory-swap=-1")
-                // TODO: Allow networking (customizable)
                 // TODO: Allow creating a new network with only specified URLs whitelisted (e.g. npmjs.com)?
-                .arg("--network=none")
                 .arg("--oom-score-adj=1000") // Make the container easily killable when OOM
                 .arg("--security-opt=no-new-privileges");
 
             if let Some(user) = &self.cfg.user {
                 cmd.arg("--user");
                 cmd.arg(user);
+            }
+            if !self.cfg.allow_networking {
+                cmd.arg("--network=none");
             }
             if let Some(cpu) = self.cfg.limits.cpu {
                 cmd.arg("--cpus");
@@ -222,10 +234,12 @@ impl<'a> Sandbox<'a> {
 /// Sandbox configuration
 #[derive(Debug, Default)]
 struct Config {
-    /// Docker image
+    /// Image name
     image: Option<String>,
-    /// Docker image user
+    /// Image user
     user: Option<String>,
+    /// Whether to allow networking
+    allow_networking: bool,
     /// Container limits
     limits: Limits,
 }
