@@ -1,5 +1,6 @@
 use std::{
     collections::HashMap,
+    env,
     fs::{self, DirEntry},
     io,
     path::{Path, PathBuf},
@@ -15,10 +16,27 @@ use solpg_server::{
 
 // TODO: Make the process output a single compressed archive with all the files in it
 fn main() -> Result<()> {
-    let manifest = install_packages()?;
+    let args = Args::from_env()?;
+    let manifest = handle_package_manager_command(&args)?;
     generate_bundle(&manifest)?;
     generate_types(&manifest)?;
     Ok(())
+}
+
+struct Args {
+    command: Vec<String>,
+}
+
+impl Args {
+    fn from_env() -> Result<Self> {
+        let mut args = env::args();
+        if args.next().is_none() {
+            return Err(anyhow!("Missing program"));
+        };
+
+        let command = args.collect();
+        Ok(Self { command })
+    }
 }
 
 /// `package.json` manifest
@@ -54,14 +72,26 @@ impl Manifest {
 type Dependencies = HashMap<String, String>;
 
 /// Install packages.
-fn install_packages() -> Result<Manifest> {
-    let status = Command::new("yarn")
-        .current_dir(PACKAGES_DIR)
-        .arg("--ignore-scripts")
-        .arg("--prefer-offline")
-        .status()?;
-    if !status.success() {
-        return Err(anyhow!("Failed to install"));
+fn handle_package_manager_command(args: &Args) -> Result<Manifest> {
+    match args.command.as_slice() {
+        [name, args @ ..] => match name.as_str() {
+            "yarn" => {
+                match args {
+                    [command, args @ ..] => match command.as_str() {
+                        "install" => run_yarn_install(args)?,
+                        // TODO: `add`
+                        // TODO: `remove`
+                        // TODO: `upgrade`
+                        _ => return Err(anyhow!("Unsupported command: `{command}`")),
+                    },
+                    // Empty `yarn` defaults to install
+                    _ => run_yarn_install(&[])?,
+                }
+            }
+            _ => return Err(anyhow!("Unsupported package manager: `{name}`")),
+        },
+        // TODO: `npm` as a safer default?
+        _ => run_yarn_install(&[])?,
     }
 
     let packages_path = Path::new(PACKAGES_DIR);
@@ -77,6 +107,22 @@ fn install_packages() -> Result<Manifest> {
     fs::read(manifest_path)
         .map(|b| serde_json::from_slice(&b))?
         .map_err(Into::into)
+}
+
+/// Run the default `yarn` installation command.
+fn run_yarn_install(args: &[String]) -> Result<()> {
+    let status = Command::new("yarn")
+        .current_dir(PACKAGES_DIR)
+        .arg("install")
+        .args(args)
+        .arg("--ignore-scripts")
+        .arg("--prefer-offline")
+        .status()?;
+    if !status.success() {
+        return Err(anyhow!("Failed to install"));
+    }
+
+    Ok(())
 }
 
 /// Generate an ESM bundle.

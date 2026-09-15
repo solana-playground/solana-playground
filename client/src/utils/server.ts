@@ -30,6 +30,14 @@ interface BundleRequest {
   manifest: string;
   /** Package lock file */
   lock?: Option<string>;
+  /**
+   * Package manager command to execute.
+   *
+   * The first element is assumed to be the package manager name.
+   *
+   * If omitted, defaults to installation-only using the server default.
+   */
+  command?: Option<string[]>;
 }
 
 /** `/new` request */
@@ -90,14 +98,14 @@ export class PgServer {
    */
   static async bundle(req: BundleRequest) {
     interface BundleResponse {
-      /** Bundle files */
-      bundle: TupleFiles;
-      /** Type declaration files */
-      types: TupleFiles;
       /** Manifest file */
       manifest: string;
       /** Lock file */
       lock: string;
+      /** Bundle files */
+      bundle: TupleFiles;
+      /** Type declaration files */
+      types: TupleFiles;
     }
 
     const response = await this._send("/bundle", {

@@ -41,6 +41,9 @@ type WithHandle<A, O, R> = {
 };
 
 type ParsedInput<A, O> = {
+  /** Parsed tokens */
+  tokens: string[];
+  // TODO: Remove and pass `tokens` to the WASM commands
   /** Raw input */
   raw: string;
   /** Parsed arguments */
@@ -168,7 +171,7 @@ type ExecutableCommand<
    * @param cb callback function to run when the command starts running
    * @returns a dispose function to clear the event
    */
-  onDidStart(cb: (input: string | null) => void): Disposable;
+  onDidStart(cb: (input: string[] | null) => void): Disposable;
   /**
    * @param cb callback function to run when the command finishes running
    * @returns a dispose function to clear the event
@@ -306,11 +309,9 @@ export class PgCommandManager {
         );
       }
 
-      const input = tokens.join(" ");
-
       // Dispatch start event
       const eventNames = PgCommandManager._getEventNames(topCmd.name);
-      PgCommon.createAndDispatchCustomEvent(eventNames.start, input);
+      PgCommon.createAndDispatchCustomEvent(eventNames.start, tokens);
 
       let cmd: Command<string, Arg[], Option[], any[], any> = topCmd;
       const args = [];
@@ -539,7 +540,8 @@ Available subcommands: ${cmd.subcommands.map((cmd) => cmd.name).join(", ")}`
         let result;
         try {
           const ret = await cmd.handle({
-            raw: input,
+            tokens,
+            raw: tokens.join(" "),
             args: parsedArgs,
             options: parsedOpts,
           });

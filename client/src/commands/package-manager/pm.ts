@@ -1,10 +1,9 @@
 import { PgCommon, PgJsPackage, PgTerminal } from "../../utils";
 import { createCmd, createSubcmd } from "../create";
 
-// TODO: `yarn`
 // TODO: `npm`
 // TODO: `pnpm`
-export const packageManager = createCmd({
+export const pm = createCmd({
   name: "pm",
   description: "Manage packages",
   subcommands: [

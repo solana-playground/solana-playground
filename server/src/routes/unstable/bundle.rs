@@ -23,18 +23,24 @@ pub struct BundleRequest {
     manifest: String,
     /// Lock file
     lock: Option<String>,
+    /// Package manager command to execute.
+    ///
+    /// The first element is assumed to be the package manager name.
+    ///
+    /// If `None`, defaults to installation-only.
+    command: Option<Vec<String>>,
 }
 
 #[derive(Serialize)]
 struct BundleResponse {
-    /// Bundle files
-    bundle: Files,
-    /// Type declaration files
-    types: Files,
     /// Package manifest (`package.json`)
     manifest: String,
     /// Lock file
     lock: String,
+    /// Bundle files
+    bundle: Files,
+    /// Type declaration files
+    types: Files,
 }
 
 /// Bundle state
@@ -122,7 +128,7 @@ pub async fn bundle(
                 format!("{}/.", temp_host_path.display()),
                 format!("container:{PACKAGES_DIR}"),
             )
-            .command(&Command::new("bundle"))
+            .command(Command::new("bundle").args(payload.command.unwrap_or_default()))
             .copy(
                 format!("container:{}/.", container_path.display()),
                 &temp_host_path,
