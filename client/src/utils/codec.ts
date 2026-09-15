@@ -8,24 +8,6 @@ type Bytes = BufferSource | number[];
 
 export class PgCodec {
   /**
-   * Decode the given string to bytes using the given binary encoding.
-   *
-   * @param str string to decode
-   * @param encoding binary encoding
-   * @returns the decoded bytes
-   */
-  static decodeBinary(str: string, encoding: BinaryEncoding) {
-    switch (encoding) {
-      case "hex":
-        return utils.bytes.hex.decode(str);
-      case "base58":
-        return utils.bytes.bs58.decode(str);
-      case "base64":
-        return utils.bytes.base64.decode(str);
-    }
-  }
-
-  /**
    * Encode the given bytes to a string using the given binary encoding.
    *
    * @param bytes bytes to encode
@@ -45,15 +27,21 @@ export class PgCodec {
   }
 
   /**
-   * Decode the given bytes to a string using the given text encoding.
+   * Decode the given string to bytes using the given binary encoding.
    *
-   * @param bytes bytes to decode
-   * @param encoding text encoding
-   * @returns the decoded text
+   * @param str string to decode
+   * @param encoding binary encoding
+   * @returns the decoded bytes
    */
-  static decodeText(bytes: Bytes, encoding: TextEncoding = "utf-8") {
-    const buf = this._normalizeBytes(bytes);
-    return new TextDecoder(encoding).decode(buf);
+  static decodeBinary(str: string, encoding: BinaryEncoding) {
+    switch (encoding) {
+      case "hex":
+        return Uint8Array.from(utils.bytes.hex.decode(str));
+      case "base58":
+        return Uint8Array.from(utils.bytes.bs58.decode(str));
+      case "base64":
+        return Uint8Array.from(utils.bytes.base64.decode(str));
+    }
   }
 
   /**
@@ -63,7 +51,19 @@ export class PgCodec {
    * @returns the encoded bytes
    */
   static encodeText(str: string) {
-    return Buffer.from(new TextEncoder().encode(str));
+    return new TextEncoder().encode(str);
+  }
+
+  /**
+   * Decode the given bytes to a string using the given text encoding.
+   *
+   * @param bytes bytes to decode
+   * @param encoding text encoding
+   * @returns the decoded text
+   */
+  static decodeText(bytes: Bytes, encoding: TextEncoding = "utf-8") {
+    const buf = this._normalizeBytes(bytes);
+    return new TextDecoder(encoding).decode(buf);
   }
 
   // TODO: Find a more fitting place for this
