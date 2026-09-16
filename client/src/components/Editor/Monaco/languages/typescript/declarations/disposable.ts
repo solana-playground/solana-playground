@@ -4,7 +4,6 @@ import type { Idl } from "@coral-xyz/anchor";
 import { declareModule } from "./helper";
 import {
   Disposable,
-  JsRuntimePackageName,
   PgCommon,
   PgExplorer,
   PgProgramInfo,
@@ -133,7 +132,7 @@ export const IDL: ${idlTypeName} = ${convertedIdl};`,
     );
 
     // Workspace
-    const getWorkspace = (packageName: JsRuntimePackageName) => {
+    const getWorkspace = (packageName: string) => {
       return `import { Program } from "${packageName}";
       const workspace: { ${PgCommon.toPascalFromSnake(
         idl.name

@@ -2,7 +2,6 @@ import * as monaco from "monaco-editor";
 
 import {
   Disposable,
-  JsRuntimePackageName,
   PgCommon,
   PgJsPackage,
   PgSettings,
@@ -16,10 +15,7 @@ import {
  * @param module contents of the module
  * @returns module declaration for the given package
  */
-export const declareModule = (
-  packageName: JsRuntimePackageName,
-  module: string = ""
-) => {
+export const declareModule = (packageName: string, module: string = "") => {
   return `declare module "${packageName}" { ${module} }`;
 };
 
@@ -33,7 +29,7 @@ export const declareModule = (
  * package has already been declared
  */
 export const declarePackage = async (
-  packageName: JsRuntimePackageName,
+  packageName: string,
   opts?: { empty?: boolean; transitive?: boolean }
 ): Promise<Disposable | undefined> => {
   if (cache.has(packageName)) return;
@@ -95,7 +91,7 @@ export const declarePackage = async (
   if (!opts?.transitive) {
     const transitiveDisposables = await Promise.all(
       dependencies.map((dep) => {
-        return declarePackage(dep as JsRuntimePackageName, {
+        return declarePackage(dep as string, {
           transitive: true,
         });
       })
@@ -114,7 +110,7 @@ export const declarePackage = async (
 /** Get type declarations. */
 // TODO: Remove this and inline once the feature stabilizes.
 const getTypes = async (
-  packageName: JsRuntimePackageName
+  packageName: string
 ): ReturnType<typeof PgJsPackage["getTypes"]> => {
   if (!PgSettings.experimental.unstable) {
     const files = await PgCommon.fetchJson(
@@ -130,4 +126,4 @@ const getTypes = async (
 };
 
 /** Declared package names cache */
-const cache = new Set<JsRuntimePackageName>();
+const cache = new Set<string>();

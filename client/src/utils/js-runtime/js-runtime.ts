@@ -3,14 +3,14 @@ import * as mocha from "mocha";
 import * as util from "util";
 import * as anchor from "@coral-xyz/anchor";
 
-import { JsRuntimePackageName, PgJsRuntimePackage } from "./package";
+import { PgJsRuntimePackage } from "./package";
 import { PgCommon } from "../common";
 import { PgConnection } from "../connection";
 import { PgProgramInfo } from "../program-info";
 import { PgProgramInteraction } from "../program-interaction";
 import { PgTerminal } from "../terminal";
 import { Wallet, PgWallet } from "../wallet";
-import type { MergeUnion, OrString } from "../types";
+import type { MergeUnion } from "../types";
 import type { PgWeb3 } from "../web3";
 
 /** Options to use when running a script/test */
@@ -401,10 +401,7 @@ export class PgJsRuntime {
    * @param pkg package
    * @returns the overridden package
    */
-  private static _overridePackage(
-    name: OrString<JsRuntimePackageName>,
-    pkg: any
-  ) {
+  private static _overridePackage(name: string, pkg: any) {
     // Anchor
     if (name === "@coral-xyz/anchor" || name === "@project-serum/anchor") {
       // Fix `Cannot assign to property 'workspace' of [object Module]`

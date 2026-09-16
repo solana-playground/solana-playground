@@ -5,6 +5,7 @@ import { PgJsPackage } from "../js-package";
 import { PgSettings } from "../settings";
 import type { OrString } from "../types";
 
+// TODO: Remove
 /** All packages that are allowed to be used in JS code */
 export type JsRuntimePackageName =<TYPES>
   | "solana-playground";
@@ -19,12 +20,11 @@ export class PgJsRuntimePackage {
   static async import(name: OrString<JsRuntimePackageName>) {
     if (!PgSettings.experimental.unstable) {
       switch (name) {<IMPORTS>
+        default:
+          throw new Error(`Package \`${name}\` is not available.`);
       }
-    } else {
-      const isImportable = PACKAGES.importable.some((n) => n === name);
-      if (isImportable) return await PgJsPackage.import(name);
     }
 
-    throw new Error(`Package \`${name}\` is not available.`);
+    return await PgJsPackage.import(name);
   }
 }

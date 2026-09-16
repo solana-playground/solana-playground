@@ -103,6 +103,30 @@ export class PgJsPackage {
     return { files, dependencies };
   }
 
+  /** Get the parsed manifest (`package.json`). */
+  static async getParsedManifest() {
+    const manifest = await fs.readToJson<Manifest>(this._PATHS.MANIFEST_FILE);
+    const { name } = manifest;
+    if (name !== undefined && typeof name !== "string") {
+      throw new Error(`Invalid manifest name: ${name}`);
+    }
+
+    const depKeys = [
+      "dependencies",
+      "devDependencies",
+      "peerDependencies",
+      "optionalDependencies",
+    ] as const;
+    depKeys.forEach((key) => {
+      const value = manifest[key];
+      if (value !== undefined && typeof value !== "object") {
+        throw new Error(`Invalid dependencies: ${key}: ${value}`);
+      }
+    });
+
+    return manifest;
+  }
+
   /** Known package-related paths */
   private static readonly _PATHS = {
     INTERNAL_ROOT_DIR: PgCommon.joinPaths(
@@ -152,6 +176,23 @@ export class PgJsPackage {
       .replaceAll(".", "");
   }
 }
+
+/** `package.json` */
+interface Manifest {
+  /** Project name */
+  name?: string;
+  /** Main dependencies */
+  dependencies?: Dependencies;
+  /** Development dependencies */
+  devDependencies?: Dependencies;
+  /** Peer dependencies */
+  peerDependencies?: Dependencies;
+  /** Optional dependencies */
+  optionalDependencies?: Dependencies;
+}
+
+/** `package.json` dependencies map */
+type Dependencies = Record<string, string>;
 
 // Server bundles use this to import.
 //

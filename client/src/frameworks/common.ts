@@ -1,5 +1,4 @@
 import {
-  JsRuntimePackageName,
   MergeUnion,
   PgCommon,
   PgLanguage,
@@ -193,7 +192,7 @@ const getGlobalPackages = (content: string) => {
 
 /** Map packages to a different package on exports or completely ignore them */
 const PACKAGES_MAP: {
-  [K in JsRuntimePackageName]?: JsRuntimePackageName | null;
+  [key: string]: string | null;
 } = {
   buffer: null, // No need to import
 };

@@ -1,6 +1,6 @@
 import { declarePackage } from "./helper";
 import { importTypes } from "../../common";
-import type { Disposable, JsRuntimePackageName } from "../../../../../../utils";
+import { Disposable, PgJsPackage, PgSettings } from "../../../../../../utils";
 
 /**
  * Declare importable types in the editor and update them based on file switch
@@ -15,7 +15,7 @@ export const declareImportableTypes = () => {
 
 /** Mapping of package name -> imported */
 const cachedTypes: {
-  [K in JsRuntimePackageName]?: true | Disposable;
+  [K in string]?: true | Disposable;
 } = {};
 
 /**
@@ -28,8 +28,25 @@ const cachedTypes: {
  * @param code current editor content
  */
 const update = async (code: string) => {
+  if (!PgSettings.experimental.unstable) {
+    return await declarePackages(PACKAGES.importable, code);
+  }
+
+  const manifest = await PgJsPackage.getParsedManifest();
+  if (!manifest.dependencies) return;
+  await declarePackages(Object.keys(manifest.dependencies), code);
+};
+
+// TODO: Inline this once the feature stabilizes
+/**
+ * Declare all packages.
+ *
+ * @param packages package names to declare
+ * @param code current editor content
+ */
+const declarePackages = async (packages: string[], code: string) => {
   await Promise.all(
-    PACKAGES.importable.map(async (packageName) => {
+    packages.map(async (packageName) => {
       const pkg = cachedTypes[packageName];
       if (pkg === true) return;
 
