@@ -48,7 +48,7 @@ export class PgFs {
    * @param path file path
    * @returns JSON parsed result
    */
-  static async readToJSON<T>(path: string): Promise<T> {
+  static async readToJson<T>(path: string): Promise<T> {
     const data = await this.readToString(path);
     return JSON.parse(data);
   }
@@ -63,9 +63,9 @@ export class PgFs {
    * @param defaultValue the default value to return if the file doesn't exist
    * @returns JSON parsed result or the given `defaultValue`
    */
-  static async readToJSONOrDefault<T>(path: string, defaultValue: T) {
+  static async readToJsonOrDefault<T>(path: string, defaultValue: T) {
     try {
-      return await this.readToJSON<T>(path);
+      return await this.readToJson<T>(path);
     } catch {
       return defaultValue;
     }

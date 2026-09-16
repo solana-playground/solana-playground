@@ -1197,7 +1197,7 @@ export class PgExplorer {
     }
 
     // Load metadata info from `indexedDB`
-    let metaFile = await this.fs.readToJSONOrDefault<ItemMetaFile>(
+    let metaFile = await this.fs.readToJsonOrDefault<ItemMetaFile>(
       PgWorkspace.METADATA_PATH,
       []
     );
@@ -1274,7 +1274,7 @@ export class PgExplorer {
    * @returns the workspaces state
    */
   private static async _getWorkspaces() {
-    return await this.fs.readToJSONOrDefault(
+    return await this.fs.readToJsonOrDefault(
       PgWorkspace.WORKSPACES_CONFIG_PATH,
       PgWorkspace.DEFAULT
     );

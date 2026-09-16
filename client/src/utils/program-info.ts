@@ -68,7 +68,7 @@ const storage = {
 
     let serializedState: SerializedProgramInfo;
     try {
-      serializedState = await PgExplorer.fs.readToJSON(this.PATH);
+      serializedState = await PgExplorer.fs.readToJson(this.PATH);
     } catch {
       return defaultState;
     }

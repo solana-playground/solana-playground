@@ -90,10 +90,10 @@ export class PgJsPackage {
    */
   static async getTypes(name: string) {
     const pkgPath = this._getInternalPath(name);
-    const files = await fs.readToJSON<TupleFiles>(
+    const files = await fs.readToJson<TupleFiles>(
       PgCommon.joinPaths(pkgPath, this._PATHS.TYPES_FILE)
     );
-    const dependencies = await fs.readToJSON<string[]>(
+    const dependencies = await fs.readToJson<string[]>(
       PgCommon.joinPaths(pkgPath, this._PATHS.DEPENDENCIES_FILE)
     );
     return { files, dependencies };

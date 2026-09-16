@@ -33,7 +33,7 @@ const storage = {
       return defaultState;
     }
 
-    return await PgExplorer.fs.readToJSONOrDefault(this.PATH, defaultState);
+    return await PgExplorer.fs.readToJsonOrDefault(this.PATH, defaultState);
   },
 
   /** Serialize the data and write to storage. */
@@ -156,7 +156,7 @@ class _PgTutorial {
    * @returns tutorial metadata
    */
   static async getMetadata(name: string) {
-    return await PgExplorer.fs.readToJSON<TutorialMetadata>(
+    return await PgExplorer.fs.readToJson<TutorialMetadata>(
       PgCommon.joinPaths(PgExplorer.PATHS.ROOT_DIR_PATH, name, storage.PATH)
     );
   }
@@ -322,7 +322,7 @@ class _PgTutorial {
        * @returns the data as JSON
        */
       private async _readFile() {
-        return await PgExplorer.fs.readToJSONOrDefault(
+        return await PgExplorer.fs.readToJsonOrDefault(
           PgTutorialStorage._PATH,
           defaultValue
         );
