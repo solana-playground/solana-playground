@@ -172,22 +172,52 @@ impl<'a> Sandbox<'a> {
                         // running container and make the path absolute.
                         //
                         // TODO: Only run when there is a relative container path
-                        let output = Command::new("docker")
-                            .arg("exec")
-                            .arg(&container)
-                            .arg("pwd")
-                            .output()
-                            .await?;
-                        if !output.status.success() {
-                            return Err(anyhow!("Failed to get Docker WORKDIR"));
-                        }
+                        let workdir = output_cmd(
+                            Command::new("docker")
+                                .arg("exec")
+                                .arg(&container)
+                                .arg("pwd"),
+                        )
+                        .await
+                        .map(PathBuf::from)?;
 
-                        let workdir = str::from_utf8(&output.stdout)
-                            .map(|x| x.trim())
-                            .map(Path::new)?;
-                        let src = Action::copy_path(src, &container, workdir)?;
-                        let dst = Action::copy_path(dst, &container, workdir)?;
-                        run_cmd(Command::new("docker").arg("cp").arg(src).arg(dst)).await?;
+                        let src = Action::copy_path(src, &container, &workdir)?;
+                        let stripped_container_dst = dst
+                            .to_str()
+                            .ok_or_else(|| anyhow!("Invalid path: {dst:?}"))?
+                            .strip_prefix("container:")
+                            .map(Path::new);
+                        match (&self.cfg.user, stripped_container_dst) {
+                            // If transfering to the container, `docker cp` does not set the current
+                            // user as the owner. The owner cannot be changed because `CAP_CHOWN` is
+                            // removed (by `--cap-drop=ALL`). As a workaround, `docker cp` into a
+                            // temp directory and then copy the files to the actual destination
+                            // using the current user.
+                            (Some(_), Some(stripped_container_dst)) => {
+                                // TODO: Get temp dir from the container instead of hardcoding
+                                let temp_dst = Path::new("/tmp").join(stripped_container_dst);
+                                let dst = Action::copy_path(
+                                    &PathBuf::from(format!("container:{}", temp_dst.display())),
+                                    &container,
+                                    &workdir,
+                                )?;
+                                run_cmd(Command::new("docker").arg("cp").arg(src).arg(dst)).await?;
+                                run_cmd(
+                                    Command::new("docker")
+                                        .arg("exec")
+                                        .arg(&container)
+                                        .arg("cp")
+                                        .arg("--recursive")
+                                        .arg(temp_dst)
+                                        .arg(stripped_container_dst),
+                                )
+                                .await?;
+                            }
+                            _ => {
+                                let dst = Action::copy_path(dst, &container, &workdir)?;
+                                run_cmd(Command::new("docker").arg("cp").arg(src).arg(dst)).await?;
+                            }
+                        }
                     }
                     Action::Run(cmd) => {
                         let cmd = cmd.as_std();
@@ -307,4 +337,24 @@ async fn run_cmd(cmd: &mut Command) -> Result<()> {
     }
 
     Ok(())
+}
+
+/// Run a command and get its output from `stdout` (trimmed).
+///
+/// If the command fails, an error is returned.
+async fn output_cmd(cmd: &mut Command) -> Result<String> {
+    let output = cmd.output().await?;
+    if !output.status.success() {
+        let cmd = cmd.as_std();
+        return Err(anyhow!(
+            "Failed to run `{:?} {:?}",
+            cmd.get_program(),
+            cmd.get_args()
+        ));
+    }
+
+    str::from_utf8(&output.stdout)
+        .map(|s| s.trim())
+        .map(ToOwned::to_owned)
+        .map_err(Into::into)
 }
