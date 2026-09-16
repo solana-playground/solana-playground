@@ -6,11 +6,15 @@ import { PgServer } from "./server";
 const fs = PgExplorer.fs;
 
 export class PgJsPackage {
-  /** Install packages as a bundle. */
-  static async install() {
+  /**
+   * Install packages as a bundle.
+   *
+   * @param command package manager command tokens
+   */
+  static async install(command?: string[]) {
     const manifest = await this._getManifest();
     const lock = await this._getLock();
-    const result = await PgServer.bundle({ manifest, lock });
+    const result = await PgServer.bundle({ manifest, lock, command });
 
     // Clear the existing data for fresh installs each time
     const internalRootDirPath = this._PATHS.INTERNAL_ROOT_DIR;

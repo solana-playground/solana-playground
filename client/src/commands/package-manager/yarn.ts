@@ -1,5 +1,5 @@
 import { PgCommand } from "../../utils";
-import { createCmd, createSubcmd } from "../create";
+import { createArgs, createCmd, createSubcmd } from "../create";
 
 export const yarn = createCmd({
   name: "yarn",
@@ -11,7 +11,18 @@ export const yarn = createCmd({
       // FIXME: If the command fails, it prints the error twice (in the terminal)
       handle: (input) => PgCommand.pm.execute(...input.tokens.slice(1)),
     }),
-    // TODO: `add`
+    createSubcmd({
+      name: "add",
+      description: "Add package(s)",
+      args: createArgs([
+        {
+          name: "packages",
+          description: "Package(s) to add",
+          multiple: true,
+        },
+      ]),
+      handle: (input) => PgCommand.pm.execute(...input.tokens.slice(1)),
+    }),
     // TODO: `remove`
     // TODO: `upgrade`
   ],

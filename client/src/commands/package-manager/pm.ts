@@ -1,5 +1,5 @@
 import { PgCommon, PgJsPackage, PgTerminal } from "../../utils";
-import { createCmd, createSubcmd } from "../create";
+import { createArgs, createCmd, createSubcmd } from "../create";
 
 // TODO: `npm`
 // TODO: `pnpm`
@@ -11,17 +11,40 @@ export const pm = createCmd({
       // TODO: Alias
       name: "install",
       description: "Install packages",
-      handle: async () => {
-        // TODO: Add the relevant manifest and lock file if non-existent (ask?)
-        const startTime = performance.now();
-        await PgJsPackage.install();
-        const timePassed = (performance.now() - startTime) / 1000;
-        PgTerminal.println(
-          `${PgTerminal.success(
-            "Installation successful."
-          )} Completed in ${PgCommon.formatSeconds(timePassed)}.`
-        );
+      // TODO: Add the relevant manifest and lock file if non-existent (ask?)
+      handle: () => processCommon("Installation", ["install"]),
+    }),
+
+    createSubcmd({
+      name: "add",
+      description: "Add package(s)",
+      args: createArgs([
+        {
+          name: "packages",
+          description: "Package(s) to add",
+          multiple: true,
+        },
+      ]),
+      handle: async (input) => {
+        await processCommon("Addition", ["add", ...input.args.packages]);
       },
     }),
   ],
 });
+
+/**
+ * Run process.
+ *
+ * @param name process name
+ * @param cmd package manager command tokens
+ */
+const processCommon = async (name: string, cmd: string[]) => {
+  const startTime = performance.now();
+  await PgJsPackage.install(["yarn", ...cmd]);
+  const timePassed = (performance.now() - startTime) / 1000;
+  PgTerminal.println(
+    `${PgTerminal.success(
+      `${name} successful.`
+    )} Completed in ${PgCommon.formatSeconds(timePassed)}.`
+  );
+};

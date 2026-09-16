@@ -77,9 +77,21 @@ fn handle_package_manager_command(args: &Args) -> Result<Manifest> {
         [name, args @ ..] => match name.as_str() {
             "yarn" => {
                 match args {
+                    // TODO: Only allow known options (e.g. `--dev`)
                     [command, args @ ..] => match command.as_str() {
                         "install" => run_yarn_install(args)?,
-                        // TODO: `add`
+                        "add" => {
+                            let status = Command::new("yarn")
+                                .current_dir(PACKAGES_DIR)
+                                .arg("--ignore-scripts")
+                                .arg("--prefer-offline")
+                                .arg(command)
+                                .args(args)
+                                .status()?;
+                            if !status.success() {
+                                return Err(anyhow!("Failed to add"));
+                            }
+                        }
                         // TODO: `remove`
                         // TODO: `upgrade`
                         _ => return Err(anyhow!("Unsupported command: `{command}`")),
@@ -113,10 +125,10 @@ fn handle_package_manager_command(args: &Args) -> Result<Manifest> {
 fn run_yarn_install(args: &[String]) -> Result<()> {
     let status = Command::new("yarn")
         .current_dir(PACKAGES_DIR)
-        .arg("install")
-        .args(args)
         .arg("--ignore-scripts")
         .arg("--prefer-offline")
+        .arg("install")
+        .args(args)
         .status()?;
     if !status.success() {
         return Err(anyhow!("Failed to install"));
