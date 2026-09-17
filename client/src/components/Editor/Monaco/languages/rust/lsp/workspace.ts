@@ -38,17 +38,26 @@ export class Workspace {
     );
   }
 
-  /** Get all project files the server needs, relative to the project root. */
+  /** Get the files `open` needs: sources plus the root `cargo` files. */
   static getFiles(): Files {
     const root = PgExplorer.getProjectRootPath();
+    const cargoPaths = ["Cargo.toml", "Cargo.lock"].map((name) =>
+      PgCommon.joinPaths(root, name)
+    );
+    return Workspace._collect(
+      (path) => Workspace.isProjectSource(path) || cargoPaths.includes(path)
+    );
+  }
+
+  /** Get the files `sync` needs; the server only writes `src/`. */
+  static getSourceFiles(): Files {
+    return Workspace._collect(Workspace.isProjectSource);
+  }
+
+  private static _collect(include: (path: string) => boolean): Files {
     const files: Files = [];
     for (const path in PgExplorer.files) {
-      const isSource = Workspace.isProjectSource(path);
-      const isManifest =
-        path === PgCommon.joinPaths(root, "Cargo.toml") ||
-        path === PgCommon.joinPaths(root, "Cargo.lock");
-      if (!isSource && !isManifest) continue;
-
+      if (!include(path)) continue;
       const content = PgExplorer.files[path].content;
       if (content === undefined) continue;
       files.push([PgExplorer.toRelativePath(path), content]);

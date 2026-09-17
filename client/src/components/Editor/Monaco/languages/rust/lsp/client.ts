@@ -257,7 +257,9 @@ const syncDocuments = (
   let lastSync: Promise<void> = Promise.resolve();
   const sync = () => {
     lastSync = lastSync
-      .then(() => conn.request(BRIDGE.sync, { files: Workspace.getFiles() }))
+      .then(() =>
+        conn.request(BRIDGE.sync, { files: Workspace.getSourceFiles() })
+      )
       .then(
         () => {},
         (e) => {
