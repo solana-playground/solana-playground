@@ -98,16 +98,22 @@ impl Template {
     }
 
     /// Get whether the given cargo files matches the template.
-    pub fn matches(&self, manifest: &str, lock: &str) -> Result<bool> {
+    ///
+    /// Without a lock, the manifest alone decides: the template's own lock
+    /// applies (the build images fix the dependency set anyway).
+    pub fn matches(&self, manifest: &str, lock: Option<&str>) -> Result<bool> {
         // TODO: Cache
         let template_dir = Path::new("templates").join(self.name);
         let manifest_path = template_dir.join(self.program_path).join("Cargo.toml");
         let actual_manifest = fs::read_to_string(manifest_path)?;
+        if manifest != actual_manifest {
+            return Ok(false);
+        }
 
+        let Some(lock) = lock else { return Ok(true) };
         let lock_path = template_dir.join("Cargo.lock");
         let actual_lock = fs::read_to_string(lock_path)?;
-
-        Ok(manifest == actual_manifest && lock == actual_lock)
+        Ok(lock == actual_lock)
     }
 }
 

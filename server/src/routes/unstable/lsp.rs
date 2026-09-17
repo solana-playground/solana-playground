@@ -305,22 +305,27 @@ fn validate(files: &Files, limits: &Limits) -> Result<()> {
 }
 
 /// Pick the template from the `cargo` files, the default one if there are none.
+///
+/// A manifest without a lock matches against the template manifest alone.
 fn find_template(files: &Files) -> Result<&'static Template> {
     let manifest = files.iter().find(|(p, _)| p == "Cargo.toml");
     let lock = files.iter().find(|(p, _)| p == "Cargo.lock");
     match (manifest, lock) {
         (None, None) => Ok(Default::default()),
-        (Some((_, manifest)), Some((_, lock))) => get_all_templates()
-            .iter()
-            .find(|t| t.matches(manifest, lock).unwrap_or(false))
-            .ok_or_else(|| {
-                anyhow!(
-                    "The `cargo` files match no build template: the dependency set \
-                    is fixed by the build images. Revert `Cargo.toml` to restore \
-                    builds and intellisense"
-                )
-            }),
-        _ => Err(anyhow!("Missing `cargo` file")),
+        (None, Some(_)) => Err(anyhow!("Missing `Cargo.toml`")),
+        (Some((_, manifest)), lock) => {
+            let lock = lock.map(|(_, content)| content.as_str());
+            for template in get_all_templates() {
+                if template.matches(manifest, lock)? {
+                    return Ok(template);
+                }
+            }
+            Err(anyhow!(
+                "The `cargo` files match no build template: the dependency set \
+                is fixed by the build images. Revert `Cargo.toml` to restore \
+                builds and intellisense"
+            ))
+        }
     }
 }
 

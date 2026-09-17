@@ -148,14 +148,13 @@ pub async fn build(
     .map_err(|e| anyhow!("Failed to write build files: {e}"))?;
 
     // Get which templete to use from the `cargo` files
-    let template_name = match cargo_files.len() {
-        2 => 'outer: {
-            let (manifest, lock) = match cargo_files.as_slice() {
-                [(p1, c1), (p2, c2)] if p1 == "Cargo.toml" && p2 == "Cargo.lock" => (c1, c2),
-                [(p1, c1), (p2, c2)] if p1 == "Cargo.lock" && p2 == "Cargo.toml" => (c2, c1),
-                _ => return Err(anyhow!("Unexpected `cargo` files"))?,
-            };
-
+    let manifest = cargo_files.iter().find(|(path, _)| path == "Cargo.toml");
+    let lock = cargo_files.iter().find(|(path, _)| path == "Cargo.lock");
+    let template_name = match (manifest, lock) {
+        (None, None) => Default::default(),
+        (None, Some(_)) => return Err(anyhow!("Missing `Cargo.toml`"))?,
+        (Some((_, manifest)), lock) => 'outer: {
+            let lock = lock.map(|(_, content)| content.as_str());
             for template in get_all_templates() {
                 if template.matches(manifest, lock)? {
                     break 'outer template;
@@ -164,9 +163,6 @@ pub async fn build(
 
             return Err(anyhow!("Failed to find a build template"))?;
         }
-        0 => Default::default(),
-        1 => return Err(anyhow!("Missing `cargo` file"))?,
-        _ => return Err(anyhow!("Too many `cargo` files: {}", cargo_files.len()))?,
     }
     .name();
     let image = get_image_name(format!("program-{template_name}"));
