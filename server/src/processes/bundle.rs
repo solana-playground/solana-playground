@@ -104,7 +104,18 @@ fn handle_package_manager_command(args: &Args) -> Result<Manifest> {
                                 return Err(anyhow!("Failed to remove"));
                             }
                         }
-                        // TODO: `upgrade`
+                        "upgrade" => {
+                            let status = Command::new("yarn")
+                                .current_dir(PACKAGES_DIR)
+                                .arg("--ignore-scripts")
+                                .arg("--prefer-offline")
+                                .arg(command)
+                                .args(args)
+                                .status()?;
+                            if !status.success() {
+                                return Err(anyhow!("Failed to upgrade"));
+                            }
+                        }
                         _ => return Err(anyhow!("Unsupported command: `{command}`")),
                     },
                     // Empty `yarn` defaults to install

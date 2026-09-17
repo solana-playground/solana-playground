@@ -5,6 +5,8 @@ export const yarn = createCmd({
   name: "yarn",
   description: "Yarn package manager (v1)",
   subcommands: [
+    // TODO: `init`
+
     createSubcmd({
       name: "install",
       description: "Install packages",
@@ -37,6 +39,20 @@ export const yarn = createCmd({
       ]),
       handle: (input) => PgCommand.pm.execute(...input.tokens.slice(1)),
     }),
-    // TODO: `upgrade`
+
+    createSubcmd({
+      name: "upgrade",
+      description: "Upgrade package(s)",
+      args: createArgs([
+        {
+          name: "packages",
+          description: "Package(s) to upgrade",
+          multiple: true,
+        },
+      ]),
+      handle: async (input) => {
+        return await PgCommand.pm.execute("update", ...input.tokens.slice(2));
+      },
+    }),
   ],
 });

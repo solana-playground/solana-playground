@@ -44,6 +44,21 @@ export const pm = createCmd({
         await processCommon("Removal", ["remove", ...input.args.packages]);
       },
     }),
+
+    createSubcmd({
+      name: "update",
+      description: "Update package(s)",
+      args: createArgs([
+        {
+          name: "packages",
+          description: "Package(s) to update",
+          multiple: true,
+        },
+      ]),
+      handle: async (input) => {
+        await processCommon("Update", ["upgrade", ...input.args.packages]);
+      },
+    }),
   ],
 });
 
