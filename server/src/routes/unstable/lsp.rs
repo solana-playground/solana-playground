@@ -25,17 +25,23 @@ use solpg_server::{
 use tokio::{
     io::{AsyncReadExt, AsyncWriteExt},
     sync::Semaphore,
-    time::{interval, sleep_until, Instant},
+    time::{interval, sleep_until, timeout, Instant},
 };
 
 use crate::middlewares::is_allowed_origin;
 
-/// Methods the bridge answers itself; everything else goes to the language server
+// Methods the bridge answers itself; everything else goes to the language server
 const OPEN_METHOD: &str = "solpg/open";
 const SYNC_METHOD: &str = "solpg/sync";
 
 /// How often to ping the client so that proxies keep an idle socket open
 const PING_INTERVAL: Duration = Duration::from_secs(30);
+
+/// How long the client has to send `solpg/open` after connecting
+const OPEN_TIMEOUT: Duration = Duration::from_secs(30);
+
+/// Buffered outgoing bytes after which a session with a stalled reader ends
+const MAX_WRITE_BUFFER: usize = 16 * 1024 * 1024;
 
 /// Language server state shared between sessions
 #[derive(Clone)]
@@ -88,33 +94,24 @@ pub async fn lsp(
         return (StatusCode::FORBIDDEN, "Origin not allowed").into_response();
     }
 
-    ws.on_upgrade(move |socket| async move {
-        if let Err(e) = handle(socket, state).await {
-            error!("LSP session failed: {e}");
-        }
-    })
+    // Incoming frames carry at most the project files plus JSON escaping
+    ws.max_message_size(2 * state.limits.max_files_bytes + 64 * 1024)
+        .max_write_buffer_size(MAX_WRITE_BUFFER)
+        .on_upgrade(move |socket| async move {
+            if let Err(e) = handle(socket, state).await {
+                error!("LSP session failed: {e}");
+            }
+        })
 }
 
 /// Run one session: wait for `solpg/open`, start the container, pump messages.
 async fn handle(mut socket: WebSocket, state: LspState) -> Result<()> {
-    // The first message must be `solpg/open` with the project files
-    let (open_id, files) = loop {
-        let Some(msg) = socket.recv().await else {
-            return Ok(());
-        };
-        let Message::Text(text) = msg? else { continue };
-        let incoming: Incoming = serde_json::from_str(&text)?;
-        let id = incoming.id.unwrap_or(Value::Null);
-        match incoming.method.as_deref() {
-            Some(OPEN_METHOD) => match parse_files(incoming.params, &state.limits) {
-                Ok(files) => break (id, files),
-                Err(e) => {
-                    send_error(&mut socket, id, &e.to_string()).await?;
-                    return Ok(());
-                }
-            },
-            _ => send_error(&mut socket, id, "Send `solpg/open` first").await?,
-        }
+    // Nothing is served until `solpg/open` arrives, and the deadline keeps
+    // parked sockets from piling up before the concurrency permit applies
+    let opened = timeout(OPEN_TIMEOUT, wait_for_open(&mut socket, &state)).await;
+    let Ok(opened) = opened else { return Ok(()) };
+    let Some((open_id, files)) = opened? else {
+        return Ok(());
     };
 
     let Ok(_permit) = state.sem.try_acquire() else {
@@ -144,6 +141,31 @@ async fn handle(mut socket: WebSocket, state: LspState) -> Result<()> {
     .await;
     session.stop().await;
     result
+}
+
+/// Wait for `solpg/open`; `None` means the client went away or sent bad files.
+async fn wait_for_open(
+    socket: &mut WebSocket,
+    state: &LspState,
+) -> Result<Option<(Value, Files)>> {
+    loop {
+        let Some(msg) = socket.recv().await else {
+            return Ok(None);
+        };
+        let Message::Text(text) = msg? else { continue };
+        let incoming: Incoming = serde_json::from_str(&text)?;
+        let id = incoming.id.unwrap_or(Value::Null);
+        match incoming.method.as_deref() {
+            Some(OPEN_METHOD) => match parse_files(incoming.params, &state.limits) {
+                Ok(files) => return Ok(Some((id, files))),
+                Err(e) => {
+                    send_error(socket, id, &e.to_string()).await?;
+                    return Ok(None);
+                }
+            },
+            _ => send_error(socket, id, "Send `solpg/open` first").await?,
+        }
+    }
 }
 
 /// Bridge the socket and the language server until either side goes away.
