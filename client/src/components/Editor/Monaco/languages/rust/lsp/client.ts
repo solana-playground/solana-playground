@@ -4,7 +4,7 @@ import * as lsp from "./protocol";
 import { toMonacoMarker } from "./convert";
 import { JsonRpcConnection } from "./jsonrpc";
 import { registerProviders } from "./providers";
-import { setStatus } from "./status";
+import { pulseActivity, setStatus } from "./status";
 import { Workspace } from "./workspace";
 import type { WorkspaceInfo } from "./workspace";
 import { importTypes } from "../../common";
@@ -149,7 +149,7 @@ const open = async (url: string) => {
       reject(new Error(`Could not connect to the language server at ${url}`));
   });
 
-  const conn = new JsonRpcConnection(socket);
+  const conn = new JsonRpcConnection(socket, pulseActivity);
   try {
     const info = await PgCommon.timeout(
       conn.request<WorkspaceInfo>(BRIDGE.open, { files: Workspace.getFiles() }),
@@ -291,8 +291,16 @@ const syncDocuments = (
   // Trigger the first check: rust-analyzer only checks on save
   if (sourcePaths.length) saveDocument(sourcePaths[0]);
 
-  // Structural changes: mirror the tree, then diff the set of open sources
+  // Structural changes: mirror the tree, then diff the set of open sources.
+  // An unchanged source set skips the sync: only `src/*.rs` ships, and
+  // `saveDocument` re-syncs the full state before every `cargo check`.
   const { dispose: disposeStructure } = PgCommon.batchChanges(async () => {
+    const paths = getSourcePaths();
+    const changed =
+      paths.length !== documents.size ||
+      paths.some((path) => !documents.has(path));
+    if (!changed) return;
+
     await sync();
     if (conn.closed) return;
 

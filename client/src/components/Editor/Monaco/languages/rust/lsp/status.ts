@@ -9,7 +9,15 @@ export type LspStatus = "off" | "connecting" | "connected" | "disconnected";
 /** Status change event name */
 const ON_DID_CHANGE_STATUS = "rustanalyzerlspondidchangestatus";
 
+/** Socket activity event name */
+const ON_DID_PULSE_ACTIVITY = "rustanalyzerlspondidpulseactivity";
+
+/** Minimum gap between activity pulses, so steady traffic reads as a rhythm */
+const ACTIVITY_THROTTLE_MS = 500;
+
 let status: LspStatus = "off";
+
+let lastPulse = 0;
 
 /** Callback that starts a new session, registered by the backend dispatcher */
 let restart: (() => void) | undefined;
@@ -26,6 +34,18 @@ export const onDidChangeStatus = (
   cb: (status: LspStatus) => unknown
 ): Disposable =>
   PgCommon.onDidChange(ON_DID_CHANGE_STATUS, cb, { value: status });
+
+/** Signal a message crossing the socket; throttled. */
+export const pulseActivity = () => {
+  const now = Date.now();
+  if (now - lastPulse < ACTIVITY_THROTTLE_MS) return;
+  lastPulse = now;
+  PgCommon.createAndDispatchCustomEvent(ON_DID_PULSE_ACTIVITY);
+};
+
+/** Subscribe to socket activity pulses. */
+export const onDidPulseActivity = (cb: () => unknown): Disposable =>
+  PgCommon.onDidChange(ON_DID_PULSE_ACTIVITY, cb);
 
 /** Register the callback {@link requestRestart} runs. */
 export const setRestartHandler = (cb: () => void) => {

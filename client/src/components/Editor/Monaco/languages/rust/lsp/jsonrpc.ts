@@ -1,44 +1,12 @@
+import { createWebSocketConnection, toSocket } from "vscode-ws-jsonrpc";
+import type { IWebSocket } from "vscode-ws-jsonrpc";
+import { ErrorCodes, ResponseError } from "vscode-jsonrpc";
+import type { MessageConnection } from "vscode-jsonrpc";
+
 import type { Disposable } from "../../../../../../utils";
 
-/** The part of `WebSocket` the connection uses (swappable in tests) */
-export interface MessageSocket {
-  send: (data: string) => void;
-  close: () => void;
-  addEventListener: (
-    type: "message" | "close" | "error",
-    listener: (ev: { data?: unknown }) => void
-  ) => void;
-}
-
-interface RequestMessage {
-  jsonrpc: "2.0";
-  id: number;
-  method: string;
-  params?: unknown;
-}
-
-interface NotificationMessage {
-  jsonrpc: "2.0";
-  method: string;
-  params?: unknown;
-}
-
-interface ResponseMessage {
-  jsonrpc: "2.0";
-  id: number | string;
-  result?: unknown;
-  error?: { code: number; message: string; data?: unknown };
-}
-
-type Message = RequestMessage | NotificationMessage | ResponseMessage;
-
-/** Error returned by the server for a request */
-export class ResponseError extends Error {
-  constructor(readonly code: number, message: string, readonly data?: unknown) {
-    super(message);
-    this.name = "ResponseError";
-  }
-}
+export { ResponseError };
+export type { IWebSocket };
 
 /** Request sent or pending after the socket closed */
 export class ConnectionClosedError extends Error {
@@ -49,29 +17,26 @@ export class ConnectionClosedError extends Error {
 }
 
 /**
- * JSON-RPC 2.0 over a message socket, one message per frame.
- *
- * No `Content-Length` framing: the WebSocket already delimits messages. The
- * server side of the bridge adds the framing for the language server's stdio.
+ * JSON-RPC 2.0 over a WebSocket via `vscode-ws-jsonrpc`, one bare message per
+ * frame. The server side of the bridge adds the `Content-Length` framing for
+ * the language server's stdio.
  */
 export class JsonRpcConnection {
-  private _nextId = 1;
-  private _pending = new Map<
-    number,
-    { resolve: (v: unknown) => void; reject: (e: Error) => void }
-  >();
-  private _notificationHandlers = new Map<string, (params: unknown) => void>();
-  private _requestHandlers = new Map<
-    string,
-    (params: unknown) => unknown | Promise<unknown>
-  >();
+  private readonly _socket: IWebSocket;
+  private readonly _conn: MessageConnection;
   private _closeListeners: Array<() => void> = [];
   private _closed = false;
 
-  constructor(private readonly _socket: MessageSocket) {
-    _socket.addEventListener("message", (ev) => this._receive(ev.data));
-    _socket.addEventListener("close", () => this._handleClose());
-    _socket.addEventListener("error", () => this._handleClose());
+  constructor(
+    socket: WebSocket | IWebSocket,
+    /** Runs on every message sent or received, e.g. for a traffic indicator */
+    onActivity?: () => void
+  ) {
+    const raw = "onMessage" in socket ? socket : toSocket(socket);
+    this._socket = onActivity ? withActivity(raw, onActivity) : raw;
+    this._conn = createWebSocketConnection(this._socket, console);
+    this._conn.onClose(() => this._handleClose());
+    this._conn.listen();
   }
 
   /** Whether the socket has closed */
@@ -80,29 +45,38 @@ export class JsonRpcConnection {
   }
 
   /** Send a request and wait for its response. */
-  request<R>(method: string, params?: unknown): Promise<R> {
-    if (this._closed) return Promise.reject(new ConnectionClosedError());
-
-    const id = this._nextId++;
-    return new Promise<unknown>((resolve, reject) => {
-      this._pending.set(id, { resolve, reject });
-      this._send({ jsonrpc: "2.0", id, method, params });
-    }) as Promise<R>;
+  async request<R>(method: string, params?: unknown): Promise<R> {
+    if (this._closed) throw new ConnectionClosedError();
+    try {
+      return await (params === undefined
+        ? this._conn.sendRequest<R>(method)
+        : this._conn.sendRequest<R>(method, params));
+    } catch (e) {
+      if (this._closed || isClosedError(e)) throw new ConnectionClosedError();
+      throw e;
+    }
   }
 
   /** Send a notification (no response). */
   notify(method: string, params?: unknown) {
     if (this._closed) return;
-    this._send({ jsonrpc: "2.0", method, params });
+    try {
+      const sent =
+        params === undefined
+          ? this._conn.sendNotification(method)
+          : this._conn.sendNotification(method, params);
+      sent.catch(() => {});
+    } catch {
+      // Lost the race with a closing socket
+    }
   }
 
   /** Handle a notification from the server. */
   onNotification<P>(method: string, handler: (params: P) => void): Disposable {
-    this._notificationHandlers.set(
+    return this._conn.onNotification(
       method,
       handler as (params: unknown) => void
     );
-    return { dispose: () => this._notificationHandlers.delete(method) };
   }
 
   /** Handle a request from the server. */
@@ -110,11 +84,10 @@ export class JsonRpcConnection {
     method: string,
     handler: (params: P) => R | Promise<R>
   ): Disposable {
-    this._requestHandlers.set(
+    return this._conn.onRequest(
       method,
-      handler as (params: unknown) => unknown | Promise<unknown>
+      handler as (params: unknown) => R | Promise<R>
     );
-    return { dispose: () => this._requestHandlers.delete(method) };
   }
 
   /** Run the callback once when the connection closes. */
@@ -130,81 +103,37 @@ export class JsonRpcConnection {
   /** Close the socket and fail all pending requests. */
   dispose() {
     if (this._closed) return;
-    this._socket.close();
+    this._socket.dispose();
     this._handleClose();
-  }
-
-  private _send(msg: Message) {
-    this._socket.send(JSON.stringify(msg));
-  }
-
-  private _receive(data: unknown) {
-    if (typeof data !== "string") return;
-
-    let msg: Message;
-    try {
-      msg = JSON.parse(data);
-    } catch {
-      return;
-    }
-
-    if ("method" in msg) {
-      if ("id" in msg) this._handleRequest(msg);
-      else this._notificationHandlers.get(msg.method)?.(msg.params);
-      return;
-    }
-
-    if (typeof msg.id !== "number") return;
-    const pending = this._pending.get(msg.id);
-    if (!pending) return;
-    this._pending.delete(msg.id);
-
-    if (msg.error) {
-      pending.reject(
-        new ResponseError(msg.error.code, msg.error.message, msg.error.data)
-      );
-    } else {
-      pending.resolve(msg.result ?? null);
-    }
-  }
-
-  private async _handleRequest(msg: RequestMessage) {
-    const handler = this._requestHandlers.get(msg.method);
-    if (!handler) {
-      this._send({
-        jsonrpc: "2.0",
-        id: msg.id,
-        error: { code: -32601, message: `Method not found: ${msg.method}` },
-      });
-      return;
-    }
-
-    try {
-      const result = await handler(msg.params);
-      this._send({ jsonrpc: "2.0", id: msg.id, result: result ?? null });
-    } catch (e) {
-      this._send({
-        jsonrpc: "2.0",
-        id: msg.id,
-        error: {
-          code: -32603,
-          message: e instanceof Error ? e.message : "Internal error",
-        },
-      });
-    }
   }
 
   private _handleClose() {
     if (this._closed) return;
     this._closed = true;
-
-    for (const { reject } of this._pending.values()) {
-      reject(new ConnectionClosedError());
-    }
-    this._pending.clear();
-
+    // Rejects every pending request (a no-op when the library got there first)
+    this._conn.dispose();
     const listeners = this._closeListeners;
     this._closeListeners = [];
     listeners.forEach((cb) => cb());
   }
 }
+
+/** Report traffic in both directions without touching the socket's own state. */
+const withActivity = (socket: IWebSocket, onActivity: () => void): IWebSocket => ({
+  send: (content) => {
+    onActivity();
+    socket.send(content);
+  },
+  onMessage: (cb) =>
+    socket.onMessage((data) => {
+      onActivity();
+      cb(data);
+    }),
+  onError: (cb) => socket.onError(cb),
+  onClose: (cb) => socket.onClose(cb),
+  dispose: () => socket.dispose(),
+});
+
+/** The library rejects pending requests with this code when disposed */
+const isClosedError = (e: unknown) =>
+  e instanceof ResponseError && e.code === ErrorCodes.PendingResponseRejected;
