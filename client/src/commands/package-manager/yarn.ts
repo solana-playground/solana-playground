@@ -11,6 +11,7 @@ export const yarn = createCmd({
       // FIXME: If the command fails, it prints the error twice (in the terminal)
       handle: (input) => PgCommand.pm.execute(...input.tokens.slice(1)),
     }),
+
     createSubcmd({
       name: "add",
       description: "Add package(s)",
@@ -23,7 +24,19 @@ export const yarn = createCmd({
       ]),
       handle: (input) => PgCommand.pm.execute(...input.tokens.slice(1)),
     }),
-    // TODO: `remove`
+
+    createSubcmd({
+      name: "remove",
+      description: "Remove package(s)",
+      args: createArgs([
+        {
+          name: "packages",
+          description: "Package(s) to remove",
+          multiple: true,
+        },
+      ]),
+      handle: (input) => PgCommand.pm.execute(...input.tokens.slice(1)),
+    }),
     // TODO: `upgrade`
   ],
 });

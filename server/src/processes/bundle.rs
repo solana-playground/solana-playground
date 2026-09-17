@@ -92,7 +92,18 @@ fn handle_package_manager_command(args: &Args) -> Result<Manifest> {
                                 return Err(anyhow!("Failed to add"));
                             }
                         }
-                        // TODO: `remove`
+                        "remove" => {
+                            let status = Command::new("yarn")
+                                .current_dir(PACKAGES_DIR)
+                                .arg("--ignore-scripts")
+                                .arg("--prefer-offline")
+                                .arg(command)
+                                .args(args)
+                                .status()?;
+                            if !status.success() {
+                                return Err(anyhow!("Failed to remove"));
+                            }
+                        }
                         // TODO: `upgrade`
                         _ => return Err(anyhow!("Unsupported command: `{command}`")),
                     },
@@ -193,8 +204,6 @@ fn generate_bundle(manifest: &Manifest) -> Result<()> {
 /// Module names must be valid JS variable names.
 ///
 /// NOTE: This must be kept in sync with the client.
-//
-// TODO: It might be better to include a mapping of package names to module names as a separate file
 fn to_module_name(pkg_name: &str) -> String {
     pkg_name.replace(['@', '/', '-', '_', '.'], "")
 }
