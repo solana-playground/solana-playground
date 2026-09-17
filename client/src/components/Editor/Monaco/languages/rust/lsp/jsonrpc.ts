@@ -10,12 +10,6 @@ export interface MessageSocket {
   ) => void;
 }
 
-/** The part of Monaco's `CancellationToken` the connection uses */
-export interface CancellationToken {
-  isCancellationRequested: boolean;
-  onCancellationRequested: (listener: () => void) => Disposable;
-}
-
 interface RequestMessage {
   jsonrpc: "2.0";
   id: number;
@@ -46,7 +40,7 @@ export class ResponseError extends Error {
   }
 }
 
-/** `textDocument/*` requests that arrive after the socket closed */
+/** Request sent or pending after the socket closed */
 export class ConnectionClosedError extends Error {
   constructor() {
     super("LSP connection is closed");
@@ -89,27 +83,15 @@ export class JsonRpcConnection {
     return this._closed;
   }
 
-  /**
-   * Send a request and wait for its response.
-   *
-   * Cancelling the token sends `$/cancelRequest`; the server then answers
-   * with an error, which rejects the returned promise.
-   */
-  request<R>(
-    method: string,
-    params?: unknown,
-    token?: CancellationToken
-  ): Promise<R> {
+  /** Send a request and wait for its response. */
+  request<R>(method: string, params?: unknown): Promise<R> {
     if (this._closed) return Promise.reject(new ConnectionClosedError());
 
     const id = this._nextId++;
-    const cancellation = token?.onCancellationRequested(() => {
-      if (this._pending.has(id)) this.notify("$/cancelRequest", { id });
-    });
     return new Promise<unknown>((resolve, reject) => {
       this._pending.set(id, { resolve, reject });
       this._send({ jsonrpc: "2.0", id, method, params });
-    }).finally(() => cancellation?.dispose()) as Promise<R>;
+    }) as Promise<R>;
   }
 
   /** Send a notification (no response). */
