@@ -184,9 +184,12 @@ async fn run(
         tokio::select! {
             msg = socket.recv() => {
                 let Some(msg) = msg else { break "client disconnected" };
-                idle_deadline = Instant::now() + limits.idle_timeout;
                 match msg? {
                     Message::Text(text) => {
+                        // Only real traffic counts as activity: the browser
+                        // auto-answers the keepalive pings, so a pong must not
+                        // defeat the idle timeout
+                        idle_deadline = Instant::now() + limits.idle_timeout;
                         if is_method(&text, SYNC_METHOD) {
                             let incoming: Incoming = serde_json::from_str(&text)?;
                             let id = incoming.id.unwrap_or(Value::Null);
