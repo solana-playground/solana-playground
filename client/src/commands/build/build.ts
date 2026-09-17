@@ -11,7 +11,6 @@ import {
   PgWeb3,
   TupleFiles,
 } from "../../utils";
-import { withCargoLock } from "../../frameworks/anchor/cargo";
 import { createCmd } from "../create";
 
 export const build = createCmd({
@@ -178,7 +177,7 @@ const getBuildFiles = () => {
     }
   }
 
-  return withCargoLock(buildFiles);
+  return buildFiles;
 };
 
 /**

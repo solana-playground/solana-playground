@@ -1,6 +1,5 @@
 import * as monaco from "monaco-editor";
 
-import { withCargoLock } from "../../../../../../frameworks/anchor/cargo";
 import { PgCommon, PgExplorer } from "../../../../../../utils";
 
 /** Files sent to the server: `[relative path, content]` pairs */
@@ -54,7 +53,7 @@ export class Workspace {
       if (content === undefined) continue;
       files.push([PgExplorer.toRelativePath(path), content]);
     }
-    return withCargoLock(files);
+    return files;
   }
 
   /** Explorer full path -> server document URI */
