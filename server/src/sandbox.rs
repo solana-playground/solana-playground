@@ -19,6 +19,13 @@ pub struct Sandbox<'a> {
 
 impl<'a> Sandbox<'a> {
     /// Create a new [`Sandbox`] instance.
+    ///
+    /// # Note
+    ///
+    /// It's recommended to set [the timeout limit] when the process can be cancelled externally.
+    /// Not doing so may leave orphan containers.
+    ///
+    /// [the timeout limit]: Self::timeout_limit
     #[must_use]
     pub fn new() -> Self {
         Self::default()
@@ -156,7 +163,12 @@ impl<'a> Sandbox<'a> {
                 _ => return Err(anyhow!("Image not specified")),
             };
 
-            cmd.args(["sh", "-lc", "sleep infinity"]);
+            cmd.arg("sleep");
+            match self.cfg.limits.timeout {
+                Some(timeout) => cmd.arg(timeout.to_string()),
+                _ => cmd.arg("infinity"),
+            };
+
             run_cmd(&mut cmd).await?;
 
             let mut all_output = Output {
