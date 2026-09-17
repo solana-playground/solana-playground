@@ -129,7 +129,7 @@ async fn handle(mut socket: WebSocket, state: LspState) -> Result<()> {
     let image = get_image_name(format!("program-{}", template.name()));
     info!("Starting language server using image: {image}");
 
-    let session = LspSession::start(template, &image, &state.limits).await?;
+    let session = LspSession::start(template, &image).await?;
     let result = run(
         &mut socket,
         &session,

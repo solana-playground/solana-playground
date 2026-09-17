@@ -69,7 +69,6 @@ async fn main() -> Result<()> {
                         idle_timeout: Duration::from_secs(config.lsp_idle_timeout),
                         max_lifetime: Duration::from_secs(config.lsp_max_lifetime),
                         max_files_bytes: config.payload_limit,
-                        ..Default::default()
                     },
                     config.client_urls.clone(),
                 )),

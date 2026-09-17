@@ -27,15 +27,18 @@ const USER: &str = "solpg";
 /// `docker ps --filter label=solpg.lsp`
 const LABEL: &str = "solpg.lsp";
 
-/// Resource limits of a language server container
+/// CPU (cores) limit of a session container
+const CPU: usize = 1;
+
+/// Memory limit of a session container: 4 GiB, `cargo check` on an Anchor program
+const MEMORY: usize = 4 * 1024 * 1024 * 1024;
+
+/// Process (PIDs) limit of a session container
+const PIDS: usize = 256;
+
+/// Limits of a language server session
 #[derive(Debug, Clone)]
 pub struct Limits {
-    /// CPU (cores) limit
-    pub cpu: usize,
-    /// Memory limit in bytes
-    pub memory: usize,
-    /// Process (PIDs) limit
-    pub pids: usize,
     /// Session is closed after this long without a client message
     pub idle_timeout: Duration,
     /// Session is closed after this long no matter what
@@ -47,9 +50,6 @@ pub struct Limits {
 impl Default for Limits {
     fn default() -> Self {
         Self {
-            cpu: 1,
-            memory: 4 * 1024 * 1024 * 1024, // 4 GiB: `cargo check` on an Anchor program
-            pids: 256,
             idle_timeout: Duration::from_secs(10 * 60),
             max_lifetime: Duration::from_secs(4 * 60 * 60),
             max_files_bytes: 1024 * 1024,
@@ -100,7 +100,7 @@ impl LspSession {
     /// Start a container from the template's program image.
     ///
     /// The container idles until [`LspSession::spawn_server`] is called.
-    pub async fn start(template: &Template, image: &str, limits: &Limits) -> Result<Self> {
+    pub async fn start(template: &Template, image: &str) -> Result<Self> {
         const NAME_PREFIX: &str = concat!(env!("CARGO_PKG_NAME"), "-lsp");
         let id = Uuid::new_v4();
         let container = format!("{NAME_PREFIX}-{id}");
@@ -123,9 +123,9 @@ impl LspSession {
             .arg("--security-opt=no-new-privileges")
             .args(["--label", LABEL])
             .args(["--user", USER])
-            .args(["--cpus", &limits.cpu.to_string()])
-            .args(["--memory", &format!("{}b", limits.memory)])
-            .args(["--pids-limit", &limits.pids.to_string()])
+            .args(["--cpus", &CPU.to_string()])
+            .args(["--memory", &format!("{MEMORY}b")])
+            .args(["--pids-limit", &PIDS.to_string()])
             .arg(image)
             .args(["sh", "-lc", "sleep infinity"]);
         run(&mut cmd).await?;
