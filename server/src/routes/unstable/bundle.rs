@@ -89,6 +89,11 @@ pub async fn bundle(
         if let Some(lock) = &payload.lock {
             hasher.update(lock.as_bytes());
         }
+        if let Some(cmd) = &payload.command {
+            for token in cmd {
+                hasher.update(token.as_bytes());
+            }
+        }
         hasher.finalize()
     };
 
