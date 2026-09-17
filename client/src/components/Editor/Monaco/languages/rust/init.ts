@@ -8,17 +8,12 @@ import { PgExplorer, PgSettings, PgTerminal } from "../../../../../utils";
 import type { Disposable } from "../../../../../utils";
 
 /**
- * Initialize Rust language support with the backend the user selected.
- *
- * Two backends, both rust-analyzer:
- * - `wasm`: compiled to WASM, runs in a worker with a fixed set of crates
- *   (the default; also provides code lenses and on-type formatting)
- * - `server`: runs on the build server with the template's toolchain, so it
- *   knows the crate versions the build uses and reports `cargo check` errors
+ * Initialize Rust language support with the backend the user selected: the
+ * WASM rust-analyzer (default) or the server-side one, which runs on the
+ * build template's toolchain and so reports real `cargo check` errors.
  *
  * Switching the setting tears down the active backend and starts the other.
- * The server backend is also restarted on workspace switch, because the
- * server holds one project per session.
+ * The server backend also restarts on workspace switch: one project per session.
  */
 export const init = () => {
   let active: Disposable | null = null;

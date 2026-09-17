@@ -31,20 +31,12 @@ const OPEN_TIMEOUT_MS = 60_000;
 /** How long to wait for the server to acknowledge `shutdown` */
 const SHUTDOWN_TIMEOUT_MS = 2_000;
 
-/**
- * Delay between the last edit and the save that triggers `cargo check`.
- *
- * The playground autosaves, so "save" means "the user paused typing".
- */
+/** Last-edit-to-save delay; the playground autosaves, so "save" means "paused typing" */
 const SAVE_DELAY_MS = 1000;
 
 /**
- * Requests the bridge answers itself instead of forwarding to rust-analyzer.
- *
- * `solpg/open` sends the project files and starts a language server for the
- * matching template; `solpg/sync` writes the files to the server's disk (the
- * language server reads edits from the LSP overlay, `cargo check` reads the
- * disk). Everything else on the socket is forwarded verbatim.
+ * Requests the bridge answers itself; `sync` exists because `cargo check`
+ * reads the disk, not the LSP overlay.
  */
 const BRIDGE = { open: "solpg/open", sync: "solpg/sync" };
 
@@ -57,12 +49,6 @@ const SERVER_CONFIG = {
 
 /**
  * Connect to the server-side rust-analyzer and wire it into the editor.
- *
- * Steps:
- * 1. Open the socket and send the project files
- * 2. Wait for the server to start a language server for the project
- * 3. Run the LSP handshake and open every Rust source
- * 4. Register providers and keep documents in sync
  *
  * @throws if the server is unreachable or rejects the project
  * @returns a disposable that shuts the session down
@@ -125,8 +111,7 @@ const attach = async (
     diagnostics.dispose();
     if (conn.closed) return;
 
-    // Be polite, but never keep the session (and its server slot) alive
-    // waiting for a wedged server
+    // Cap the shutdown wait so a wedged server cannot hold the session's slot
     PgCommon.timeout(conn.request("shutdown"), SHUTDOWN_TIMEOUT_MS)
       .catch(() => {})
       .finally(() => {
@@ -217,12 +202,9 @@ const trackDiagnostics = (
 };
 
 /**
- * Keep the server's view of the project in sync with the explorer.
- *
- * Every Rust source is kept open on the server so edits reach rust-analyzer
- * as overlays. The disk copy the server holds is rewritten (`sync`) before
- * every `didSave`, because `cargo check` reads the disk, and before the
- * `didOpen`/`didClose` of structural changes, so `mod` declarations resolve.
+ * Keep the server's view of the project in sync with the explorer: edits as
+ * LSP overlays, plus a disk `sync` before `didSave` (`cargo check` reads the
+ * disk) and before structural changes (so `mod` declarations resolve).
  */
 const syncDocuments = (
   conn: JsonRpcConnection,
@@ -250,9 +232,8 @@ const syncDocuments = (
     });
   };
 
-  // Syncs are chained so two never race on the server's disk; a failed sync
-  // (e.g. a file name the server does not accept) is reported once and does
-  // not end the session
+  // Chained so two syncs never race on the server's disk; a failure is
+  // reported once and does not end the session
   let lastSync: Promise<void> = Promise.resolve();
   const sync = () => {
     lastSync = lastSync
@@ -271,8 +252,7 @@ const syncDocuments = (
     return lastSync;
   };
 
-  // rust-analyzer runs `cargo check` (the rustc diagnostics) on save only,
-  // and it checks what is on disk
+  // rust-analyzer runs `cargo check` on save only
   const saveDocument = PgCommon.debounce(
     async (path: string) => {
       await sync();
@@ -292,8 +272,8 @@ const syncDocuments = (
 
     const version = document.version + 1;
     documents.set(path, { version, text });
-    // Full text, not incremental: allowed by LSP whatever sync kind the
-    // server announced, and the playground already has the whole model
+    // Full text: rust-analyzer accepts whole-document changes and the model
+    // is already at hand
     conn.notify("textDocument/didChange", {
       textDocument: { uri: workspace.toUri(path), version },
       contentChanges: [{ text }],
@@ -308,8 +288,7 @@ const syncDocuments = (
   for (const path of sourcePaths) {
     openDocument(path, PgExplorer.getFileContent(path) ?? "");
   }
-  // rust-analyzer does not check until the first save; the project as opened
-  // deserves its compiler diagnostics too
+  // Trigger the first check: rust-analyzer only checks on save
   if (sourcePaths.length) saveDocument(sourcePaths[0]);
 
   // Structural changes: mirror the tree, then diff the set of open sources

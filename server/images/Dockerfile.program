@@ -63,9 +63,8 @@ COPY --chown=${USER}:${USER} templates/${TEMPLATE}/ .
 ARG INITIAL_BUILD_COMMAND
 RUN sh -c "${INITIAL_BUILD_COMMAND}"
 
-# Warm the host-target check the language server runs: builds the proc-macro
-# crates it needs to expand `#[program]` and friends, and makes the first
-# diagnostics seconds instead of minutes
+# Warm the host-target check the language server runs: pre-builds the
+# proc-macro crates, so the first diagnostics take seconds instead of minutes
 RUN cargo check --locked
 
 # Remove the binary and IDL directories for clean start
