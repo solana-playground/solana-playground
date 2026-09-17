@@ -28,6 +28,8 @@ use tokio::{
     time::{interval, sleep_until, Instant},
 };
 
+use crate::middlewares::is_allowed_origin;
+
 /// Methods the bridge answers itself; everything else goes to the language server
 const OPEN_METHOD: &str = "solpg/open";
 const SYNC_METHOD: &str = "solpg/sync";
@@ -82,7 +84,7 @@ pub async fn lsp(
         .get("origin")
         .and_then(|v| v.to_str().ok())
         .unwrap_or_default();
-    if !state.origins.iter().any(|allowed| allowed == origin) {
+    if !is_allowed_origin(origin.as_bytes(), &state.origins) {
         return (StatusCode::FORBIDDEN, "Origin not allowed").into_response();
     }
 

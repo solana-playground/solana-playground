@@ -4,6 +4,6 @@ mod limit;
 mod log;
 
 pub use compression::compression;
-pub use cors::cors;
+pub use cors::{cors, is_allowed_origin};
 pub use limit::{concurrency_limit, payload_limit};
 pub use log::log;
