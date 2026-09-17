@@ -52,17 +52,6 @@ export interface VersionedTextDocumentIdentifier
   version: number;
 }
 
-export interface TextDocumentItem extends TextDocumentIdentifier {
-  languageId: string;
-  version: number;
-  text: string;
-}
-
-export interface TextDocumentPositionParams {
-  textDocument: TextDocumentIdentifier;
-  position: Position;
-}
-
 export interface MarkupContent {
   kind: "plaintext" | "markdown";
   value: string;
@@ -151,12 +140,6 @@ export interface CompletionItemLabelDetails {
   description?: string;
 }
 
-export interface Command {
-  title: string;
-  command: string;
-  arguments?: unknown[];
-}
-
 export interface CompletionItem {
   label: string;
   labelDetails?: CompletionItemLabelDetails;
@@ -173,7 +156,6 @@ export interface CompletionItem {
   textEdit?: TextEdit | InsertReplaceEdit;
   additionalTextEdits?: TextEdit[];
   commitCharacters?: string[];
-  command?: Command;
   /** Opaque server data, echoed back in `completionItem/resolve` */
   data?: unknown;
 }
@@ -201,27 +183,6 @@ export interface SignatureHelp {
   activeParameter?: number;
 }
 
-export enum InlayHintKind {
-  Type = 1,
-  Parameter = 2,
-}
-
-export interface InlayHintLabelPart {
-  value: string;
-  tooltip?: string | MarkupContent;
-  location?: Location;
-}
-
-export interface InlayHint {
-  position: Position;
-  label: string | InlayHintLabelPart[];
-  kind?: InlayHintKind;
-  textEdits?: TextEdit[];
-  tooltip?: string | MarkupContent;
-  paddingLeft?: boolean;
-  paddingRight?: boolean;
-}
-
 export interface TextDocumentEdit {
   textDocument: VersionedTextDocumentIdentifier & { version: number | null };
   edits: TextEdit[];
@@ -238,59 +199,6 @@ export type PrepareRenameResult =
   | { range: Range; placeholder: string }
   | { defaultBehavior: boolean };
 
-export enum SymbolKind {
-  File = 1,
-  Module = 2,
-  Namespace = 3,
-  Package = 4,
-  Class = 5,
-  Method = 6,
-  Property = 7,
-  Field = 8,
-  Constructor = 9,
-  Enum = 10,
-  Interface = 11,
-  Function = 12,
-  Variable = 13,
-  Constant = 14,
-  String = 15,
-  Number = 16,
-  Boolean = 17,
-  Array = 18,
-  Object = 19,
-  Key = 20,
-  Null = 21,
-  EnumMember = 22,
-  Struct = 23,
-  Event = 24,
-  Operator = 25,
-  TypeParameter = 26,
-}
-
-export interface DocumentSymbol {
-  name: string;
-  detail?: string;
-  kind: SymbolKind;
-  deprecated?: boolean;
-  range: Range;
-  selectionRange: Range;
-  children?: DocumentSymbol[];
-}
-
-export interface FoldingRange {
-  startLine: number;
-  startCharacter?: number;
-  endLine: number;
-  endCharacter?: number;
-  kind?: "comment" | "imports" | "region";
-}
-
-export interface DocumentHighlight {
-  range: Range;
-  /** 1 = Text, 2 = Read, 3 = Write */
-  kind?: 1 | 2 | 3;
-}
-
 export interface ServerCapabilities {
   positionEncoding?: string;
   hoverProvider?: boolean | object;
@@ -303,15 +211,8 @@ export interface ServerCapabilities {
     retriggerCharacters?: string[];
   };
   definitionProvider?: boolean | object;
-  typeDefinitionProvider?: boolean | object;
-  implementationProvider?: boolean | object;
   referencesProvider?: boolean | object;
-  documentHighlightProvider?: boolean | object;
-  documentSymbolProvider?: boolean | object;
-  documentFormattingProvider?: boolean | object;
   renameProvider?: boolean | { prepareProvider?: boolean };
-  foldingRangeProvider?: boolean | object;
-  inlayHintProvider?: boolean | object;
 }
 
 export interface InitializeResult {

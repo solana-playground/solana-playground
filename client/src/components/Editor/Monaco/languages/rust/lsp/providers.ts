@@ -3,20 +3,15 @@ import * as monaco from "monaco-editor";
 import * as lsp from "./protocol";
 import {
   toLspPosition,
-  toLspRange,
   toMonacoCompletionItem,
   toMonacoDefinitions,
-  toMonacoDocumentHighlight,
-  toMonacoDocumentSymbol,
-  toMonacoFoldingRange,
   toMonacoHover,
-  toMonacoInlayHint,
   toMonacoRange,
   toMonacoSignatureHelp,
-  toMonacoTextEdit,
   toMonacoWorkspaceEdit,
 } from "./convert";
-import type { CancellationToken, JsonRpcConnection } from "./jsonrpc";
+import { ConnectionClosedError } from "./jsonrpc";
+import type { JsonRpcConnection } from "./jsonrpc";
 import { Workspace } from "./workspace";
 import type { Disposable } from "../../../../../../utils";
 
@@ -25,12 +20,6 @@ import type { Disposable } from "../../../../../../utils";
  *
  * Requests for models outside the project (e.g. other workspaces' files that
  * happen to be Rust) return nothing.
- *
- * @param languageId Monaco language id
- * @param conn JSON-RPC connection to the server
- * @param workspace path mapping
- * @param capabilities capabilities the server announced
- * @returns a disposable to remove all providers
  */
 export const registerProviders = (
   languageId: string,
@@ -46,24 +35,16 @@ export const registerProviders = (
       position: toLspPosition(pos),
     };
   };
-  const doc = (model: monaco.editor.ITextModel) => {
-    if (!Workspace.isProjectSource(model.uri.path)) return null;
-    return { textDocument: { uri: workspace.toUri(model.uri.path) } };
-  };
 
   /**
-   * Send a request, swallowing failures: a request racing a closed connection,
-   * a cancelled one or a server error must not surface as an editor exception.
+   * Send a request, swallowing failures: a request racing a closed connection
+   * or a server error must not surface as an editor exception.
    */
-  const request = async <R>(
-    method: string,
-    params: unknown,
-    token?: CancellationToken
-  ) => {
+  const request = async <R>(method: string, params: unknown) => {
     try {
-      return await conn.request<R | null>(method, params, token);
+      return await conn.request<R | null>(method, params);
     } catch (e) {
-      if (!token?.isCancellationRequested) {
+      if (!(e instanceof ConnectionClosedError)) {
         console.warn(`rust-analyzer: ${method} failed:`, e);
       }
       return null;
@@ -75,14 +56,10 @@ export const registerProviders = (
   if (capabilities.hoverProvider) {
     disposables.push(
       monaco.languages.registerHoverProvider(languageId, {
-        provideHover: async (model, pos, token) => {
+        provideHover: async (model, pos) => {
           const params = at(model, pos);
           if (!params) return null;
-          const hover = await request<lsp.Hover>(
-            "textDocument/hover",
-            params,
-            token
-          );
+          const hover = await request<lsp.Hover>("textDocument/hover", params);
           return hover ? toMonacoHover(hover) : null;
         },
       })
@@ -95,23 +72,19 @@ export const registerProviders = (
     disposables.push(
       monaco.languages.registerCompletionItemProvider(languageId, {
         triggerCharacters,
-        provideCompletionItems: async (model, pos, context, token) => {
+        provideCompletionItems: async (model, pos, context) => {
           const params = at(model, pos);
           if (!params) return null;
 
           const result = await request<
             lsp.CompletionList | lsp.CompletionItem[]
-          >(
-            "textDocument/completion",
-            {
-              ...params,
-              context: {
-                triggerKind: context.triggerKind + 1,
-                triggerCharacter: context.triggerCharacter,
-              },
+          >("textDocument/completion", {
+            ...params,
+            context: {
+              triggerKind: context.triggerKind + 1,
+              triggerCharacter: context.triggerCharacter,
             },
-            token
-          );
+          });
           if (!result) return null;
 
           const items = Array.isArray(result) ? result : result.items;
@@ -166,13 +139,12 @@ export const registerProviders = (
       monaco.languages.registerSignatureHelpProvider(languageId, {
         signatureHelpTriggerCharacters: triggerCharacters,
         signatureHelpRetriggerCharacters: retriggerCharacters,
-        provideSignatureHelp: async (model, pos, token) => {
+        provideSignatureHelp: async (model, pos) => {
           const params = at(model, pos);
           if (!params) return null;
           const help = await request<lsp.SignatureHelp>(
             "textDocument/signatureHelp",
-            params,
-            token
+            params
           );
           if (!help) return null;
           return { value: toMonacoSignatureHelp(help), dispose: () => {} };
@@ -181,42 +153,17 @@ export const registerProviders = (
     );
   }
 
-  /** Shared implementation of the goto-* providers */
-  const provideLocations =
-    (method: string) =>
-    async (
-      model: monaco.editor.ITextModel,
-      pos: monaco.IPosition,
-      token: CancellationToken
-    ) => {
-      const params = at(model, pos);
-      if (!params) return null;
-      const result = await request<
-        lsp.Location | Array<lsp.Location | lsp.LocationLink>
-      >(method, params, token);
-      return toMonacoDefinitions(result, workspace.toModelUri);
-    };
-
   if (capabilities.definitionProvider) {
     disposables.push(
       monaco.languages.registerDefinitionProvider(languageId, {
-        provideDefinition: provideLocations("textDocument/definition"),
-      })
-    );
-  }
-
-  if (capabilities.typeDefinitionProvider) {
-    disposables.push(
-      monaco.languages.registerTypeDefinitionProvider(languageId, {
-        provideTypeDefinition: provideLocations("textDocument/typeDefinition"),
-      })
-    );
-  }
-
-  if (capabilities.implementationProvider) {
-    disposables.push(
-      monaco.languages.registerImplementationProvider(languageId, {
-        provideImplementation: provideLocations("textDocument/implementation"),
+        provideDefinition: async (model, pos) => {
+          const params = at(model, pos);
+          if (!params) return null;
+          const result = await request<
+            lsp.Location | Array<lsp.Location | lsp.LocationLink>
+          >("textDocument/definition", params);
+          return toMonacoDefinitions(result, workspace.toModelUri);
+        },
       })
     );
   }
@@ -232,22 +179,6 @@ export const registerProviders = (
             { ...params, context }
           );
           return toMonacoDefinitions(result, workspace.toModelUri);
-        },
-      })
-    );
-  }
-
-  if (capabilities.documentHighlightProvider) {
-    disposables.push(
-      monaco.languages.registerDocumentHighlightProvider(languageId, {
-        provideDocumentHighlights: async (model, pos) => {
-          const params = at(model, pos);
-          if (!params) return null;
-          const result = await request<lsp.DocumentHighlight[]>(
-            "textDocument/documentHighlight",
-            params
-          );
-          return result?.map(toMonacoDocumentHighlight) ?? null;
         },
       })
     );
@@ -288,84 +219,6 @@ export const registerProviders = (
               return { range: toMonacoRange(range), text };
             }
           : undefined,
-      })
-    );
-  }
-
-  if (capabilities.documentSymbolProvider) {
-    disposables.push(
-      monaco.languages.registerDocumentSymbolProvider(languageId, {
-        provideDocumentSymbols: async (model) => {
-          const params = doc(model);
-          if (!params) return null;
-          const result = await request<lsp.DocumentSymbol[]>(
-            "textDocument/documentSymbol",
-            params
-          );
-          // Flat `SymbolInformation[]` (no `selectionRange`) is not supported
-          if (!result?.every((symbol) => "selectionRange" in symbol)) {
-            return null;
-          }
-          return result.map(toMonacoDocumentSymbol);
-        },
-      })
-    );
-  }
-
-  if (capabilities.foldingRangeProvider) {
-    disposables.push(
-      monaco.languages.registerFoldingRangeProvider(languageId, {
-        provideFoldingRanges: async (model) => {
-          const params = doc(model);
-          if (!params) return null;
-          const result = await request<lsp.FoldingRange[]>(
-            "textDocument/foldingRange",
-            params
-          );
-          return result?.map(toMonacoFoldingRange) ?? null;
-        },
-      })
-    );
-  }
-
-  if (capabilities.inlayHintProvider) {
-    disposables.push(
-      monaco.languages.registerInlayHintsProvider(languageId, {
-        provideInlayHints: async (model, range, token) => {
-          const params = doc(model);
-          if (!params) return null;
-          const result = await request<lsp.InlayHint[]>(
-            "textDocument/inlayHint",
-            { ...params, range: toLspRange(range) },
-            token
-          );
-          return {
-            hints: result?.map(toMonacoInlayHint) ?? [],
-            dispose: () => {},
-          };
-        },
-      })
-    );
-  }
-
-  if (capabilities.documentFormattingProvider) {
-    disposables.push(
-      monaco.languages.registerDocumentFormattingEditProvider(languageId, {
-        provideDocumentFormattingEdits: async (model, options) => {
-          const params = doc(model);
-          if (!params) return null;
-          const result = await request<lsp.TextEdit[]>(
-            "textDocument/formatting",
-            {
-              ...params,
-              options: {
-                tabSize: options.tabSize,
-                insertSpaces: options.insertSpaces,
-              },
-            }
-          );
-          return result?.map(toMonacoTextEdit) ?? null;
-        },
       })
     );
   }

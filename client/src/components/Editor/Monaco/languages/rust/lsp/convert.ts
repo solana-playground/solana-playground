@@ -14,11 +14,6 @@ export type ToModelUri = (uri: string) => monaco.Uri | null;
 /* -------------------------------- Positions ------------------------------- */
 
 /** LSP positions are zero-based; Monaco's are one-based. */
-export const toMonacoPosition = (pos: lsp.Position): monaco.IPosition => ({
-  lineNumber: pos.line + 1,
-  column: pos.character + 1,
-});
-
 export const toMonacoRange = (range: lsp.Range): monaco.IRange => ({
   startLineNumber: range.start.line + 1,
   startColumn: range.start.character + 1,
@@ -38,9 +33,7 @@ export const toLspRange = (range: monaco.IRange): lsp.Range => ({
 
 /* ------------------------------- Text edits ------------------------------- */
 
-export const toMonacoTextEdit = (
-  edit: lsp.TextEdit
-): monaco.languages.TextEdit => ({
+const toMonacoTextEdit = (edit: lsp.TextEdit): monaco.languages.TextEdit => ({
   range: toMonacoRange(edit.range),
   text: edit.newText,
 });
@@ -189,7 +182,7 @@ export const toMonacoCompletionItem = (
   item: lsp.CompletionItem,
   /** Range to replace when the server does not send a text edit */
   fallbackRange: monaco.languages.CompletionItem["range"]
-): monaco.languages.CompletionItem & { data?: unknown } => {
+): monaco.languages.CompletionItem => {
   let insertText = item.insertText ?? item.label;
   let range: monaco.languages.CompletionItem["range"] = fallbackRange;
   if (item.textEdit) {
@@ -227,8 +220,6 @@ export const toMonacoCompletionItem = (
     range,
     commitCharacters: item.commitCharacters,
     additionalTextEdits: item.additionalTextEdits?.map(toMonacoTextEdit),
-    // Kept for `completionItem/resolve`
-    data: item.data,
   };
 };
 
@@ -283,63 +274,3 @@ export const toMonacoDefinitions = (
     .filter(PgCommon.isNonNullish);
 };
 
-export const toMonacoDocumentHighlight = (
-  highlight: lsp.DocumentHighlight
-): monaco.languages.DocumentHighlight => ({
-  range: toMonacoRange(highlight.range),
-  // Both enums order the kinds as Text, Read, Write; LSP starts at 1
-  kind: highlight.kind ? highlight.kind - 1 : undefined,
-});
-
-/* -------------------------------- Symbols -------------------------------- */
-
-export const toMonacoDocumentSymbol = (
-  symbol: lsp.DocumentSymbol
-): monaco.languages.DocumentSymbol => ({
-  name: symbol.name,
-  detail: symbol.detail ?? "",
-  // Both enums list the kinds in the same order; LSP starts at 1
-  kind: symbol.kind - 1,
-  tags: [],
-  range: toMonacoRange(symbol.range),
-  selectionRange: toMonacoRange(symbol.selectionRange),
-  children: symbol.children?.map(toMonacoDocumentSymbol),
-});
-
-/* ------------------------------- Inlay hints ----------------------------- */
-
-export const toMonacoInlayHint = (
-  hint: lsp.InlayHint
-): monaco.languages.InlayHint => ({
-  position: toMonacoPosition(hint.position),
-  label:
-    typeof hint.label === "string"
-      ? hint.label
-      : hint.label.map((part) => ({
-          label: part.value,
-          tooltip: part.tooltip ? toMarkdownString(part.tooltip) : undefined,
-        })),
-  kind:
-    hint.kind === lsp.InlayHintKind.Parameter
-      ? monaco.languages.InlayHintKind.Parameter
-      : monaco.languages.InlayHintKind.Type,
-  tooltip: hint.tooltip ? toMarkdownString(hint.tooltip) : undefined,
-  paddingLeft: hint.paddingLeft,
-  paddingRight: hint.paddingRight,
-});
-
-/* --------------------------------- Folding ------------------------------- */
-
-const FOLDING_KINDS = {
-  comment: monaco.languages.FoldingRangeKind.Comment,
-  imports: monaco.languages.FoldingRangeKind.Imports,
-  region: monaco.languages.FoldingRangeKind.Region,
-};
-
-export const toMonacoFoldingRange = (
-  range: lsp.FoldingRange
-): monaco.languages.FoldingRange => ({
-  start: range.startLine + 1,
-  end: range.endLine + 1,
-  kind: range.kind ? FOLDING_KINDS[range.kind] : undefined,
-});

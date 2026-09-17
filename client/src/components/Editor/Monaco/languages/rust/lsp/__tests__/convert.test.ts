@@ -2,10 +2,7 @@ import {
   toLspPosition,
   toMonacoCompletionItem,
   toMonacoDefinitions,
-  toMonacoDocumentSymbol,
-  toMonacoFoldingRange,
   toMonacoHover,
-  toMonacoInlayHint,
   toMonacoMarker,
   toMonacoRange,
   toMonacoWorkspaceEdit,
@@ -58,12 +55,6 @@ jest.mock(
       },
       CompletionItemInsertTextRule: { KeepWhitespace: 1, InsertAsSnippet: 4 },
       CompletionItemTag: { Deprecated: 1 },
-      InlayHintKind: { Type: 1, Parameter: 2 },
-      FoldingRangeKind: {
-        Comment: { value: "comment" },
-        Imports: { value: "imports" },
-        Region: { value: "region" },
-      },
     },
   }),
   { virtual: true }
@@ -290,48 +281,5 @@ describe("workspace edits", () => {
     expect(edit.edits).toHaveLength(2);
     expect((edit.edits[1] as any).textEdit.text).toBe("b");
     expect((edit.edits[1] as any).versionId).toBe(3);
-  });
-});
-
-describe("symbols, hints and folding", () => {
-  it("shifts symbol kinds to Monaco's zero-based enum", () => {
-    const symbol = toMonacoDocumentSymbol({
-      name: "MyAccount",
-      kind: lsp.SymbolKind.Struct,
-      range,
-      selectionRange: range,
-      children: [
-        {
-          name: "data",
-          kind: lsp.SymbolKind.Field,
-          range,
-          selectionRange: range,
-        },
-      ],
-    });
-
-    expect(symbol.kind).toBe(22);
-    expect(symbol.children![0].kind).toBe(7);
-    expect(symbol.detail).toBe("");
-  });
-
-  it("converts inlay hints with label parts", () => {
-    const hint = toMonacoInlayHint({
-      position: { line: 0, character: 3 },
-      label: [{ value: ": " }, { value: "u64" }],
-      kind: lsp.InlayHintKind.Type,
-      paddingLeft: true,
-    });
-
-    expect(hint.position).toEqual({ lineNumber: 1, column: 4 });
-    expect(hint.label).toEqual([{ label: ": " }, { label: "u64" }]);
-    expect(hint.kind).toBe(1);
-    expect(hint.paddingLeft).toBe(true);
-  });
-
-  it("converts folding ranges", () => {
-    expect(
-      toMonacoFoldingRange({ startLine: 1, endLine: 4, kind: "imports" })
-    ).toEqual({ start: 2, end: 5, kind: { value: "imports" } });
   });
 });
