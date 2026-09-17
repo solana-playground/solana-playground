@@ -23,6 +23,8 @@ This will:
 
 See the [root README](../README.md#run-with-docker) for more options.
 
+On Apple Silicon, export `DOCKER_DEFAULT_PLATFORM=linux/amd64` first: Solana ships x86_64 Linux binaries only, so a native `arm64` image build fails when installing Solana. OrbStack or Docker Desktop then runs the image emulated.
+
 ### Language server (unstable)
 
 With `--features unstable`, `GET /unstable/lsp` bridges a WebSocket to a `rust-analyzer` running inside the template's program image, so the editor gets intellisense and `cargo check` diagnostics for the exact toolchain the build uses. The client enables it with the **Rust Analyzer: Server** setting.

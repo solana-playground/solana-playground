@@ -311,6 +311,7 @@ fn find_template(files: &Files) -> Result<&'static Template> {
     let manifest = files.iter().find(|(p, _)| p == "Cargo.toml");
     let lock = files.iter().find(|(p, _)| p == "Cargo.lock");
     match (manifest, lock) {
+        // Pre-template projects have no `cargo` files; they run on `legacy`
         (None, None) => Ok(Default::default()),
         (None, Some(_)) => Err(anyhow!("Missing `Cargo.toml`")),
         (Some((_, manifest)), lock) => {
