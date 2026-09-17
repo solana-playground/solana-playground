@@ -4,7 +4,7 @@ import * as lsp from "./protocol";
 import { toMonacoMarker } from "./convert";
 import { JsonRpcConnection } from "./jsonrpc";
 import { registerProviders } from "./providers";
-import { pulseActivity, setStatus, setTemplate } from "./status";
+import { setStatus } from "./status";
 import { Workspace } from "./workspace";
 import type { WorkspaceInfo } from "./workspace";
 import { importTypes } from "../../common";
@@ -70,7 +70,6 @@ const SERVER_CONFIG = {
 export const connect = async (): Promise<Disposable> => {
   const url = getUrl();
   const { conn, info } = await open(url);
-  setTemplate(info.template);
 
   try {
     return await attach(conn, info);
@@ -165,7 +164,7 @@ const open = async (url: string) => {
       reject(new Error(`Could not connect to the language server at ${url}`));
   });
 
-  const conn = new JsonRpcConnection(socket, pulseActivity);
+  const conn = new JsonRpcConnection(socket);
   try {
     const info = await PgCommon.timeout(
       conn.request<WorkspaceInfo>(BRIDGE.open, { files: Workspace.getFiles() }),
