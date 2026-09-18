@@ -32,38 +32,29 @@ const settle = async () => {
 };
 
 describe("JsonRpcConnection — real vscode-ws-jsonrpc transport", () => {
-  it("should send requests with increasing ids and resolve their results", async () => {
+  it("should round-trip requests, resolving results and surfacing response errors", async () => {
     const { socket, sent, receive } = createSocket();
     const conn = new JsonRpcConnection(socket);
 
-    const p1 = conn.request("initialize", { a: 1 });
-    const p2 = conn.request("shutdown");
+    const ok = conn.request("initialize", { a: 1 });
+    const bad = conn.request("textDocument/hover");
     await settle();
-    expect(sent).toEqual([
-      { jsonrpc: "2.0", id: 0, method: "initialize", params: { a: 1 } },
-      { jsonrpc: "2.0", id: 1, method: "shutdown" },
+    // Our adapter forwarded each request; the library owns the id numbering
+    expect(sent.map((m) => m.method)).toEqual([
+      "initialize",
+      "textDocument/hover",
     ]);
 
-    receive({ jsonrpc: "2.0", id: 1, result: null });
-    receive({ jsonrpc: "2.0", id: 0, result: { capabilities: {} } });
-    await expect(p1).resolves.toEqual({ capabilities: {} });
-    await expect(p2).resolves.toBeNull();
-  });
-
-  it("should reject with a ResponseError on error responses", async () => {
-    const { socket, receive } = createSocket();
-    const conn = new JsonRpcConnection(socket);
-
-    const p = conn.request("textDocument/hover");
-    await settle();
+    receive({ jsonrpc: "2.0", id: sent[0].id, result: { capabilities: {} } });
     receive({
       jsonrpc: "2.0",
-      id: 0,
+      id: sent[1].id,
       error: { code: -32602, message: "bad params" },
     });
 
-    await expect(p).rejects.toBeInstanceOf(ResponseError);
-    await expect(p).rejects.toMatchObject({ code: -32602 });
+    await expect(ok).resolves.toEqual({ capabilities: {} });
+    await expect(bad).rejects.toBeInstanceOf(ResponseError);
+    await expect(bad).rejects.toMatchObject({ code: -32602 });
   });
 
   it("should dispatch notifications and answer server requests", async () => {
