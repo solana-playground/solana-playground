@@ -18,45 +18,31 @@ jest.mock("../../../../../../../utils", () => ({
   },
 }));
 
-// Monaco enums used by the converters, with their real values. The editor
-// package is ESM-only (no `main`), so jest cannot even resolve it: `virtual`.
+// The converters need only monaco's enums, sourced from its self-contained
+// standalone file — the full `monaco-editor` entry is ESM-only and unresolvable
+// in jest. Importing the real enums avoids the values drifting on a monaco bump.
 jest.mock(
   "monaco-editor",
-  () => ({
-    MarkerSeverity: { Hint: 1, Info: 2, Warning: 4, Error: 8 },
-    MarkerTag: { Unnecessary: 1, Deprecated: 2 },
-    languages: {
-      CompletionItemKind: {
-        Method: 0,
-        Function: 1,
-        Constructor: 2,
-        Field: 3,
-        Variable: 4,
-        Class: 5,
-        Struct: 6,
-        Interface: 7,
-        Module: 8,
-        Property: 9,
-        Event: 10,
-        Operator: 11,
-        Unit: 12,
-        Value: 13,
-        Constant: 14,
-        Enum: 15,
-        EnumMember: 16,
-        Keyword: 17,
-        Text: 18,
-        Color: 19,
-        File: 20,
-        Reference: 21,
-        Folder: 23,
-        TypeParameter: 24,
-        Snippet: 27,
+  () => {
+    const {
+      MarkerSeverity,
+      MarkerTag,
+      CompletionItemKind,
+      CompletionItemInsertTextRule,
+      CompletionItemTag,
+    } = jest.requireActual(
+      "monaco-editor/esm/vs/editor/common/standalone/standaloneEnums"
+    );
+    return {
+      MarkerSeverity,
+      MarkerTag,
+      languages: {
+        CompletionItemKind,
+        CompletionItemInsertTextRule,
+        CompletionItemTag,
       },
-      CompletionItemInsertTextRule: { KeepWhitespace: 1, InsertAsSnippet: 4 },
-      CompletionItemTag: { Deprecated: 1 },
-    },
-  }),
+    };
+  },
   { virtual: true }
 );
 

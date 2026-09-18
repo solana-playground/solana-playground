@@ -115,7 +115,7 @@
       "^vscode-jsonrpc$": "vscode-jsonrpc/lib/browser/main.js"
     },
     "transformIgnorePatterns": [
-      "[/\\\\]node_modules[/\\\\](?!vscode-ws-jsonrpc[/\\\\]).+\\.(js|mjs|cjs|jsx|ts|tsx)$",
+      "[/\\\\]node_modules[/\\\\](?!(vscode-ws-jsonrpc|monaco-editor)[/\\\\]).+\\.(js|mjs|cjs|jsx|ts|tsx)$",
       "^.+\\.module\\.(css|sass|scss)$"
     ]
   },
