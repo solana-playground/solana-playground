@@ -10,7 +10,6 @@ export const yarn = createCmd({
     createSubcmd({
       name: "install",
       description: "Install packages",
-      // FIXME: If the command fails, it prints the error twice (in the terminal)
       handle: proxyPm(),
     }),
 

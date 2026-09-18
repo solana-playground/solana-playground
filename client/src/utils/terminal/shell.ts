@@ -55,6 +55,11 @@ export class PgShell {
     return this._history;
   }
 
+  /** Active process count */
+  get processCount() {
+    return this._processCount;
+  }
+
   /** Disable shell. */
   disable() {
     this._incrementProcessCount();
@@ -62,10 +67,8 @@ export class PgShell {
 
   /** Enable shell. */
   enable() {
-    setTimeout(() => {
-      this._decrementProcessCount();
-      if (!this._processCount) this._prompt();
-    }, 10);
+    this._decrementProcessCount();
+    if (!this._processCount) this._prompt();
   }
 
   /** Get whether the shell is active, and the user can type. */

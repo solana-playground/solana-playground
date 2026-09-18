@@ -589,12 +589,15 @@ export class PgTerm {
     try {
       return await cb();
     } catch (e: any) {
-      // The previous line is not available until the next event loop
-      await PgCommon.sleep(0);
-
-      const msg = `Process error: ${e?.message ? e.message : e}`;
-      const previousLine = this._tty.getLine(1)?.translateToString().trim();
-      if (previousLine !== msg) this.println(msg);
+      // Only log error if this is the outermost process i.e. a process that is
+      // *not* spawned by another terminal process.
+      //
+      // NOTE: This check is not fully correct because, at the time of writing
+      // this comment, one terminal can have multiple outermost processes at
+      // the same time.
+      if (this._shell.processCount === 1) {
+        this.println(`Process error: ${e?.message ? e.message : e}`);
+      }
 
       throw e;
     } finally {
