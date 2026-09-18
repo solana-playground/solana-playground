@@ -80,40 +80,10 @@ fn handle_package_manager_command(args: &Args) -> Result<Manifest> {
                     // TODO: Only allow known options (e.g. `--dev`)
                     [command, args @ ..] => match command.as_str() {
                         "install" => run_yarn_install(args)?,
-                        "add" => {
-                            let status = Command::new("yarn")
-                                .current_dir(PACKAGES_DIR)
-                                .arg("--ignore-scripts")
-                                .arg("--prefer-offline")
-                                .arg(command)
-                                .args(args)
-                                .status()?;
+                        "add" | "remove" | "upgrade" => {
+                            let status = create_yarn_command().arg(command).args(args).status()?;
                             if !status.success() {
-                                return Err(anyhow!("Failed to add"));
-                            }
-                        }
-                        "remove" => {
-                            let status = Command::new("yarn")
-                                .current_dir(PACKAGES_DIR)
-                                .arg("--ignore-scripts")
-                                .arg("--prefer-offline")
-                                .arg(command)
-                                .args(args)
-                                .status()?;
-                            if !status.success() {
-                                return Err(anyhow!("Failed to remove"));
-                            }
-                        }
-                        "upgrade" => {
-                            let status = Command::new("yarn")
-                                .current_dir(PACKAGES_DIR)
-                                .arg("--ignore-scripts")
-                                .arg("--prefer-offline")
-                                .arg(command)
-                                .args(args)
-                                .status()?;
-                            if !status.success() {
-                                return Err(anyhow!("Failed to upgrade"));
+                                return Err(anyhow!("Failed to {command}"));
                             }
                         }
                         _ => return Err(anyhow!("Unsupported command: `{command}`")),
@@ -145,18 +115,21 @@ fn handle_package_manager_command(args: &Args) -> Result<Manifest> {
 
 /// Run the default `yarn` installation command.
 fn run_yarn_install(args: &[String]) -> Result<()> {
-    let status = Command::new("yarn")
-        .current_dir(PACKAGES_DIR)
-        .arg("--ignore-scripts")
-        .arg("--prefer-offline")
-        .arg("install")
-        .args(args)
-        .status()?;
+    let status = create_yarn_command().arg("install").args(args).status()?;
     if !status.success() {
         return Err(anyhow!("Failed to install"));
     }
 
     Ok(())
+}
+
+/// Create the default `yarn` command with safe(r) defaults.
+fn create_yarn_command() -> Command {
+    let mut cmd = Command::new("yarn");
+    cmd.current_dir(PACKAGES_DIR)
+        .arg("--ignore-scripts")
+        .arg("--prefer-offline");
+    cmd
 }
 
 /// Generate an ESM bundle.
