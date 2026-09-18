@@ -267,10 +267,14 @@ export class PgTerm {
     // formatted input.
     //
     // Also stops multiline inputs rendering unnecessarily.
-    this._xterm.onResize(({ rows, cols }) => {
-      this._tty.clearInput();
+    this._xterm.onResize(({ cols, rows }) => {
+      // If it's not prompting, clearing and setting the input may print the
+      // previous line without the prompt prefix, resulting in an undesired
+      // duplication that cannot be cleared (without clearing everything)
+      const isPrompting = this._shell.isPrompting();
+      if (isPrompting) this._tty.clearInput();
       this._tty.setTermSize(cols, rows);
-      this._tty.setInput(this._tty.input, true);
+      if (isPrompting) this._tty.setInput(this._tty.input, true);
     });
 
     // Add a custom key handler in order to fix a bug with spaces
