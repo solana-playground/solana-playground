@@ -25,8 +25,8 @@ export default {
   plugins: [
     new PgImportChunkPlugin(),
     new webpack.ProvidePlugin({
-      process: "process/browser",
-      Buffer: ["buffer", "Buffer"],
+      process: require.resolve("process/browser"),
+      Buffer: [require.resolve("buffer"), "Buffer"],
     }),
   ],
   resolve: {
