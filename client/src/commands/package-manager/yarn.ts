@@ -11,7 +11,7 @@ export const yarn = createCmd({
       name: "install",
       description: "Install packages",
       // FIXME: If the command fails, it prints the error twice (in the terminal)
-      handle: (input) => PgCommand.pm.execute(...input.tokens.slice(1)),
+      handle: proxyPm(),
     }),
 
     createSubcmd({
@@ -24,7 +24,7 @@ export const yarn = createCmd({
           multiple: true,
         },
       ]),
-      handle: (input) => PgCommand.pm.execute(...input.tokens.slice(1)),
+      handle: proxyPm(),
     }),
 
     createSubcmd({
@@ -37,7 +37,7 @@ export const yarn = createCmd({
           multiple: true,
         },
       ]),
-      handle: (input) => PgCommand.pm.execute(...input.tokens.slice(1)),
+      handle: proxyPm(),
     }),
 
     createSubcmd({
@@ -50,9 +50,22 @@ export const yarn = createCmd({
           multiple: true,
         },
       ]),
-      handle: async (input) => {
-        return await PgCommand.pm.execute("update", ...input.tokens.slice(2));
-      },
+      handle: proxyPm("update"),
     }),
   ],
 });
+
+/**
+ * Create a `pm` proxy handler.
+ *
+ * @param args command argument tokens to pass
+ * @returns the `pm` proxy handler
+ */
+function proxyPm(...args: string[]) {
+  return async (input: { tokens: string[] }) => {
+    return await PgCommand.pm.execute(
+      ...args,
+      ...input.tokens.slice(1 + args.length)
+    );
+  };
+}
