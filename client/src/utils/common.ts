@@ -158,7 +158,7 @@ export class PgCommon {
   }
 
   /**
-   * Execute the given callback in order.
+   * Execute the given callback sequentially i.e. in order.
    *
    * This is particularly useful when the desired behavior of an `onChange`
    * event is to execute its callback in order.
@@ -166,7 +166,7 @@ export class PgCommon {
    * @param cb callback to run
    * @returns the wrapped callback function
    */
-  static executeInOrder<T>(cb: (...args: [T]) => SyncOrAsync) {
+  static executeSequential(cb: (...args: unknown[]) => SyncOrAsync) {
     type Callback = typeof cb;
 
     const queue: Parameters<Callback>[] = [];

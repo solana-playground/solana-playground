@@ -10,7 +10,7 @@ import {
 
 export const automaticAirdrop = () => {
   return PgCommon.batchChanges(
-    PgCommon.executeInOrder(async () => {
+    PgCommon.executeSequential(async () => {
       if (!PgSettings.wallet.automaticAirdrop) return;
 
       // If there was an error, disable the effect
