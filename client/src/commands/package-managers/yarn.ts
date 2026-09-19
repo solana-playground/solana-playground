@@ -1,18 +1,21 @@
 import { PgCommon, PgJsPackage, PgTerminal } from "../../utils";
 import { createArgs, createCmd, createSubcmd } from "../create";
 
-// TODO: `npm`
-// TODO: `pnpm`
-export const pm = createCmd({
-  name: "pm",
-  description: "Manage packages",
+export const yarn = createCmd({
+  name: "yarn",
+  description: "Yarn package manager (v1)",
   subcommands: [
+    // TODO: `init`
+
     createSubcmd({
-      // TODO: Alias
       name: "install",
       description: "Install packages",
-      // TODO: Add the relevant manifest and lock file if non-existent (ask?)
-      handle: () => processCommon("Installation", ["install"]),
+      handle: async () => {
+        return await processCommon(["install"], {
+          loading: "Installing",
+          success: "Installation",
+        });
+      },
     }),
 
     createSubcmd({
@@ -26,7 +29,10 @@ export const pm = createCmd({
         },
       ]),
       handle: async (input) => {
-        await processCommon("Addition", ["add", ...input.args.packages]);
+        return await processCommon(["add", ...input.args.packages], {
+          loading: "Adding",
+          success: "Addition",
+        });
       },
     }),
 
@@ -41,22 +47,28 @@ export const pm = createCmd({
         },
       ]),
       handle: async (input) => {
-        await processCommon("Removal", ["remove", ...input.args.packages]);
+        return await processCommon(["remove", ...input.args.packages], {
+          loading: "Removing",
+          success: "Removal",
+        });
       },
     }),
 
     createSubcmd({
-      name: "update",
-      description: "Update package(s)",
+      name: "upgrade",
+      description: "Upgrade package(s) (also works with downgrades)",
       args: createArgs([
         {
           name: "packages",
-          description: "Package(s) to update",
+          description: "Package(s) to upgrade",
           multiple: true,
         },
       ]),
       handle: async (input) => {
-        await processCommon("Update", ["upgrade", ...input.args.packages]);
+        return await processCommon(["upgrade", ...input.args.packages], {
+          loading: "Upgrading",
+          success: "Upgrade",
+        });
       },
     }),
   ],
@@ -65,16 +77,20 @@ export const pm = createCmd({
 /**
  * Run process.
  *
- * @param name process name
  * @param cmd package manager command tokens
+ * @param names names to print
  */
-const processCommon = async (name: string, cmd: string[]) => {
+const processCommon = async (
+  cmd: string[],
+  names: { loading: string; success: string }
+) => {
+  PgTerminal.println(PgTerminal.info(`${names.loading}...`));
   const startTime = performance.now();
   await PgJsPackage.update(["yarn", ...cmd]);
   const timePassed = (performance.now() - startTime) / 1000;
   PgTerminal.println(
     `${PgTerminal.success(
-      `${name} successful.`
+      `${names.success} successful.`
     )} Completed in ${PgCommon.formatSeconds(timePassed)}.`
   );
 };
