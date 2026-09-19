@@ -47,8 +47,9 @@ export type MergeUnion<U> = (
   ? R
   : never;
 
+/** An object that can be disposed */
 export type Disposable = {
-  /** Clear registered events */
+  /** Dispose; clear all listeners */
   dispose: () => void;
 };
 

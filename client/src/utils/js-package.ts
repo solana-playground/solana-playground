@@ -6,12 +6,24 @@ import { PgServer } from "./server";
 const fs = PgExplorer.fs;
 
 export class PgJsPackage {
+  /** JS package event names */
+  static readonly events = {
+    ON_DID_UPDATE: "jspackageondidupdate",
+  };
+
   /**
-   * Install packages as a bundle.
+   * Update the current package.
+   *
+   * The word "update" is used broadly here; an update contains operations such as:
+   *
+   * - full installation
+   * - adding a new package
+   * - removing a package
+   * - updating a package (upgrade and downgrade)
    *
    * @param command package manager command tokens
    */
-  static async install(command?: string[]) {
+  static async update(command?: string[]) {
     const manifest = await this._getManifest();
     const lock = await this._getLock();
     const result = await PgServer.bundle({ manifest, lock, command });
@@ -40,12 +52,14 @@ export class PgJsPackage {
         createParents: true,
       });
     }
+
+    PgCommon.createAndDispatchCustomEvent(this.events.ON_DID_UPDATE);
   }
 
   /**
    * Import a package.
    *
-   * The packages must be installed before using {@link PgJsPackage.install}.
+   * The packages must be installed before using {@link PgJsPackage.update}.
    *
    * @param name package name
    * @returns the imported package
@@ -87,7 +101,7 @@ export class PgJsPackage {
   /**
    * Get type declarations.
    *
-   * The packages must be installed before using {@link PgJsPackage.install}.
+   * The packages must be installed before using {@link PgJsPackage.update}.
    *
    * @param name package name
    * @returns returns type declaration files and type dependencies
@@ -103,7 +117,13 @@ export class PgJsPackage {
     return { files, dependencies };
   }
 
-  /** Get the parsed manifest (`package.json`). */
+  /**
+   * Get and parse the current manifest (`package.json`).
+   *
+   * Only the fields defined in {@link Manifest} are checked to be valid.
+   *
+   * @returns the parsed manifest
+   */
   static async getParsedManifest() {
     const manifest = await fs.readToJson<Manifest>(this._PATHS.MANIFEST_FILE);
     const { name } = manifest;
@@ -125,6 +145,16 @@ export class PgJsPackage {
     });
 
     return manifest;
+  }
+
+  /**
+   * Create a listener that runs after {@link PgJsPackage.update}.
+   *
+   * @param cb callback function to run
+   * @returns a dispose function to clear the event
+   */
+  static onDidUpdate(cb: () => unknown) {
+    return PgCommon.onDidChange(PgJsPackage.events.ON_DID_UPDATE, cb);
   }
 
   /** Known package-related paths */

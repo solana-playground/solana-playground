@@ -15,7 +15,7 @@ import {
  * @returns a disposable to dispose all events
  */
 export const importTypes = async (
-  update: (model: monaco.editor.IModel) => SyncOrAsync<void>,
+  update: (model: monaco.editor.IModel) => SyncOrAsync,
   language: Arrayable<string>
 ): Promise<Disposable> => {
   language = PgCommon.toArray(language);
@@ -32,15 +32,16 @@ export const importTypes = async (
           const model = editor.getModel();
           if (!model) return;
 
-          // Check language
+          const cached = updateDisposables.has(model.uri);
+          if (cached) return;
+
           const isValidLanguage = language.includes(model.getLanguageId());
           if (!isValidLanguage) return;
 
           const updateModel = () => update(model);
           await updateModel();
 
-          // Check cache
-          if (!updateDisposables.has(model.uri)) {
+          if (!cached) {
             updateDisposables.set(
               model.uri,
               model.onDidChangeContent(updateModel)

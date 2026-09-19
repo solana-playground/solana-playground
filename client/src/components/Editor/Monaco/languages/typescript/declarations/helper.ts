@@ -42,7 +42,15 @@ export const declarePackage = async (
 
   cache.add(packageName);
 
-  const { files, dependencies } = await getTypes(packageName);
+  const types = await getTypes(packageName).catch((e) => {
+    console.log("Failed to get types:", packageName, e);
+  });
+  if (!types) {
+    cache.delete(packageName);
+    return;
+  }
+
+  const { files, dependencies } = types;
   if (files.length > 1) {
     // Type root is always the first index (sorted by the server)
     const typeRootFile = files[0];
@@ -90,11 +98,7 @@ export const declarePackage = async (
   // requests without adding much benefit.
   if (!opts?.transitive) {
     const transitiveDisposables = await Promise.all(
-      dependencies.map((dep) => {
-        return declarePackage(dep as string, {
-          transitive: true,
-        });
-      })
+      dependencies.map((dep) => declarePackage(dep, { transitive: true }))
     );
     disposables.push(...transitiveDisposables.filter(PgCommon.isNonNullish));
   }

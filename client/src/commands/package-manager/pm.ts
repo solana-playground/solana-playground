@@ -70,7 +70,7 @@ export const pm = createCmd({
  */
 const processCommon = async (name: string, cmd: string[]) => {
   const startTime = performance.now();
-  await PgJsPackage.install(["yarn", ...cmd]);
+  await PgJsPackage.update(["yarn", ...cmd]);
   const timePassed = (performance.now() - startTime) / 1000;
   PgTerminal.println(
     `${PgTerminal.success(

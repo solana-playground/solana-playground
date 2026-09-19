@@ -22,7 +22,7 @@ export const initDeclarations = async (): Promise<Disposable> => {
   return {
     dispose: () => {
       global.dispose();
-      importable.dispose();
+      importable?.dispose();
       disposable.dispose();
     },
   };

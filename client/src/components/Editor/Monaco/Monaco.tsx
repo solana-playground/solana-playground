@@ -693,6 +693,12 @@ const Monaco = () => {
     const disposables = monaco.languages.getLanguages().map((language) => {
       return monaco.languages.onLanguage(language.id, async () => {
         try {
+          // Do not dispose here because `monaco-editor` caches the `onLanguage`
+          // listener, resulting in `init` running only once independent of
+          // mounts and unmounts.
+          //
+          // TODO: Consider finding another way to re-run after a remount and
+          // dispose each time on unmount.
           const { init } = await import(`./languages/${language.id}/init`);
           await init();
         } catch (e: any) {
