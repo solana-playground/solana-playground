@@ -171,7 +171,7 @@ type ExecutableCommand<
    * @param cb callback function to run when the command starts running
    * @returns a dispose function to clear the event
    */
-  onDidStart(cb: (input: string[] | null) => void): Disposable;
+  onDidStart(cb: (input: string[] | null) => unknown): Disposable;
   /**
    * @param cb callback function to run when the command finishes running
    * @returns a dispose function to clear the event
@@ -601,7 +601,7 @@ Available subcommands: ${cmd.subcommands.map((cmd) => cmd.name).join(", ")}`
 
     return (...args) => {
       try {
-        return item.parse!(...args);
+        return parse(...args);
       } catch (e: any) {
         throw new Error(
           `Failed to parse ${kind}: \`${item.name}\`${
