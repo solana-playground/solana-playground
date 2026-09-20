@@ -16,12 +16,12 @@
     "assert": "^2.0.0",
     "bn.js": "*",
     "borsh": "*",
-    "buffer": "*",
-    "mocha": "^10.0.0"
+    "buffer": "*"
   },
   "devDependencies": {
     "@types/bn.js": "=5.1.1",
     "@types/mocha": "=9.1.1",
+    "mocha": "^10.0.0",
     "typescript": "=5.0.4"
   },
   "resolutions": {
