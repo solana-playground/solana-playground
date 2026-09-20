@@ -56,6 +56,10 @@ impl Config {
                             2usize * 1024 * 1024 * 1024, // 2 GiB
                         )),
                         process: Some(get_env("UNSTABLE_BUILD_PROCESS_LIMIT", 64usize)),
+                        storage: Some(get_env(
+                            "UNSTABLE_BUILD_STORAGE_LIMIT",
+                            256usize * 1024 * 1024, // 256 MiB
+                        )),
                         timeout: Some(get_env("UNSTABLE_BUILD_TIMEOUT_LIMIT", 30u64)),
                     },
                 },
@@ -74,6 +78,10 @@ impl Config {
                             4usize * 1024 * 1024 * 1024, // 4 GiB (also affects speed)
                         )),
                         process: Some(get_env("UNSTABLE_BUNDLE_PROCESS_LIMIT", 64usize)),
+                        storage: Some(get_env(
+                            "UNSTABLE_BUNDLE_STORAGE_LIMIT",
+                            1024usize * 1024 * 1024, // 1 GiB
+                        )),
                         timeout: Some(get_env("UNSTABLE_BUNDLE_TIMEOUT_LIMIT", 300u64)),
                     },
                 },

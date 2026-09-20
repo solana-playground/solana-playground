@@ -92,6 +92,27 @@ impl<'a> Sandbox<'a> {
         self
     }
 
+    /// Set the storage limit.
+    ///
+    /// # Note
+    ///
+    /// This only works with the `overlay2` storage driver using `xfs` mounted with the `pquota`
+    /// option. Otherwise it may error:
+    ///
+    /// ```txt
+    /// docker: Error response from daemon: --storage-opt is supported only for overlay over xfs with 'pquota' mount option
+    /// ```
+    ///
+    /// Docker documentation mentions that `btrfs` and `zfs` storage drivers are also supported, but
+    /// they have additional limitations that make it infeasible to work with.
+    ///
+    /// `extfs` is still not supported: https://github.com/moby/moby/issues/29364
+    #[must_use]
+    pub fn storage_limit(mut self, storage_limit: usize) -> Self {
+        self.cfg.limits.storage.replace(storage_limit);
+        self
+    }
+
     /// Command to run in a sandboxed environment.
     #[must_use]
     pub fn command(mut self, cmd: &'a Command) -> Self {
@@ -156,6 +177,10 @@ impl<'a> Sandbox<'a> {
             if let Some(pids) = self.cfg.limits.process {
                 cmd.arg("--pids-limit");
                 cmd.arg(pids.to_string());
+            }
+            if let Some(storage) = self.cfg.limits.storage {
+                cmd.arg("--storage-opt");
+                cmd.arg(format!("size={storage}b"));
             }
 
             match &self.cfg.image {
@@ -297,7 +322,8 @@ pub struct Limits {
     pub memory: Option<usize>,
     /// Process (PIDs) limit
     pub process: Option<usize>,
-    // TODO: Storage limit
+    /// Storage limit
+    pub storage: Option<usize>,
 }
 
 /// Sandbox action
