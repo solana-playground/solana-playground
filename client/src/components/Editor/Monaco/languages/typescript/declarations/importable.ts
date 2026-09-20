@@ -1,3 +1,5 @@
+import * as monaco from "monaco-editor";
+
 import { declarePackage } from "./helper";
 import { importTypes } from "../../common";
 import {
@@ -23,10 +25,44 @@ export const declareImportableTypes = async () => {
   const manifest = await PgJsPackage.getParsedManifest();
   if (!manifest.dependencies) return;
 
+  const deps = Object.keys(manifest.dependencies);
   const disposables = await Promise.all(
-    Object.keys(manifest.dependencies).map((name) => declarePackage(name))
+    deps.map((name) => declarePackage(name))
   ).then((disposables) => disposables.filter(PgCommon.isNonNullish));
-  return { dispose: () => disposables.forEach(({ dispose }) => dispose()) };
+  const disposableDeclarations = {
+    dispose: () => disposables.forEach(({ dispose }) => dispose()),
+  };
+
+  // Get the transitive deps to filter out from autocomplete
+  const transitiveDeps = await Promise.all(
+    deps.map(async (name) => {
+      const types = await PgJsPackage.getTypes(name).catch(() => {});
+      if (!types) return null;
+      return types.dependencies.filter((dep) => !deps.includes(dep));
+    })
+  )
+    .then((deps) => deps.filter(PgCommon.isNonNullish).flat())
+    .then(PgCommon.toUniqueArray);
+  if (!transitiveDeps.length) return disposableDeclarations;
+
+  // Filter out transitive deps by overriding `getCompletionsAtPosition`
+  const getWorker = await monaco.languages.typescript.getTypeScriptWorker();
+  const worker = await getWorker();
+  const { getCompletionsAtPosition } = worker;
+  worker.getCompletionsAtPosition = async (...args) => {
+    const result = await getCompletionsAtPosition(...args);
+    result.entries = result.entries.filter(
+      (entry: { name: string }) => !transitiveDeps.includes(entry.name)
+    );
+    return result;
+  };
+
+  return {
+    dispose: () => {
+      disposableDeclarations.dispose();
+      worker.getCompletionsAtPosition = getCompletionsAtPosition;
+    },
+  };
 };
 
 /**
