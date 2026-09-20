@@ -3,6 +3,7 @@ import {
   PgCommon,
   PgExplorer,
   PgJsPackage,
+  PgSettings,
 } from "../../../../../utils";
 import { initDeclarations } from "./declarations";
 
@@ -15,6 +16,8 @@ export const init = async () => {
         PgExplorer.onDidInit,
         // TODO: Remove this (`onDidInit` should cover `onDidSwitchWorkspace`)
         PgExplorer.onDidSwitchWorkspace,
+        // TODO: Remove
+        PgSettings.onDidChangeExperimentalUnstable,
       ]);
     },
     async () => {
