@@ -53,6 +53,8 @@ struct Manifest {
     #[serde(default)]
     optional_dependencies: Dependencies,
     #[serde(default)]
+    main: Option<String>,
+    #[serde(default)]
     types: Option<String>,
 }
 
@@ -138,8 +140,28 @@ fn generate_bundle(manifest: &Manifest) -> Result<()> {
     let packages_path = Path::new(PACKAGES_DIR);
     let src_path = packages_path.join(SRC_DIR);
     let mut entries = vec![];
-    // TODO: Other deps (`optionalDependencies`...)
-    for pkg in manifest.dependencies.keys() {
+    for pkg in manifest.get_all_dependencies().keys() {
+        // Skip the `@types` organization
+        if pkg.starts_with("@types") {
+            continue;
+        }
+
+        // Skip other type only packages
+        let manifest_path = Path::new(PACKAGES_DIR)
+            .join(NODE_MODULES)
+            .join(pkg)
+            .join(MANIFEST_FILE);
+        let manifest =
+            fs::read(manifest_path).map(|b| serde_json::from_slice::<Manifest>(&b))??;
+        let is_type_only = manifest
+            .main
+            .map(|main| main.is_empty())
+            .unwrap_or_default()
+            && manifest.types.is_some();
+        if is_type_only {
+            continue;
+        }
+
         let module = to_module_name(pkg);
         let pkg_path = src_path.join(pkg);
         let entry_path = pkg_path.join("index.js");
