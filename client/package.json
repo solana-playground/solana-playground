@@ -85,6 +85,7 @@
   "engines": {
     "node": "^22.20.0"
   },
+  "packageManager": "yarn@1.22.22",
   "scripts": {
     "setup": "git submodule update --init && yarn build-wasm && yarn generate",
     "start": "yarn generate && craco start",
