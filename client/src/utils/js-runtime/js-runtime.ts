@@ -1,13 +1,14 @@
 import { ScriptTarget, transpile } from "typescript";
 import * as mocha from "mocha";
 import * as util from "util";
-import * as anchor from "@coral-xyz/anchor";
 
 import { PgJsRuntimePackage } from "./package";
 import { PgCommon } from "../common";
 import { PgConnection } from "../connection";
+import { PgJsPackage } from "../js-package";
 import { PgProgramInfo } from "../program-info";
 import { PgProgramInteraction } from "../program-interaction";
+import { PgSettings } from "../settings";
 import { PgTerminal } from "../terminal";
 import { Wallet, PgWallet } from "../wallet";
 import type { MergeUnion } from "../types";
@@ -137,7 +138,7 @@ export class PgJsRuntime {
   }
 
   /**
-   * Wrapper method to control client running state.
+   * Execute only if there is no other process running, client or test.
    *
    * @param cb callback function to run
    * @param isTest whether to execute as a test
@@ -225,9 +226,6 @@ export class PgJsRuntime {
     };
 
     const globals: [string, object][] = [
-      // Playground global
-      ["pg", this._getPg()],
-
       // Namespaces
       ["console", iframeConsole],
 
@@ -238,26 +236,43 @@ export class PgJsRuntime {
       ["sleep", PgCommon.sleep],
     ];
 
-    // Set global packages
-    await Promise.all(
-      PgCommon.entries(PACKAGES.global).map(
-        async ([packageName, importStyle]) => {
-          const style = importStyle as Partial<MergeUnion<typeof importStyle>>;
-          const pkg: { [name: string]: any } = await PgJsRuntimePackage.import(
-            packageName
-          );
-          this._overridePackage(packageName, pkg);
+    // TODO: Remove
+    if (!PgSettings.experimental.unstable) {
+      // Playground global
+      globals.push(["pg", this._getPg()]);
 
-          let global: typeof globals[number];
-          if (style.as) global = [style.as, pkg];
-          else if (style.named) global = [style.named, pkg[style.named]];
-          else if (style.default) global = [style.default, pkg.default ?? pkg];
-          else throw new Error("Unreachable");
+      // Pre-defined globals
+      await Promise.all(
+        PgCommon.entries(PACKAGES.global).map(
+          async ([packageName, importStyle]) => {
+            const style = importStyle as Partial<
+              MergeUnion<typeof importStyle>
+            >;
+            const pkg = await this._import(packageName);
 
-          globals.push(global);
-        }
-      )
-    );
+            let global: typeof globals[number];
+            if (style.as) global = [style.as, pkg];
+            else if (style.named) global = [style.named, pkg[style.named]];
+            else if (style.default)
+              global = [style.default, pkg.default ?? pkg];
+            else throw new Error("Unreachable");
+
+            globals.push(global);
+          }
+        )
+      );
+    } else {
+      const manifest = await PgJsPackage.getParsedManifest();
+      const deps = Object.keys(manifest.dependencies ?? {});
+
+      const web3JsPkg = deps.find((dep) => WEB3_JS_DEPENDENTS.includes(dep));
+      if (web3JsPkg) globals.push(["web3", await this._import(web3JsPkg)]);
+
+      const anchorPkg = deps.find((dep) => ANCHOR_PKGS.includes(dep));
+      if (anchorPkg) globals.push(["anchor", await this._import(anchorPkg)]);
+
+      if (web3JsPkg || anchorPkg) globals.push(["pg", this._getPg()]);
+    }
 
     let endCode: string;
     if (isTest) {
@@ -359,13 +374,8 @@ export class PgJsRuntime {
       importMatch = importRegex.exec(code);
       if (!importMatch) continue;
 
-      // TODO: Save packages after adding version support
       const importPath = importMatch[6];
-      const getPackage = importPath.startsWith(".")
-        ? this._importFromPath
-        : PgJsRuntimePackage.import;
-      const rawPkg = await getPackage(importPath);
-      const pkg = this._overridePackage(importPath, rawPkg);
+      const pkg = this._import(importPath);
       setupImport(pkg);
     } while (importMatch);
 
@@ -375,6 +385,22 @@ export class PgJsRuntime {
     code = code.replace(importRegex, "");
 
     return { code, imports };
+  }
+
+  /**
+   * Import a module (package or a file).
+   *
+   * Currently, file imports are not supported (except `target/types`).
+   *
+   * @param path import path (package name or file path)
+   * @returns the imported module
+   */
+  static async _import(path: string) {
+    const getPackage = path.startsWith(".")
+      ? this._importFromPath
+      : PgJsRuntimePackage.import;
+    const rawPkg = await getPackage(path);
+    return this._overridePackage(path, rawPkg);
   }
 
   /**
@@ -403,17 +429,17 @@ export class PgJsRuntime {
    */
   private static _overridePackage(name: string, pkg: any) {
     // Anchor
-    if (name === "@coral-xyz/anchor" || name === "@project-serum/anchor") {
+    if (ANCHOR_PKGS.includes(name)) {
       // Fix `Cannot assign to property 'workspace' of [object Module]`
       pkg = { ...pkg };
 
       const providerName =
-        name === "@coral-xyz/anchor" ? "AnchorProvider" : "Provider";
+        name === "@project-serum/anchor" ? "Provider" : "AnchorProvider";
 
       // Add `AnchorProvider.local()`
       pkg[providerName].local = (
         url?: string,
-        opts: PgWeb3.ConfirmOptions = anchor.AnchorProvider.defaultOptions()
+        opts: PgWeb3.ConfirmOptions = pkg[providerName].defaultOptions()
       ) => {
         const connection = PgConnection.create({
           endpoint: url ?? "http://localhost:8899",
@@ -423,7 +449,7 @@ export class PgJsRuntime {
         const wallet = this._getPg().wallet;
         if (!wallet) throw new Error("Wallet not connected");
 
-        const provider = new anchor.AnchorProvider(connection, wallet, opts);
+        const provider = new pkg[providerName](connection, wallet, opts);
         return setAnchorWallet(provider);
       };
 
@@ -467,7 +493,8 @@ export class PgJsRuntime {
               let program = this._getPg().program;
               if (program) {
                 const { idl, programId } = program;
-                program = new anchor.Program(idl, programId, pkg.getProvider());
+                // TODO: Remove `programId` arg if >=v0.30
+                program = new pkg.Program(idl, programId, pkg.getProvider());
               }
               return program;
             },
@@ -496,7 +523,7 @@ export class PgJsRuntime {
       /** Current project's program public key */
       PROGRAM_ID?: PgWeb3.PublicKey;
       /** Anchor program instance of the current project */
-      program?: anchor.Program;
+      program?: import("@coral-xyz/anchor").Program;
     }
 
     // Playground utils namespace
@@ -508,7 +535,6 @@ export class PgJsRuntime {
     // Wallets
     if (pg.wallet) {
       pg.wallets = {};
-
       for (const wallet of PgWallet.getConnectedWallets()) {
         pg.wallets[PgCommon.toCamelCase(wallet.name)] = wallet;
       }
@@ -519,6 +545,7 @@ export class PgJsRuntime {
 
     // Anchor Program
     if (pg.wallet && PgProgramInfo.idl) {
+      // TODO: Use the current project's Anchor package
       pg.program = PgProgramInteraction.getAnchorProgram();
     }
 
@@ -547,3 +574,17 @@ const UNDEFINED_GLOBALS = ["eval", "Function"];
 
 /** Event name that will be dispatched when client code completes executing */
 const CLIENT_ON_DID_FINISH_RUNNING = "clientondidfinishrunning";
+
+// TODO: Impl for `@solana/kit`
+/** `@solana/web3.js` */
+const WEB3_JS_PKG = "@solana/web3.js";
+
+/** Anchor package names */
+const ANCHOR_PKGS = [
+  "@anchor-lang/core",
+  "@coral-xyz/anchor",
+  "@project-serum/anchor",
+];
+
+/** All known packages that depend on `web3.js` (including itself) */
+const WEB3_JS_DEPENDENTS = [WEB3_JS_PKG, ...ANCHOR_PKGS];

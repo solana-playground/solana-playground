@@ -1,12 +1,14 @@
 import * as monaco from "monaco-editor";
 import type { Idl } from "@coral-xyz/anchor";
 
-import { declareModule } from "./helper";
+import { declareModule, declareNamespace } from "./helper";
 import {
   Disposable,
   PgCommon,
   PgExplorer,
+  PgJsPackage,
   PgProgramInfo,
+  PgSettings,
   PgWallet,
 } from "../../../../../../utils";
 
@@ -17,8 +19,49 @@ import {
  *
  * @returns a disposable to dispose all events
  */
-export const declareDisposableTypes = (): Disposable => {
+export const declareDisposableTypes = async () => {
+  const disposables: Disposable[] = [];
+
+  // TODO: Remove check
+  if (PgSettings.experimental.unstable) {
+    const manifest = await PgJsPackage.getParsedManifest().catch(() => {});
+    if (!manifest?.dependencies) return;
+
+    // TODO: Impl for `@solana/kit`
+    // TODO: Share this with `js-runtime`
+    const WEB3_JS_PKG = "@solana/web3.js";
+    // Impl below assumes alphabetically ordered packages (manifest too)
+    const ANCHOR_PKGS = [
+      "@anchor-lang/core",
+      "@coral-xyz/anchor",
+      "@project-serum/anchor",
+    ];
+    const WEB3_JS_DEPENDENTS = [WEB3_JS_PKG, ...ANCHOR_PKGS];
+
+    const deps = Object.keys(manifest.dependencies);
+    const hasWeb3JsDep = deps.some((dep) => WEB3_JS_DEPENDENTS.includes(dep));
+    if (!hasWeb3JsDep) return;
+
+    try {
+      await PgJsPackage.getTypes(WEB3_JS_PKG);
+      disposables.push(declareNamespace(WEB3_JS_PKG, { as: "web3" }));
+    } catch {
+      return;
+    }
+
+    const anchorPkg = deps.find((dep) => ANCHOR_PKGS.includes(dep));
+    if (anchorPkg) {
+      try {
+        await PgJsPackage.getTypes(anchorPkg);
+        disposables.push(declareNamespace(anchorPkg, { as: "anchor" }));
+      } catch {}
+    }
+  }
+
+  // Default
   addLib("default", require("./raw/pg.raw.d.ts"));
+  const pgNamespace = declareNamespace("solana-playground", { as: "pg" });
+  disposables.push(pgNamespace);
 
   // Program id
   const programIdChange = PgProgramInfo.onDidChangePk((programId) => {
@@ -29,6 +72,7 @@ export const declareDisposableTypes = (): Disposable => {
       };`
     );
   });
+  disposables.push(programIdChange);
 
   // Playground wallet
   const PG_WALLET_TYPE = "PgWallet";
@@ -55,6 +99,7 @@ export const declareDisposableTypes = (): Disposable => {
 `
     );
   });
+  disposables.push(walletChange);
 
   // Wallets
   const accountsChange = PgCommon.batchChanges(() => {
@@ -95,6 +140,7 @@ export const declareDisposableTypes = (): Disposable => {
 `
     );
   }, [PgWallet.onDidChangeAccounts, PgWallet.onDidChangeCurrent]);
+  disposables.push(accountsChange);
 
   // Anchor program
   let programDisposables: monaco.IDisposable[] = [];
@@ -132,6 +178,7 @@ export const IDL: ${idlTypeName} = ${convertedIdl};`,
     );
 
     // Workspace
+    // TODO: `camelCase` program accessors on newer versions
     const getWorkspace = (packageName: string) => {
       return `import { Program } from "${packageName}";
       const workspace: { ${PgCommon.toPascalFromSnake(
@@ -139,6 +186,10 @@ export const IDL: ${idlTypeName} = ${convertedIdl};`,
       )}: ${programType} };`;
     };
     programDisposables.push(
+      addLib(
+        "@anchor-lang/core.workspace",
+        declareModule("@anchor-lang/core", getWorkspace("@anchor-lang/core"))
+      ),
       addLib(
         "@coral-xyz/anchor.workspace",
         declareModule("@coral-xyz/anchor", getWorkspace("@coral-xyz/anchor"))
@@ -152,15 +203,9 @@ export const IDL: ${idlTypeName} = ${convertedIdl};`,
       )
     );
   });
+  disposables.push(idlChange);
 
-  return {
-    dispose: () => {
-      programIdChange.dispose();
-      walletChange.dispose();
-      accountsChange.dispose();
-      idlChange.dispose();
-    },
-  };
+  return { dispose: () => disposables.forEach(({ dispose }) => dispose()) };
 };
 
 /** Disposable types */
@@ -170,6 +215,7 @@ type DisposableType =
   | "wallet"
   | "wallets"
   | "program"
+  | "@anchor-lang/core.workspace"
   | "@coral-xyz/anchor.workspace"
   | "@project-serum/anchor.workspace"
   | "target/types";
@@ -217,7 +263,6 @@ const addModel = (
     undefined,
     monaco.Uri.parse(filePath)
   );
-
   return disposableCache[disposableType]!;
 };
 

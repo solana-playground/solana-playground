@@ -2,10 +2,48 @@ import * as monaco from "monaco-editor";
 
 import {
   Disposable,
+  MergeUnion,
+  OrString,
   PgCommon,
   PgJsPackage,
   PgSettings,
 } from "../../../../../../utils";
+
+/** Global packages */
+type GlobalPackages = typeof PACKAGES["global"];
+
+/** Global package name */
+type GlobalPackageName = keyof GlobalPackages;
+
+/** ESM import style */
+type PackageImportStyle = GlobalPackages[GlobalPackageName];
+
+/**
+ * Declare global namespace.
+ *
+ * @param packageName package name to be referenced in declaration files
+ * @param importStyle import style of the package
+ * @returns a dispose method to dispose all events
+ */
+export const declareNamespace = (
+  packageName: OrString<GlobalPackageName>,
+  importStyle: PackageImportStyle
+) => {
+  const style = importStyle as Partial<MergeUnion<PackageImportStyle>>;
+  const name = style.as ?? style.named ?? style.default;
+  const importStyleText = style.as
+    ? `* as ${style.as}`
+    : style.named
+    ? `{ ${style.named} }`
+    : style.default;
+
+  return monaco.languages.typescript.typescriptDefaults.addExtraLib(
+    `import ${importStyleText} from "${packageName}";
+export = ${name};
+export as namespace ${name};`,
+    `${name}-ns.d.ts`
+  );
+};
 
 /**
  * Some declaration files need to be declared for them to be referenced by other
@@ -20,11 +58,12 @@ export const declareModule = (packageName: string, module: string = "") => {
 };
 
 /**
- * Declare a full package(cached).
+ * Declare a full package (cached).
  *
  * @param packageName package name to be referenced in declaration files
  * @param opts declare options
- * - `transitive`: Whether the package is a transitive package
+ * - `empty`: whether the package should be declared as an empty module
+ * - `transitive`: whether the package is a transitive package
  * @returns a dispose method to dispose all events or `undefined` if the
  * package has already been declared
  */

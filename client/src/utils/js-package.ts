@@ -33,10 +33,8 @@ export class PgJsPackage {
     const hasData = await fs.exists(internalRootDirPath);
     if (hasData) await fs.removeDir(internalRootDirPath, { recursive: true });
 
-    // Save manifest
+    // Save manifest and lock files
     await fs.writeFile(this._PATHS.MANIFEST_FILE, result.manifest);
-
-    // Save lock file
     await fs.writeFile(this._PATHS.LOCK_FILE, result.lock);
 
     // Save bundle: each chunk individually to support lazy-loading
@@ -53,7 +51,11 @@ export class PgJsPackage {
       });
     }
 
-    PgCommon.createAndDispatchCustomEvent(this.events.ON_DID_UPDATE);
+    // Dispatch change event
+    PgCommon.createAndDispatchCustomEvent(
+      this.events.ON_DID_UPDATE,
+      await this.getParsedManifest()
+    );
   }
 
   /**
@@ -153,7 +155,7 @@ export class PgJsPackage {
    * @param cb callback function to run
    * @returns a dispose function to clear the event
    */
-  static onDidUpdate(cb: () => unknown) {
+  static onDidUpdate(cb: (manifest: Manifest) => unknown) {
     return PgCommon.onDidChange(PgJsPackage.events.ON_DID_UPDATE, cb);
   }
 
