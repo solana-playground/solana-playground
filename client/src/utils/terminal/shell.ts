@@ -50,11 +50,6 @@ export class PgShell {
     this._prefixes = prefixes;
   }
 
-  /** Terminal history */
-  get history() {
-    return this._history;
-  }
-
   /** Active process count */
   get processCount() {
     return this._processCount;
