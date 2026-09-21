@@ -22,7 +22,7 @@ use self::{config::Config, middlewares::*, routes::*};
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    let config = Config::from_env();
+    let config = Config::from_env()?;
     log::init(config.verbose);
     info!("Config loaded: {config:#?}");
 

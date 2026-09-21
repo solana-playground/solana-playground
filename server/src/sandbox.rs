@@ -160,27 +160,22 @@ impl<'a> Sandbox<'a> {
                 .arg("--security-opt=no-new-privileges");
 
             if let Some(user) = &self.cfg.user {
-                cmd.arg("--user");
-                cmd.arg(user);
+                cmd.arg("--user").arg(user);
             }
             if !self.cfg.allow_networking {
                 cmd.arg("--network=none");
             }
             if let Some(cpu) = self.cfg.limits.cpu {
-                cmd.arg("--cpus");
-                cmd.arg(cpu.to_string());
+                cmd.arg("--cpus").arg(cpu.to_string());
             }
             if let Some(mem) = self.cfg.limits.memory {
-                cmd.arg("--memory");
-                cmd.arg(format!("{mem}b"));
+                cmd.arg("--memory").arg(format!("{mem}b"));
             }
             if let Some(pids) = self.cfg.limits.process {
-                cmd.arg("--pids-limit");
-                cmd.arg(pids.to_string());
+                cmd.arg("--pids-limit").arg(pids.to_string());
             }
             if let Some(storage) = self.cfg.limits.storage {
-                cmd.arg("--storage-opt");
-                cmd.arg(format!("size={storage}b"));
+                cmd.arg("--storage-opt").arg(format!("size={storage}b"));
             }
 
             match &self.cfg.image {

@@ -1,5 +1,6 @@
 use std::str::FromStr;
 
+use anyhow::Result;
 use dotenv::dotenv;
 use solpg_server::SandboxLimits;
 
@@ -30,9 +31,10 @@ impl Config {
     /// Create [`Config`] from the environment variables.
     ///
     /// `.env` file is supported.
-    pub fn from_env() -> Config {
+    pub fn from_env() -> Result<Config> {
         dotenv().ok();
-        Config {
+
+        Ok(Config {
             client_urls: get_env::<String>("CLIENT_URLS", "http://localhost,https://beta.solpg.io")
                 .split(',')
                 .map(str::trim)
@@ -56,10 +58,9 @@ impl Config {
                             2usize * 1024 * 1024 * 1024, // 2 GiB
                         )),
                         process: Some(get_env("UNSTABLE_BUILD_PROCESS_LIMIT", 64usize)),
-                        storage: Some(get_env(
-                            "UNSTABLE_BUILD_STORAGE_LIMIT",
-                            256usize * 1024 * 1024, // 256 MiB
-                        )),
+                        storage: get_env_raw("UNSTABLE_BUILD_STORAGE_LIMIT")
+                            .map(|v| v.parse())
+                            .transpose()?,
                         timeout: Some(get_env("UNSTABLE_BUILD_TIMEOUT_LIMIT", 30u64)),
                     },
                 },
@@ -78,15 +79,14 @@ impl Config {
                             4usize * 1024 * 1024 * 1024, // 4 GiB (also affects speed)
                         )),
                         process: Some(get_env("UNSTABLE_BUNDLE_PROCESS_LIMIT", 64usize)),
-                        storage: Some(get_env(
-                            "UNSTABLE_BUNDLE_STORAGE_LIMIT",
-                            1024usize * 1024 * 1024, // 1 GiB
-                        )),
-                        timeout: Some(get_env("UNSTABLE_BUNDLE_TIMEOUT_LIMIT", 300u64)),
+                        storage: get_env_raw("UNSTABLE_BUNDLE_STORAGE_LIMIT")
+                            .map(|v| v.parse())
+                            .transpose()?,
+                        timeout: Some(get_env("UNSTABLE_BUNDLE_TIMEOUT_LIMIT", 180u64)),
                     },
                 },
             },
-        }
+        })
     }
 }
 
@@ -121,11 +121,15 @@ pub struct RouteLimits {
 }
 
 /// Get and parse the environment variable or return the given `default`.
-///
-/// All environment variables are prefixed with `PG_` in order to prevent clashes.
 fn get_env<T: FromStr>(key: &str, default: impl Into<T>) -> T {
-    dotenv::var(format!("PG_{key}"))
-        .ok()
+    get_env_raw(key)
         .and_then(|s| s.parse().ok())
         .unwrap_or(default.into())
+}
+
+/// Get the raw string environment variable.
+///
+/// All environment variables are prefixed with `PG_` in order to prevent clashes.
+fn get_env_raw(key: &str) -> Option<String> {
+    dotenv::var(format!("PG_{key}")).ok()
 }

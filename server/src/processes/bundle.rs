@@ -147,7 +147,7 @@ fn generate_bundle(manifest: &Manifest) -> Result<()> {
         }
 
         // Skip other type only packages
-        let manifest_path = Path::new(PACKAGES_DIR)
+        let manifest_path = packages_path
             .join(NODE_MODULES)
             .join(pkg)
             .join(MANIFEST_FILE);
