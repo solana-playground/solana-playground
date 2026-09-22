@@ -50,7 +50,7 @@ export const loadConfigData = async (): Promise<ConfigData> => {
 };
 
 export const saveConfigData = async (configData: ConfigData) => {
-  await PgExplorer.createItem(
+  await PgExplorer.saveItem(
     PgSugar.PATHS.CANDY_MACHINE_CONFIG_FILEPATH,
     PgCommon.toPrettyJson({
       ...configData,
@@ -65,10 +65,6 @@ export const saveConfigData = async (configData: ConfigData) => {
         ...c,
         address: c.address.toBase58(),
       })),
-    }),
-    {
-      override: true,
-      openOptions: { onlyRefreshIfAlreadyOpen: true },
-    }
+    })
   );
 };

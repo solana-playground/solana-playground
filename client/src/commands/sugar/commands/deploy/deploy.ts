@@ -198,10 +198,7 @@ export const processDeploy = async (rpcUrl: string | undefined) => {
       };
 
       // Periodically save the cache
-      const saveCacheIntervalId = setInterval(
-        () => cache.syncFile(false),
-        5000
-      );
+      const saveCacheIntervalId = setInterval(() => cache.syncFile(), 5000);
 
       // Show progress bar
       PgView.setMainSecondaryProgress(0.1);

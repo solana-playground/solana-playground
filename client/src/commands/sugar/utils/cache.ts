@@ -25,14 +25,10 @@ export class CandyCache {
     }
   }
 
-  async syncFile(onlyRefreshIfAlreadyOpen: boolean = true) {
-    await PgExplorer.createItem(
+  async syncFile() {
+    await PgExplorer.saveItem(
       PgSugar.PATHS.CANDY_MACHINE_CACHE_FILEPATH,
-      PgCommon.toPrettyJson(this),
-      {
-        override: true,
-        openOptions: { dontOpen: true, onlyRefreshIfAlreadyOpen },
-      }
+      PgCommon.toPrettyJson(this)
     );
   }
 

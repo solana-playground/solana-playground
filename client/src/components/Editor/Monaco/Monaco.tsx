@@ -389,30 +389,16 @@ const Monaco = () => {
     if (!editor) return;
 
     let timeoutId: NodeJS.Timeout;
-
     const { dispose } = editor.onDidChangeModelContent(() => {
       timeoutId && clearTimeout(timeoutId);
       timeoutId = setTimeout(async () => {
-        if (!PgExplorer.currentFilePath) return;
+        const currentFilePath = PgExplorer.currentFilePath;
+        if (!currentFilePath) return;
 
-        const args: [string, string] = [
-          PgExplorer.currentFilePath,
-          editor.getValue(),
-        ];
-
-        // Save to state
-        PgExplorer.saveFileToState(...args);
-
-        // Saving to state is enough if it's a temporary project
-        if (PgExplorer.isTemporary) return;
-
-        // Save to `indexedDB`
         try {
-          await PgExplorer.fs.writeFile(...args);
+          await PgExplorer.saveItem(currentFilePath, editor.getValue());
         } catch (e: any) {
-          console.log(
-            `Error saving file ${PgExplorer.currentFilePath}. ${e.message}`
-          );
+          console.log(`Auto-save failed: ${e.message}`);
         }
       }, 500);
     });

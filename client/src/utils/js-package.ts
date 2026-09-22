@@ -39,10 +39,7 @@ export class PgJsPackage {
       [this._PATHS.LOCK_FILE, result.lock],
     ];
     for (const [path, content] of packageFiles) {
-      await PgExplorer.createItem(path, content, {
-        override: true,
-        openOptions: { noOpen: true },
-      });
+      await PgExplorer.saveItem(path, content);
     }
 
     // Save bundle: each chunk individually to support lazy-loading

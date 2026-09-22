@@ -165,6 +165,7 @@ export class PgExplorer {
 
   /**
    * If the project is not temporary(default):
+   *
    * - Name and path checks
    * - Create new item in `indexedDB`
    * - If create is successful, also create the item in the state
@@ -180,7 +181,7 @@ export class PgExplorer {
       skipNameValidation?: boolean;
       override?: boolean;
       openOptions?: {
-        dontOpen?: boolean;
+        noOpen?: boolean;
         onlyRefreshIfAlreadyOpen?: boolean;
       };
     }
@@ -228,7 +229,9 @@ export class PgExplorer {
     }
     // Folder
     else {
-      if (!this.isTemporary) await this.fs.createDir(absolutePath);
+      if (!opts?.override && !this.isTemporary) {
+        await this.fs.createDir(absolutePath);
+      }
 
       files[absolutePath] = {};
     }
@@ -239,12 +242,33 @@ export class PgExplorer {
   }
 
   /**
+   * Save item to state, and if non-temporary, to the file system.
+   *
+   * This is intended to be used only when the item is known to exist.
+   *
+   * This method can also be used to create new items. However, this usage is
+   * discouraged because there is a dedicated {@link PgExplorer.createItem}
+   * method that is better suited for the initial file creation.
+   *
+   * @param path file path
+   * @param content file content (can be omitted for directories)
+   */
+  static async saveItem(path: string, content: string = "") {
+    return await this.createItem(path, content, {
+      override: true,
+      openOptions: { noOpen: true, onlyRefreshIfAlreadyOpen: true },
+    });
+  }
+
+  /**
    * If the project is not temporary(default):
+   *
    * - Name and path checks
    * - Rename in `indexedDB`
    * - If rename is successful also rename item in the state
    *
    * If the project is temporary:
+   *
    * - Name and path checks
    * - Rename in state
    */
@@ -353,10 +377,12 @@ export class PgExplorer {
 
   /**
    * If the project is not temporary(default):
+   *
    * - Delete from `indexedDB`(recursively)
    * - If delete is successful, delete from state
    *
    * If the project is temporary:
+   *
    * - Delete from state
    */
   static async deleteItem(path: string) {
@@ -455,11 +481,8 @@ export class PgExplorer {
       }
       this.setTabs(this.tabs.map(getFullPath));
 
-      // Save files from state to `indexedDB`
       await this._writeAllFromState();
-
       await this.switchWorkspace(name);
-
       return;
     }
 
@@ -637,17 +660,6 @@ export class PgExplorer {
    */
   static getAllFiles() {
     return this._toTupleFiles(this.files);
-  }
-
-  /**
-   * Save the file to the state only.
-   *
-   * @param path file path
-   * @param content file content
-   */
-  static saveFileToState(path: string, content: string) {
-    path = this.toAbsolutePath(path);
-    if (this.files[path]) this.files[path].content = content;
   }
 
   /**
