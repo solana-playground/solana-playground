@@ -1,5 +1,5 @@
 import { PgCommon, PgJsPackage, PgTerminal } from "../../utils";
-import { createArgs, createCmd, createSubcmd } from "../create";
+import { createArgs, createCmd, createOptions, createSubcmd } from "../create";
 
 export const yarn = createCmd({
   name: "yarn",
@@ -10,12 +10,7 @@ export const yarn = createCmd({
     createSubcmd({
       name: "install",
       description: "Install packages",
-      handle: async () => {
-        return await processCommon(["install"], {
-          loading: "Installing",
-          success: "Installation",
-        });
-      },
+      handle: createHandler({ loading: "Installing", success: "Installation" }),
     }),
 
     createSubcmd({
@@ -28,12 +23,24 @@ export const yarn = createCmd({
           multiple: true,
         },
       ]),
-      handle: async (input) => {
-        return await processCommon(["add", ...input.args.packages], {
-          loading: "Adding",
-          success: "Addition",
-        });
-      },
+      options: createOptions([
+        {
+          name: "dev",
+          description: "Save package(s) to `devDependencies`",
+          short: "D",
+        },
+        {
+          name: "peer",
+          description: "Save package(s) to `peerDependencies`",
+          short: "P",
+        },
+        {
+          name: "optional",
+          description: "Save package(s) to `optionalDependencies`",
+          short: "O",
+        },
+      ]),
+      handle: createHandler({ loading: "Adding", success: "Addition" }),
     }),
 
     createSubcmd({
@@ -46,12 +53,7 @@ export const yarn = createCmd({
           multiple: true,
         },
       ]),
-      handle: async (input) => {
-        return await processCommon(["remove", ...input.args.packages], {
-          loading: "Removing",
-          success: "Removal",
-        });
-      },
+      handle: createHandler({ loading: "Removing", success: "Removal" }),
     }),
 
     createSubcmd({
@@ -64,33 +66,26 @@ export const yarn = createCmd({
           multiple: true,
         },
       ]),
-      handle: async (input) => {
-        return await processCommon(["upgrade", ...input.args.packages], {
-          loading: "Upgrading",
-          success: "Upgrade",
-        });
-      },
+      handle: createHandler({ loading: "Upgrading", success: "Upgrade" }),
     }),
   ],
 });
 
 /**
- * Run process.
+ * Create a `yarn` command handler.
  *
- * @param cmd package manager command tokens
  * @param names names to print
  */
-const processCommon = async (
-  cmd: string[],
-  names: { loading: string; success: string }
-) => {
-  PgTerminal.println(PgTerminal.info(`${names.loading}...`));
-  const startTime = performance.now();
-  await PgJsPackage.update(["yarn", ...cmd]);
-  const timePassed = (performance.now() - startTime) / 1000;
-  PgTerminal.println(
-    `${PgTerminal.success(
-      `${names.success} successful.`
-    )} Completed in ${PgCommon.formatSeconds(timePassed)}.`
-  );
-};
+function createHandler(names: { loading: string; success: string }) {
+  return async (input: { tokens: string[] }) => {
+    PgTerminal.println(PgTerminal.info(`${names.loading}...`));
+    const startTime = performance.now();
+    await PgJsPackage.update(input.tokens);
+    const timePassed = (performance.now() - startTime) / 1000;
+    PgTerminal.println(
+      `${PgTerminal.success(
+        `${names.success} successful.`
+      )} Completed in ${PgCommon.formatSeconds(timePassed)}.`
+    );
+  };
+}

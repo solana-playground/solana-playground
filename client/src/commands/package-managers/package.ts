@@ -1,5 +1,5 @@
 import { PgCommand } from "../../utils";
-import { createArgs, createCmd, createSubcmd } from "../create";
+import { createArgs, createCmd, createOptions, createSubcmd } from "../create";
 
 /**
  * Manage packages.
@@ -35,7 +35,38 @@ export const packageManager = createCmd({
           multiple: true,
         },
       ]),
-      handle: proxy(),
+      options: createOptions([
+        {
+          name: "dev",
+          description: "Save package(s) to `devDependencies`",
+          short: true,
+        },
+        {
+          name: "peer",
+          description: "Save package(s) to `peerDependencies`",
+          short: true,
+        },
+        {
+          name: "optional",
+          description: "Save package(s) to `optionalDependencies`",
+          short: true,
+        },
+      ]),
+      handle: async (input) => {
+        const packageManager = getPackageManager();
+        const tokens = [];
+        switch (packageManager) {
+          case "yarn": {
+            tokens.push("add");
+            tokens.push(...input.args.packages);
+            if (input.options.dev) tokens.push("--dev");
+            if (input.options.peer) tokens.push("--peer");
+            if (input.options.optional) tokens.push("--optional");
+          }
+        }
+
+        return await PgCommand[packageManager].execute(...tokens);
+      },
     }),
 
     createSubcmd({
