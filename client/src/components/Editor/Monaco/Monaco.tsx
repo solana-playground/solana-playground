@@ -396,7 +396,9 @@ const Monaco = () => {
         if (!currentFilePath) return;
 
         try {
-          await PgExplorer.saveItem(currentFilePath, editor.getValue());
+          await PgExplorer.saveItem(currentFilePath, editor.getValue(), {
+            refreshIfAlreadyOpen: false,
+          });
         } catch (e: any) {
           console.log(`Auto-save failed: ${e.message}`);
         }

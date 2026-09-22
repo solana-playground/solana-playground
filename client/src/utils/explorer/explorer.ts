@@ -182,7 +182,7 @@ export class PgExplorer {
       override?: boolean;
       openOptions?: {
         noOpen?: boolean;
-        onlyRefreshIfAlreadyOpen?: boolean;
+        refreshIfAlreadyOpen?: boolean;
       };
     }
   ) {
@@ -217,7 +217,7 @@ export class PgExplorer {
         meta: files[absolutePath]?.meta ?? {},
       };
 
-      if (!opts?.openOptions || opts?.openOptions?.onlyRefreshIfAlreadyOpen) {
+      if (!opts?.openOptions || opts?.openOptions?.refreshIfAlreadyOpen) {
         const isCurrentFile = this.currentFilePath === absolutePath;
 
         // Close the file if we are overriding to correctly display the new content
@@ -252,11 +252,23 @@ export class PgExplorer {
    *
    * @param path file path
    * @param content file content (can be omitted for directories)
+   * @param opts options
    */
-  static async saveItem(path: string, content: string = "") {
+  static async saveItem(
+    path: string,
+    content: string = "",
+    opts?: {
+      noOpen?: boolean;
+      refreshIfAlreadyOpen?: boolean;
+    }
+  ) {
+    const openOptions = PgCommon.setDefault(opts, {
+      noOpen: true,
+      refreshIfAlreadyOpen: true,
+    });
     return await this.createItem(path, content, {
       override: true,
-      openOptions: { noOpen: true, onlyRefreshIfAlreadyOpen: true },
+      openOptions,
     });
   }
 
