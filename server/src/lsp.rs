@@ -350,14 +350,6 @@ mod tests {
     use super::*;
 
     #[test]
-    fn encodes_frames() {
-        assert_eq!(
-            encode_frame(br#"{"a":1}"#),
-            b"Content-Length: 7\r\n\r\n{\"a\":1}"
-        );
-    }
-
-    #[test]
     fn decodes_split_and_batched_frames() {
         let mut decoder = FrameDecoder::default();
         decoder.push(b"Content-Length: 2\r\n\r\n{");

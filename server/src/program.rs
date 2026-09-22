@@ -29,6 +29,65 @@ pub const MAX_PATH_LEN: usize = 128;
 /// Max program build output stderr length
 pub const MAX_STDERR_LEN: usize = 1024 * 1024 * 1024; // 1 MiB
 
+/// Validate a project's files: count, total size, and path shape.
+///
+/// A path is valid only if it is a Rust source under `src/` or a root
+/// `Cargo.toml`/`Cargo.lock`. Paths are matched exactly, with no leading slash,
+/// so a caller that accepts a legacy `/` prefix must strip it first.
+pub fn validate_files(files: &Files, max_bytes: Option<usize>) -> anyhow::Result<()> {
+    if files.len() > MAX_FILE_AMOUNT {
+        return Err(anyhow!(
+            "Exceeded maximum file amount: {} > {MAX_FILE_AMOUNT}",
+            files.len()
+        ));
+    }
+
+    if let Some(max_bytes) = max_bytes {
+        let bytes: usize = files.iter().map(|(_, content)| content.len()).sum();
+        if bytes > max_bytes {
+            return Err(anyhow!(
+                "Exceeded maximum project size: {bytes} > {max_bytes}"
+            ));
+        }
+    }
+
+    for (path, _) in files {
+        if !is_valid_path(path) {
+            return Err(anyhow!("Invalid path: {path}"));
+        }
+    }
+
+    Ok(())
+}
+
+fn is_valid_path(path: &str) -> bool {
+    path.len() <= MAX_PATH_LEN
+        && !path.contains("..")
+        && !path.contains("//")
+        && (is_cargo_file(path) || is_src_rust_file(path))
+}
+
+/// Whether `path` is a root `Cargo.toml` or `Cargo.lock`.
+pub fn is_cargo_file(path: &str) -> bool {
+    path == "Cargo.toml" || path == "Cargo.lock"
+}
+
+/// Whether `path` is a Rust source under `src/`, e.g. `src/state/mod.rs`.
+fn is_src_rust_file(path: &str) -> bool {
+    match path
+        .strip_prefix("src/")
+        .and_then(|p| p.strip_suffix(".rs"))
+    {
+        Some(stem) => {
+            !stem.is_empty()
+                && stem
+                    .bytes()
+                    .all(|b| b.is_ascii_alphanumeric() || matches!(b, b'_' | b'-' | b'/'))
+        }
+        None => false,
+    }
+}
+
 /// Build the program from the given program name and files.
 ///
 /// `program_name` is only being used as the directory name of the program and it doesn't have an
@@ -181,4 +240,33 @@ pub async fn get_binary(program_name: &str) -> tokio::io::Result<Vec<u8>> {
 /// Get the path to the process output directory.
 pub fn get_out_path(uuid: &str) -> PathBuf {
     Path::new(PROGRAMS_DIR).join("out").join(uuid)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn files(paths: &[&str]) -> Files {
+        paths
+            .iter()
+            .map(|p| (p.to_string(), String::new()))
+            .collect()
+    }
+
+    #[test]
+    fn validates_project_files() {
+        let ok = files(&["src/lib.rs", "src/state/mod.rs", "Cargo.toml", "Cargo.lock"]);
+        assert!(validate_files(&ok, None).is_ok());
+
+        for bad in [
+            "/src/lib.rs",
+            "src/../etc/passwd",
+            "tests/x.rs",
+            "src//a.rs",
+            "src/my mod.rs",
+            "Cargoxtoml",
+        ] {
+            assert!(validate_files(&files(&[bad]), None).is_err(), "{bad}");
+        }
+    }
 }

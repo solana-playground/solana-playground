@@ -1,7 +1,4 @@
-use std::{
-    sync::{Arc, LazyLock},
-    time::Duration,
-};
+use std::{sync::Arc, time::Duration};
 
 use anyhow::{anyhow, Result};
 use axum::{
@@ -12,14 +9,13 @@ use axum::{
     http::{HeaderMap, StatusCode},
     response::{IntoResponse, Response},
 };
-use regex::Regex;
 use serde::Deserialize;
 use serde_json::{json, Value};
 use solpg_server::{
     log::{error, info, warn},
     lsp::{encode_frame, FrameDecoder, Limits, LspSession},
-    program::{MAX_FILE_AMOUNT, MAX_PATH_LEN},
-    templates::{get_all_templates, Template},
+    program::validate_files,
+    templates::Template,
     utils::{get_image_name, Files},
 };
 use tokio::{
@@ -119,7 +115,7 @@ async fn handle(mut socket: WebSocket, state: LspState) -> Result<()> {
         return Ok(());
     };
 
-    let template = match find_template(&files) {
+    let template = match Template::find(&files) {
         Ok(template) => template,
         Err(e) => {
             send_error(&mut socket, open_id, &e.to_string()).await?;
@@ -264,67 +260,8 @@ fn is_method(text: &str, method: &str) -> bool {
 fn parse_files(params: Value, limits: &Limits) -> Result<Files> {
     let params: FilesParams =
         serde_json::from_value(params).map_err(|e| anyhow!("Invalid files: {e}"))?;
-    validate(&params.files, limits)?;
+    validate_files(&params.files, Some(limits.max_files_bytes))?;
     Ok(params.files)
-}
-
-/// Check file count, size and paths the same way `unstable/build` does.
-fn validate(files: &Files, limits: &Limits) -> Result<()> {
-    if files.len() > MAX_FILE_AMOUNT {
-        return Err(anyhow!(
-            "Exceeded maximum file amount: {} > {MAX_FILE_AMOUNT}",
-            files.len()
-        ));
-    }
-
-    let bytes: usize = files.iter().map(|(_, content)| content.len()).sum();
-    if bytes > limits.max_files_bytes {
-        return Err(anyhow!(
-            "Exceeded maximum project size: {bytes} > {}",
-            limits.max_files_bytes
-        ));
-    }
-
-    static SRC_REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^src/[\w/-]+\.rs$").unwrap());
-    static CARGO_REGEX: LazyLock<Regex> =
-        LazyLock::new(|| Regex::new(r"^Cargo.(toml|lock)$").unwrap());
-    for (path, _) in files {
-        let is_valid = path.len() <= MAX_PATH_LEN
-            && !path.contains("..")
-            && !path.contains("//")
-            && (SRC_REGEX.is_match(path) || CARGO_REGEX.is_match(path));
-        if !is_valid {
-            return Err(anyhow!("Invalid path: {path}"));
-        }
-    }
-
-    Ok(())
-}
-
-/// Pick the template from the `cargo` files, the default one if there are none.
-///
-/// A manifest without a lock matches against the template manifest alone.
-fn find_template(files: &Files) -> Result<&'static Template> {
-    let manifest = files.iter().find(|(p, _)| p == "Cargo.toml");
-    let lock = files.iter().find(|(p, _)| p == "Cargo.lock");
-    match (manifest, lock) {
-        // Pre-template projects have no `cargo` files; they run on `legacy`
-        (None, None) => Ok(Default::default()),
-        (None, Some(_)) => Err(anyhow!("Missing `Cargo.toml`")),
-        (Some((_, manifest)), lock) => {
-            let lock = lock.map(|(_, content)| content.as_str());
-            for template in get_all_templates() {
-                if template.matches(manifest, lock)? {
-                    return Ok(template);
-                }
-            }
-            Err(anyhow!(
-                "The `cargo` files match no build template: the dependency set \
-                is fixed by the build images. Revert `Cargo.toml` to restore \
-                builds and intellisense"
-            ))
-        }
-    }
 }
 
 async fn send_result(socket: &mut WebSocket, id: Value, result: Value) -> Result<()> {
@@ -347,13 +284,6 @@ async fn send_error(socket: &mut WebSocket, id: Value, message: &str) -> Result<
 mod tests {
     use super::*;
 
-    fn files(paths: &[&str]) -> Files {
-        paths
-            .iter()
-            .map(|p| (p.to_string(), String::new()))
-            .collect()
-    }
-
     #[test]
     fn detects_bridge_methods_only_by_method_field() {
         assert!(is_method(
@@ -365,38 +295,5 @@ mod tests {
             r#"{"jsonrpc":"2.0","method":"textDocument/didChange","params":{"text":"solpg/sync"}}"#,
             SYNC_METHOD
         ));
-    }
-
-    #[test]
-    fn validates_paths() {
-        let limits = Limits::default();
-        let ok = files(&["src/lib.rs", "src/state/mod.rs", "Cargo.toml"]);
-        assert!(validate(&ok, &limits).is_ok());
-
-        for bad in [
-            "/src/lib.rs",
-            "src/../etc/passwd",
-            "tests/x.rs",
-            "src//a.rs",
-            "src/my mod.rs",
-        ] {
-            assert!(validate(&files(&[bad]), &limits).is_err(), "{bad}");
-        }
-    }
-
-    #[test]
-    fn validates_size() {
-        let limits = Limits {
-            max_files_bytes: 8,
-            ..Default::default()
-        };
-        let small: Files = vec![("src/lib.rs".to_owned(), "fn x(){}".to_owned())]
-            .into_iter()
-            .collect();
-        assert!(validate(&small, &limits).is_ok());
-        let big: Files = vec![("src/lib.rs".to_owned(), "fn xx(){}".to_owned())]
-            .into_iter()
-            .collect();
-        assert!(validate(&big, &limits).is_err());
     }
 }

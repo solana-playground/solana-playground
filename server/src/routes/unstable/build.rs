@@ -1,19 +1,15 @@
-use std::{
-    path::Path,
-    sync::{Arc, LazyLock},
-};
+use std::{path::Path, sync::Arc};
 
 use anyhow::anyhow;
 use axum::{
     extract::{Json, State},
     response::IntoResponse,
 };
-use regex::Regex;
 use serde::{Deserialize, Serialize};
 use solpg_server::{
     log::info,
-    program::{get_out_path, BINARY_FILE, MAX_FILE_AMOUNT, MAX_PATH_LEN, MAX_STDERR_LEN},
-    templates::get_all_templates,
+    program::{get_out_path, is_cargo_file, validate_files, BINARY_FILE, MAX_STDERR_LEN},
+    templates::Template,
     utils::{get_image_name, Files},
     Result, Sandbox,
 };
@@ -95,34 +91,9 @@ pub async fn build(
         None => (Uuid::new_v4().to_string(), true),
     };
 
-    // Check file count
-    let files = payload.files;
-    if files.len() > MAX_FILE_AMOUNT {
-        return Err(anyhow!(
-            "Exceeded maximum file amount: {} > {MAX_FILE_AMOUNT}",
-            files.len()
-        ))?;
-    }
-
-    // Check file paths.
-    //
-    // `/` prefix is no longer necessary and solely exists for backwards-compatibility
-    static SRC_REGEX: LazyLock<Regex> =
-        LazyLock::new(|| Regex::new(r"^/?src/[\w/-]+\.rs$").unwrap());
-    static CARGO_REGEX: LazyLock<Regex> =
-        LazyLock::new(|| Regex::new(r"^Cargo.(toml|lock)$").unwrap());
-    for (path, _) in &files {
-        let is_valid = path.len() <= MAX_PATH_LEN
-            && !path.contains("..")
-            && !path.contains("//")
-            && (SRC_REGEX.is_match(path) || CARGO_REGEX.is_match(path));
-        if !is_valid {
-            return Err(anyhow!("Invalid path: {path}"))?;
-        }
-    }
-
-    // Normalize paths (`/` prefix) and split `cargo` files
-    let (cargo_files, files) = files
+    // Strip the legacy `/` prefix, then validate count and paths
+    let files: Files = payload
+        .files
         .into_iter()
         .map(|(path, content)| {
             let path = path
@@ -131,7 +102,12 @@ pub async fn build(
                 .unwrap_or(path);
             (path, content)
         })
-        .partition::<Files, _>(|(path, _)| CARGO_REGEX.is_match(path));
+        .collect();
+    validate_files(&files, None)?;
+
+    // Split the `cargo` files out; they pick the build template
+    let (cargo_files, files): (Files, Files) =
+        files.into_iter().partition(|(path, _)| is_cargo_file(path));
 
     // Create host output directory (if it doesn't exist)
     let host_path = get_out_path(&uuid);
@@ -147,26 +123,7 @@ pub async fn build(
     .await
     .map_err(|e| anyhow!("Failed to write build files: {e}"))?;
 
-    // Pick the build template from the `cargo` files. The manifest selects it
-    // (a new Anchor project sends one with no `Cargo.lock`); a lock is matched
-    // only when present, and no cargo files at all fall back to the default.
-    let manifest = cargo_files.iter().find(|(path, _)| path == "Cargo.toml");
-    let lock = cargo_files.iter().find(|(path, _)| path == "Cargo.lock");
-    let template_name = match (manifest, lock) {
-        (None, None) => Default::default(),
-        (None, Some(_)) => return Err(anyhow!("Missing `Cargo.toml`"))?,
-        (Some((_, manifest)), lock) => 'outer: {
-            let lock = lock.map(|(_, content)| content.as_str());
-            for template in get_all_templates() {
-                if template.matches(manifest, lock)? {
-                    break 'outer template;
-                }
-            }
-
-            return Err(anyhow!("Failed to find a build template"))?;
-        }
-    }
-    .name();
+    let template_name = Template::find(&cargo_files)?.name();
     let image = get_image_name(format!("program-{template_name}"));
     info!("Building using image: {image}");
 
