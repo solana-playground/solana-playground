@@ -26,11 +26,6 @@ export const toLspPosition = (pos: monaco.IPosition): lsp.Position => ({
   character: pos.column - 1,
 });
 
-export const toLspRange = (range: monaco.IRange): lsp.Range => ({
-  start: { line: range.startLineNumber - 1, character: range.startColumn - 1 },
-  end: { line: range.endLineNumber - 1, character: range.endColumn - 1 },
-});
-
 /* ------------------------------- Text edits ------------------------------- */
 
 const toMonacoTextEdit = (edit: lsp.TextEdit): monaco.languages.TextEdit => ({

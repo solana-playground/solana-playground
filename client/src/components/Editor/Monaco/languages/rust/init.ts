@@ -16,13 +16,13 @@ import type { Disposable } from "../../../../../utils";
  * The server backend also restarts on workspace switch: one project per session.
  */
 export const init = () => {
-  let active: Disposable | null = null;
+  let active: Disposable | undefined;
   let generation = 0;
 
   const start = async (backend: typeof PgSettings.editor.rustAnalyzer) => {
     const current = ++generation;
     active?.dispose();
-    active = null;
+    active = undefined;
     setStatus(backend === "server" ? "connecting" : "off");
 
     try {

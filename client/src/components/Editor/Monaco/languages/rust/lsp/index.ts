@@ -7,11 +7,4 @@
  * are ours.
  */
 export { connect } from "./client";
-export {
-  onDidChangeStatus,
-  onDidPulseActivity,
-  requestRestart,
-  setRestartHandler,
-  setStatus,
-} from "./status";
-export type { LspStatus } from "./status";
+export { setRestartHandler, setStatus } from "./status";
