@@ -144,10 +144,7 @@ async fn handle(mut socket: WebSocket, state: LspState) -> Result<()> {
 }
 
 /// Wait for `solpg/open`; `None` means the client went away or sent bad files.
-async fn wait_for_open(
-    socket: &mut WebSocket,
-    state: &LspState,
-) -> Result<Option<(Value, Files)>> {
+async fn wait_for_open(socket: &mut WebSocket, state: &LspState) -> Result<Option<(Value, Files)>> {
     loop {
         let Some(msg) = socket.recv().await else {
             return Ok(None);
