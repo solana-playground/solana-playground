@@ -56,7 +56,7 @@
     "stream-browserify": "^3.0.0",
     "styled-components": "^5.3.3",
     "typescript": "=5.0.4",
-    "vscode-jsonrpc": "~8.2.1",
+    "vscode-jsonrpc": "^8.2.1",
     "vscode-oniguruma": "^1.7.0",
     "vscode-textmate": "^9.0.0",
     "vscode-ws-jsonrpc": "^3.5.0",
