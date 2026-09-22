@@ -55,6 +55,8 @@ pub struct BuildRequest {
 /// Build response
 #[derive(Serialize)]
 struct BuildResponse {
+    /// Whether the build was successful
+    success: bool,
     /// Build output to `stdout` regardless of the compilation status
     stdout: String,
     /// Build output to `stderr` regardless of the compilation status (main output)
@@ -206,7 +208,8 @@ pub async fn build(
     }
 
     // Check unexpected build process errors (not regular compilation errors)
-    if !output.status.success() {
+    let success = output.status.success();
+    if !success {
         return Err(anyhow!(
             "Failed to build: {}",
             str::from_utf8(&output.stderr).map_err(|e| anyhow!("Invalid build output: {e}"))?
@@ -225,6 +228,7 @@ pub async fn build(
     };
 
     Ok(Json(BuildResponse {
+        success,
         stdout,
         stderr,
         uuid: respond_with_uuid.then_some(uuid),
