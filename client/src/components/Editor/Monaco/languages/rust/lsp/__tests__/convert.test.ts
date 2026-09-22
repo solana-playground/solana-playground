@@ -5,6 +5,7 @@ import {
   toMonacoHover,
   toMonacoMarker,
   toMonacoRange,
+  toMonacoSignatureHelp,
   toMonacoWorkspaceEdit,
 } from "../convert";
 import * as lsp from "../protocol";
@@ -58,7 +59,7 @@ const toModelUri = (uri: string) =>
     : null;
 
 describe("positions and ranges", () => {
-  it("converts zero-based LSP ranges to one-based Monaco ranges", () => {
+  it("should convert zero-based LSP ranges to one-based Monaco ranges", () => {
     expect(toMonacoRange(range)).toEqual({
       startLineNumber: 3,
       startColumn: 5,
@@ -67,7 +68,7 @@ describe("positions and ranges", () => {
     });
   });
 
-  it("converts one-based Monaco positions to zero-based LSP positions", () => {
+  it("should convert one-based Monaco positions to zero-based LSP positions", () => {
     expect(toLspPosition({ lineNumber: 3, column: 5 })).toEqual({
       line: 2,
       character: 4,
@@ -76,7 +77,7 @@ describe("positions and ranges", () => {
 });
 
 describe("diagnostics", () => {
-  it("maps severity, code, source, tags and related information", () => {
+  it("should map severity, code, source, tags and related information", () => {
     const marker = toMonacoMarker(
       {
         range,
@@ -100,11 +101,12 @@ describe("diagnostics", () => {
     expect(marker.source).toBe("rustc");
     expect(marker.message).toBe("mismatched types");
     expect(marker.tags).toEqual([1]);
-    expect(marker.relatedInformation).toHaveLength(1);
-    expect(marker.relatedInformation![0].message).toBe("here");
+    expect(marker.relatedInformation).toEqual([
+      expect.objectContaining({ message: "here" }),
+    ]);
   });
 
-  it("defaults to error severity and drops external related locations", () => {
+  it("should default to error severity and drop external related locations", () => {
     const marker = toMonacoMarker(
       {
         range,
@@ -129,7 +131,7 @@ describe("completion items", () => {
     endColumn: 5,
   };
 
-  it("uses insert/replace ranges and marks snippets", () => {
+  it("should use insert/replace ranges and mark snippets", () => {
     const item = toMonacoCompletionItem(
       {
         label: "my_account",
@@ -164,7 +166,7 @@ describe("completion items", () => {
     ]);
   });
 
-  it("falls back to the word range and label without a text edit", () => {
+  it("should fall back to the word range and label without a text edit", () => {
     const item = toMonacoCompletionItem(
       { label: "signer", kind: lsp.CompletionItemKind.Method },
       fallbackRange
@@ -176,7 +178,7 @@ describe("completion items", () => {
     expect(item.insertTextRules).toBeUndefined();
   });
 
-  it("keeps deprecation tags and documentation", () => {
+  it("should keep deprecation tags and documentation", () => {
     const item = toMonacoCompletionItem(
       {
         label: "old",
@@ -192,7 +194,7 @@ describe("completion items", () => {
 });
 
 describe("hover", () => {
-  it("accepts markup content", () => {
+  it("should accept markup content", () => {
     const hover = toMonacoHover({
       contents: { kind: "markdown", value: "```rust\nfn x()\n```" },
       range,
@@ -202,7 +204,7 @@ describe("hover", () => {
     expect(hover.range).toEqual(toMonacoRange(range));
   });
 
-  it("accepts legacy marked strings", () => {
+  it("should accept legacy marked strings", () => {
     const hover = toMonacoHover({
       contents: ["plain", { language: "rust", value: "fn x()" }],
     });
@@ -214,8 +216,40 @@ describe("hover", () => {
   });
 });
 
+describe("signature help", () => {
+  it("should map signatures and default the active indices", () => {
+    const help = toMonacoSignatureHelp({
+      signatures: [
+        {
+          label: "fn hello(ctx: Context)",
+          documentation: { kind: "markdown", value: "docs" },
+          parameters: [{ label: "ctx: Context" }],
+        },
+      ],
+    });
+
+    expect(help.activeSignature).toBe(0);
+    expect(help.activeParameter).toBe(0);
+    expect(help.signatures[0].label).toBe("fn hello(ctx: Context)");
+    expect(help.signatures[0].documentation).toEqual({ value: "docs" });
+    expect(help.signatures[0].parameters).toEqual([{ label: "ctx: Context" }]);
+  });
+
+  it("should keep explicit active indices and default missing parameters", () => {
+    const help = toMonacoSignatureHelp({
+      signatures: [{ label: "f()" }],
+      activeSignature: 2,
+      activeParameter: 3,
+    });
+
+    expect(help.activeSignature).toBe(2);
+    expect(help.activeParameter).toBe(3);
+    expect(help.signatures[0].parameters).toEqual([]);
+  });
+});
+
 describe("definitions", () => {
-  it("handles locations, location links and filters external files", () => {
+  it("should handle locations, location links and filter external files", () => {
     const defs = toMonacoDefinitions(
       [
         { uri: "file:///ws/src/lib.rs", range },
@@ -235,7 +269,7 @@ describe("definitions", () => {
     ]);
   });
 
-  it("accepts a single location", () => {
+  it("should accept a single location", () => {
     const defs = toMonacoDefinitions(
       { uri: "file:///ws/src/lib.rs", range },
       toModelUri
@@ -245,7 +279,7 @@ describe("definitions", () => {
 });
 
 describe("workspace edits", () => {
-  it("flattens `changes` and `documentChanges` into resource edits", () => {
+  it("should flatten `changes` and `documentChanges` into resource edits", () => {
     const edit = toMonacoWorkspaceEdit(
       {
         changes: { "file:///ws/src/lib.rs": [{ range, newText: "a" }] },
