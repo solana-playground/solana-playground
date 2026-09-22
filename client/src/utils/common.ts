@@ -208,6 +208,42 @@ export class PgCommon {
   }
 
   /**
+   * Try calling the callback and return `undefined` on error.
+   *
+   * This is useful for avoiding nesting via `try-catch`. For example, this:
+   *
+   * ```ts
+   * let value;
+   * try {
+   *   value = getValue();
+   * } catch {
+   *   return;
+   * }
+   * ```
+   *
+   * can be written as:
+   *
+   * ```ts
+   * const value = PgCommon.tryCall(getValue);
+   * if (!value) return;
+   * ```
+   *
+   * This is better because it avoids nesting and leaving `value` mutable.
+   *
+   * @param cb callback to call
+   * @returns the return value of the callback or `undefined` on error
+   */
+  static tryCall<R>(
+    cb: (...args: unknown[]) => Exclude<R, undefined>
+  ): R | undefined {
+    try {
+      return cb();
+    } catch {
+      return;
+    }
+  }
+
+  /**
    * Fetch the response from the given URL and return the text response.
    *
    * @param url URL

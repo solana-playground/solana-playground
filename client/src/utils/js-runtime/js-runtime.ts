@@ -262,7 +262,7 @@ export class PgJsRuntime {
         )
       );
     } else {
-      const manifest = await PgJsPackage.getParsedManifest();
+      const manifest = PgJsPackage.getParsedManifest();
       const deps = Object.keys(manifest.dependencies ?? {});
 
       const web3JsPkg = deps.find((dep) => WEB3_JS_DEPENDENTS.includes(dep));

@@ -24,7 +24,7 @@ export const declareDisposableTypes = async () => {
 
   // TODO: Remove check
   if (PgSettings.experimental.unstable) {
-    const manifest = await PgJsPackage.getParsedManifest().catch(() => {});
+    const manifest = PgCommon.tryCall(PgJsPackage.getParsedManifest);
     if (!manifest?.dependencies) return;
 
     // TODO: Impl for `@solana/kit`

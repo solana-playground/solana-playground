@@ -34,8 +34,16 @@ export class PgJsPackage {
     if (hasData) await fs.removeDir(internalRootDirPath, { recursive: true });
 
     // Save manifest and lock files
-    await fs.writeFile(this._PATHS.MANIFEST_FILE, result.manifest);
-    await fs.writeFile(this._PATHS.LOCK_FILE, result.lock);
+    const packageFiles: TupleFiles = [
+      [this._PATHS.MANIFEST_FILE, result.manifest],
+      [this._PATHS.LOCK_FILE, result.lock],
+    ];
+    for (const [path, content] of packageFiles) {
+      await PgExplorer.createItem(path, content, {
+        override: true,
+        openOptions: { noOpen: true },
+      });
+    }
 
     // Save bundle: each chunk individually to support lazy-loading
     for (const [path, content] of result.bundle) {
@@ -54,7 +62,7 @@ export class PgJsPackage {
     // Dispatch change event
     PgCommon.createAndDispatchCustomEvent(
       this.events.ON_DID_UPDATE,
-      await this.getParsedManifest()
+      this.getParsedManifest()
     );
   }
 
@@ -126,8 +134,13 @@ export class PgJsPackage {
    *
    * @returns the parsed manifest
    */
-  static async getParsedManifest() {
-    const manifest = await fs.readToJson<Manifest>(this._PATHS.MANIFEST_FILE);
+  static getParsedManifest() {
+    const manifestStr = PgExplorer.getFileContent(
+      PgJsPackage._PATHS.MANIFEST_FILE
+    );
+    if (!manifestStr) throw new Error("Manifest not found");
+
+    const manifest = JSON.parse(manifestStr) as Manifest;
     const { name } = manifest;
     if (name !== undefined && typeof name !== "string") {
       throw new Error(`Invalid manifest name: ${name}`);

@@ -22,8 +22,8 @@ export const declareImportableTypes = async () => {
     );
   }
 
-  const manifest = await PgJsPackage.getParsedManifest();
-  if (!manifest.dependencies) return;
+  const manifest = PgCommon.tryCall(PgJsPackage.getParsedManifest);
+  if (!manifest?.dependencies) return;
 
   const deps = Object.keys(manifest.dependencies);
   const disposables = await Promise.all(
