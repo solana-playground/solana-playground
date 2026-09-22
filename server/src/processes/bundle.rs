@@ -79,25 +79,25 @@ fn handle_package_manager_command(args: &Args) -> Result<Manifest> {
         [name, args @ ..] => match name.as_str() {
             "yarn" => {
                 match args {
-                    // TODO: Only allow known options (e.g. `--dev`)
                     [command, args @ ..] => match command.as_str() {
-                        "install" => run_yarn_install(args)?,
-                        "add" | "remove" | "upgrade" => {
-                            let status = create_yarn_command().arg(command).args(args).status()?;
-                            if !status.success() {
-                                return Err(anyhow!("Failed to {command}"));
-                            }
-                        }
+                        "add" | "install" | "remove" | "upgrade" => run_yarn(
+                            command,
+                            args,
+                            match command.as_str() {
+                                "add" => &["--dev", "-D", "--peer", "-P", "--optional", "-O"],
+                                _ => &[],
+                            },
+                        )?,
                         _ => return Err(anyhow!("Unsupported command: `{command}`")),
                     },
                     // Empty `yarn` defaults to install
-                    _ => run_yarn_install(&[])?,
+                    _ => run_yarn("install", &[], &[])?,
                 }
             }
             _ => return Err(anyhow!("Unsupported package manager: `{name}`")),
         },
         // TODO: `npm` as a safer default?
-        _ => run_yarn_install(&[])?,
+        _ => run_yarn("install", &[], &[])?,
     }
 
     let packages_path = Path::new(PACKAGES_DIR);
@@ -115,23 +115,34 @@ fn handle_package_manager_command(args: &Args) -> Result<Manifest> {
         .map_err(Into::into)
 }
 
-/// Run the default `yarn` installation command.
-fn run_yarn_install(args: &[String]) -> Result<()> {
-    let status = create_yarn_command().arg("install").args(args).status()?;
+/// Run the `yarn` command using safe(r) defaults.
+///
+/// # Safety
+///
+/// Only options specified in `allowed_options` are allowed to be passed in.
+///
+/// **Arguments are not sanitized!**
+fn run_yarn(command: &str, args: &[String], allowed_options: &[&'static str]) -> Result<()> {
+    if let Some(opt) = args
+        .iter()
+        .filter(|arg| arg.starts_with('-'))
+        .find(|arg| !allowed_options.iter().any(|opt| opt == arg))
+    {
+        return Err(anyhow!("Invalid option: `{opt}`"));
+    }
+
+    let status = Command::new("yarn")
+        .current_dir(PACKAGES_DIR)
+        .arg("--ignore-scripts")
+        .arg("--prefer-offline")
+        .arg(command)
+        .args(args)
+        .status()?;
     if !status.success() {
-        return Err(anyhow!("Failed to install"));
+        return Err(anyhow!("Failed to {command}"));
     }
 
     Ok(())
-}
-
-/// Create the default `yarn` command with safe(r) defaults.
-fn create_yarn_command() -> Command {
-    let mut cmd = Command::new("yarn");
-    cmd.current_dir(PACKAGES_DIR)
-        .arg("--ignore-scripts")
-        .arg("--prefer-offline");
-    cmd
 }
 
 /// Generate an ESM bundle.
