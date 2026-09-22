@@ -11,8 +11,6 @@ import { PgCommon } from "../../../../../../utils";
  */
 export type ToModelUri = (uri: string) => monaco.Uri | null;
 
-/* -------------------------------- Positions ------------------------------- */
-
 /** LSP positions are zero-based; Monaco's are one-based. */
 export const toMonacoRange = (range: lsp.Range): monaco.IRange => ({
   startLineNumber: range.start.line + 1,
@@ -25,8 +23,6 @@ export const toLspPosition = (pos: monaco.IPosition): lsp.Position => ({
   line: pos.lineNumber - 1,
   character: pos.column - 1,
 });
-
-/* ------------------------------- Text edits ------------------------------- */
 
 const toMonacoTextEdit = (edit: lsp.TextEdit): monaco.languages.TextEdit => ({
   range: toMonacoRange(edit.range),
@@ -65,8 +61,6 @@ export const toMonacoWorkspaceEdit = (
   return { edits };
 };
 
-/* -------------------------------- Markup --------------------------------- */
-
 const toMarkdownString = (
   content: string | lsp.MarkupContent | lsp.MarkedString
 ): monaco.IMarkdownString => {
@@ -82,8 +76,6 @@ export const toMonacoHover = (hover: lsp.Hover): monaco.languages.Hover => {
     range: hover.range ? toMonacoRange(hover.range) : undefined,
   };
 };
-
-/* ------------------------------ Diagnostics ------------------------------ */
 
 const toMarkerSeverity = (severity?: lsp.DiagnosticSeverity) => {
   switch (severity) {
@@ -129,8 +121,6 @@ export const toMonacoMarker = (
     })
     .filter(PgCommon.isNonNullish),
 });
-
-/* ------------------------------- Completion ------------------------------ */
 
 /** LSP -> Monaco `CompletionItemKind` (the enums differ in numbering) */
 const COMPLETION_KINDS: {
@@ -218,8 +208,6 @@ export const toMonacoCompletionItem = (
   };
 };
 
-/* ----------------------------- Signature help ---------------------------- */
-
 export const toMonacoSignatureHelp = (
   help: lsp.SignatureHelp
 ): monaco.languages.SignatureHelp => ({
@@ -240,8 +228,6 @@ export const toMonacoSignatureHelp = (
   activeSignature: help.activeSignature ?? 0,
   activeParameter: help.activeParameter ?? 0,
 });
-
-/* -------------------------------- Locations ------------------------------ */
 
 export const toMonacoDefinitions = (
   result: lsp.Location | Array<lsp.Location | lsp.LocationLink> | null,
