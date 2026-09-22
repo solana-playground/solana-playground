@@ -118,7 +118,6 @@ impl LspSession {
             .arg("--detach")
             .arg("--rm")
             .arg("--cap-drop=ALL")
-            .arg("--memory-swap=-1")
             .arg("--network=none")
             .arg("--oom-score-adj=1000")
             .arg("--security-opt=no-new-privileges")
@@ -126,6 +125,8 @@ impl LspSession {
             .args(["--user", USER])
             .args(["--cpus", &limits.cpu.to_string()])
             .args(["--memory", &format!("{}b", limits.memory)])
+            // Equal to `--memory` means no swap, so the cap is a hard ceiling
+            .args(["--memory-swap", &format!("{}b", limits.memory)])
             .args(["--pids-limit", &PIDS.to_string()])
             .arg(image)
             .args(["sh", "-lc", "sleep infinity"]);
