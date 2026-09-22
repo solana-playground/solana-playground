@@ -86,6 +86,8 @@ describe("Workspace file collection", () => {
   });
 
   it("should collect only sources for sync", () => {
-    expect(Workspace.getSourceFiles()).toEqual([["src/lib.rs", "fn main() {}"]]);
+    expect(Workspace.getSourceFiles()).toEqual([
+      ["src/lib.rs", "fn main() {}"],
+    ]);
   });
 });

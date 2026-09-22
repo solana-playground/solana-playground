@@ -268,4 +268,3 @@ export const toMonacoDefinitions = (
     })
     .filter(PgCommon.isNonNullish);
 };
-

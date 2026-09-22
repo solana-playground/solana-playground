@@ -119,7 +119,10 @@ export class JsonRpcConnection {
 }
 
 /** Report traffic in both directions without touching the socket's own state. */
-const withActivity = (socket: IWebSocket, onActivity: () => void): IWebSocket => ({
+const withActivity = (
+  socket: IWebSocket,
+  onActivity: () => void
+): IWebSocket => ({
   send: (content) => {
     onActivity();
     socket.send(content);
