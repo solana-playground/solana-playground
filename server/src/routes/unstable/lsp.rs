@@ -39,6 +39,19 @@ const OPEN_TIMEOUT: Duration = Duration::from_secs(30);
 /// Buffered outgoing bytes after which a session with a stalled reader ends
 const MAX_WRITE_BUFFER: usize = 16 * 1024 * 1024;
 
+/// Per-frame headroom over the project size for the JSON-RPC envelope and escaping
+const FRAME_OVERHEAD: usize = 64 * 1024;
+
+/// Size of each read from the language server's stdout
+const READ_CHUNK: usize = 64 * 1024;
+
+/// Why a session's message pump stopped, reported in the end-of-session log
+const END_CLIENT_DISCONNECTED: &str = "client disconnected";
+const END_CLIENT_CLOSED: &str = "client closed";
+const END_SERVER_EXITED: &str = "language server exited";
+const END_IDLE_TIMEOUT: &str = "idle timeout";
+const END_MAX_LIFETIME: &str = "max lifetime";
+
 /// Language server state shared between sessions
 #[derive(Clone)]
 pub struct LspState {
@@ -91,7 +104,7 @@ pub async fn lsp(
     }
 
     // Incoming frames carry at most the project files plus JSON escaping
-    ws.max_message_size(2 * state.limits.max_files_bytes + 64 * 1024)
+    ws.max_message_size(2 * state.limits.max_files_bytes + FRAME_OVERHEAD)
         .max_write_buffer_size(MAX_WRITE_BUFFER)
         .on_upgrade(move |socket| async move {
             if let Err(e) = handle(socket, state).await {
@@ -125,7 +138,7 @@ async fn handle(mut socket: WebSocket, state: LspState) -> Result<()> {
     let image = get_image_name(format!("program-{}", template.name()));
     info!("Starting language server using image: {image}");
 
-    let session = LspSession::start(template, &image).await?;
+    let session = LspSession::start(template, &image, &state.limits).await?;
     let result = run(
         &mut socket,
         &session,
@@ -187,7 +200,7 @@ async fn run(
     .await?;
 
     let mut decoder = FrameDecoder::default();
-    let mut chunk = vec![0u8; 64 * 1024];
+    let mut chunk = vec![0u8; READ_CHUNK];
     let started = Instant::now();
     let mut idle_deadline = started + limits.idle_timeout;
     let mut ping = interval(PING_INTERVAL);
@@ -198,7 +211,7 @@ async fn run(
     let reason = loop {
         tokio::select! {
             msg = socket.recv() => {
-                let Some(msg) = msg else { break "client disconnected" };
+                let Some(msg) = msg else { break END_CLIENT_DISCONNECTED };
                 match msg? {
                     Message::Text(text) => {
                         // Only real traffic counts as activity: the browser
@@ -219,13 +232,13 @@ async fn run(
                             stdin.write_all(&encode_frame(text.as_bytes())).await?;
                         }
                     }
-                    Message::Close(_) => break "client closed",
+                    Message::Close(_) => break END_CLIENT_CLOSED,
                     _ => {}
                 }
             }
             read = stdout.read(&mut chunk) => {
                 let n = read?;
-                if n == 0 { break "language server exited" }
+                if n == 0 { break END_SERVER_EXITED }
                 decoder.push(&chunk[..n]);
                 while let Some(body) = decoder.pop()? {
                     socket.send(Message::Text(String::from_utf8(body)?.into())).await?;
@@ -234,8 +247,8 @@ async fn run(
             _ = ping.tick() => {
                 socket.send(Message::Ping(Default::default())).await?;
             }
-            _ = sleep_until(idle_deadline) => break "idle timeout",
-            _ = sleep_until(started + limits.max_lifetime) => break "max lifetime",
+            _ = sleep_until(idle_deadline) => break END_IDLE_TIMEOUT,
+            _ = sleep_until(started + limits.max_lifetime) => break END_MAX_LIFETIME,
         }
     };
 

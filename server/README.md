@@ -34,6 +34,8 @@ Each session is one container for as long as the editor stays connected, so the 
 | Variable | Default | Meaning |
 | --- | --- | --- |
 | `PG_LSP_CONCURRENCY` | `4` | Maximum concurrent sessions |
+| `PG_LSP_CPU_LIMIT` | `1` | CPU cores per session container |
+| `PG_LSP_MEMORY_LIMIT` | `4294967296` | Memory per session container, in bytes (4 GiB) |
 | `PG_LSP_IDLE_TIMEOUT` | `600` | Seconds without a client message before a session is closed |
 | `PG_LSP_MAX_LIFETIME` | `14400` | Seconds after which a session is closed regardless of activity |
 
