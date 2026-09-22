@@ -99,8 +99,9 @@ impl Template {
 
     /// Get whether the given cargo files matches the template.
     ///
-    /// Without a lock, the manifest alone decides: the template's own lock
-    /// applies (the build images fix the dependency set anyway).
+    /// The manifest is the discriminator: it is distinct per template and
+    /// selects the build image, which fixes the exact dependency versions. The
+    /// lock is therefore optional, and only byte-checked when one is supplied.
     pub fn matches(&self, manifest: &str, lock: Option<&str>) -> Result<bool> {
         // TODO: Cache
         let template_dir = Path::new("templates").join(self.name);

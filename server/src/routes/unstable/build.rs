@@ -147,7 +147,9 @@ pub async fn build(
     .await
     .map_err(|e| anyhow!("Failed to write build files: {e}"))?;
 
-    // Get which templete to use from the `cargo` files
+    // Pick the build template from the `cargo` files. The manifest selects it
+    // (a new Anchor project sends one with no `Cargo.lock`); a lock is matched
+    // only when present, and no cargo files at all fall back to the default.
     let manifest = cargo_files.iter().find(|(path, _)| path == "Cargo.toml");
     let lock = cargo_files.iter().find(|(path, _)| path == "Cargo.lock");
     let template_name = match (manifest, lock) {
