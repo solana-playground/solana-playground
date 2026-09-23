@@ -56,6 +56,8 @@ struct Manifest {
     main: Option<String>,
     #[serde(default)]
     types: Option<String>,
+    #[serde(default)]
+    typings: Option<String>,
 }
 
 impl Manifest {
@@ -326,7 +328,8 @@ fn generate_package_types(name: &str) -> Result<()> {
         let type_root = manifest
             .types
             .as_ref()
-            .ok_or_else(|| anyhow!("Unexpected `types` field"))
+            .or(manifest.typings.as_ref())
+            .ok_or_else(|| anyhow!("Failed to find type root"))
             .map(Path::new)
             .map(|type_root| pkg_path.join(type_root))?;
         let files = get_all_declaration_files(&type_root)
