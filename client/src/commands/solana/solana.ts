@@ -5,6 +5,7 @@ import { checkPgWallet } from "../checks";
 export const solana = createCmd({
   name: "solana",
   description: "Commands for interacting with Solana",
+  proxy: true,
   preChecks: checkPgWallet,
   handle: async (input) => {
     const { runSolana } = await PgWasmPackage.import("solana-cli", {

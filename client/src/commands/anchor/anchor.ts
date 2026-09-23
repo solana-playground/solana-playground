@@ -5,6 +5,7 @@ import { checkPgWallet } from "../checks";
 export const anchor = createCmd({
   name: "anchor",
   description: "Anchor CLI",
+  proxy: true,
   preChecks: checkPgWallet,
   handle: async (input) => {
     const { runAnchor } = await PgWasmPackage.import("anchor-cli", {

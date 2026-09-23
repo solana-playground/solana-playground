@@ -6,6 +6,7 @@ export const sugar = createCmd({
   name: "sugar",
   description:
     "Command line tool for creating and managing Metaplex Candy Machines",
+  proxy: true,
   preChecks: checkPgWallet,
   handle: async (input) => {
     const { runSugar } = await PgWasmPackage.import("sugar-cli", { log: true });
