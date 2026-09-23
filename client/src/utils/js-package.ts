@@ -2,9 +2,6 @@ import { PgCommon } from "./common";
 import { PgExplorer, TupleFiles } from "./explorer";
 import { PgServer } from "./server";
 
-// TODO: Use explorer state to allow in temp projects
-const fs = PgExplorer.fs;
-
 export class PgJsPackage {
   /** JS package event names */
   static readonly events = {
@@ -14,7 +11,7 @@ export class PgJsPackage {
   /**
    * Update the current package.
    *
-   * The word "update" is used broadly here; an update contains operations such as:
+   * The name "update" is used broadly here; an update contains operations such as:
    *
    * - full installation
    * - adding a new package
@@ -24,37 +21,25 @@ export class PgJsPackage {
    * @param command package manager command tokens
    */
   static async update(command?: string[]) {
-    const manifest = await this._getManifest();
-    const lock = await this._getLock();
+    const manifest = this._getManifest();
+    if (!manifest) throw new Error("Manifest (`package.json`) not found");
+
+    const lock = this._getLock();
     const result = await PgServer.bundle({ manifest, lock, command });
 
-    // Clear the existing data for fresh installs each time
-    const internalRootDirPath = this._PATHS.INTERNAL_ROOT_DIR;
-    const hasData = await fs.exists(internalRootDirPath);
-    if (hasData) await fs.removeDir(internalRootDirPath, { recursive: true });
+    // Remove the existing data for fresh installs each time
+    await this._removeInternalFiles();
 
     // Save manifest and lock files
     const packageFiles: TupleFiles = [
       [this._PATHS.MANIFEST_FILE, result.manifest],
       [this._PATHS.LOCK_FILE, result.lock],
     ];
-    for (const [path, content] of packageFiles) {
-      await PgExplorer.saveItem(path, content);
-    }
+    for (const file of packageFiles) await PgExplorer.saveItem(...file);
 
     // Save bundle: each chunk individually to support lazy-loading
-    for (const [path, content] of result.bundle) {
-      await fs.writeFile(this._getInternalPath(path), content, {
-        createParents: true,
-      });
-    }
-
-    // Save types
-    for (const [path, content] of result.types) {
-      await fs.writeFile(this._getInternalPath(path), content, {
-        createParents: true,
-      });
-    }
+    for (const file of result.bundle) await this._saveInternalFile(...file);
+    for (const file of result.types) await this._saveInternalFile(...file);
 
     // Dispatch change event
     PgCommon.createAndDispatchCustomEvent(
@@ -90,18 +75,22 @@ export class PgJsPackage {
    * @returns the imported chunk
    */
   static async importChunk(path: string, opts?: { cache?: boolean }) {
-    // Make caching per-project rather than global
-    path = PgExplorer.toAbsolutePath(this._getInternalPath(path));
+    const cachePath = PgExplorer.isTemporary
+      ? // TODO: Make the cache path either unique or clear it on a new project
+        path
+      : // Make caching per-project rather than global
+        PgExplorer.toAbsolutePath(this._getInternalPath(path));
+
     if (opts?.cache) {
-      const blobUrl = this._importCache.get(path);
+      const blobUrl = this._importCache.get(cachePath);
       if (blobUrl) return await import(/* webpackIgnore: true */ blobUrl);
     }
 
-    const chunk = await fs.readToString(path);
+    const chunk = await this._getInternalFile(path);
     const blob = new Blob([chunk], { type: "text/javascript" });
     // TODO: Revoke the URL
     const blobUrl = URL.createObjectURL(blob);
-    this._importCache.set(path, blobUrl);
+    this._importCache.set(cachePath, blobUrl);
     return await import(/* webpackIgnore: true */ blobUrl);
   }
 
@@ -113,15 +102,16 @@ export class PgJsPackage {
    * @param name package name
    * @returns returns type declaration files and type dependencies
    */
-  static async getTypes(name: string) {
-    const pkgPath = this._getInternalPath(name);
-    const files = await fs.readToJson<TupleFiles>(
-      PgCommon.joinPaths(pkgPath, this._PATHS.TYPES_FILE)
-    );
-    const dependencies = await fs.readToJson<string[]>(
-      PgCommon.joinPaths(pkgPath, this._PATHS.DEPENDENCIES_FILE)
-    );
-    return { files, dependencies };
+  static async getTypes(
+    name: string
+  ): Promise<{ files: TupleFiles; dependencies: string[] }> {
+    return await Promise.all(
+      [this._PATHS.TYPES_FILE, this._PATHS.DEPENDENCIES_FILE]
+        .map((path) => PgCommon.joinPaths(name, path))
+        .map((path) => PgJsPackage._getInternalFile(path))
+    )
+      .then((all) => all.map((s) => JSON.parse(s)))
+      .then(([files, dependencies]) => ({ files, dependencies }));
   }
 
   /**
@@ -132,10 +122,8 @@ export class PgJsPackage {
    * @returns the parsed manifest
    */
   static getParsedManifest() {
-    const manifestStr = PgExplorer.getFileContent(
-      PgJsPackage._PATHS.MANIFEST_FILE
-    );
-    if (!manifestStr) throw new Error("Manifest not found");
+    const manifestStr = PgJsPackage._getManifest();
+    if (!manifestStr) throw new Error("Manifest (`package.json`) not found");
 
     const manifest = JSON.parse(manifestStr) as Manifest;
     const { name } = manifest;
@@ -183,22 +171,72 @@ export class PgJsPackage {
     DEPENDENCIES_FILE: "dependencies.json",
   };
 
+  // TODO: Look into removing this and letting `PgExplorer` deal with it
+  /**
+   * In-memory map (path -> content) of internal files for temporary projects.
+   *
+   * The reason for storing these files here instead of letting `PgExplorer`
+   * handle them is because `PgExplorer`'s internal state is intended to be
+   * light, as those files are meant to be opened in the editor. Dependency
+   * files can get extremely large, which may result in reduced performance or
+   * even a full crash in a browser environment.
+   */
+  private static _tempFiles = new Map<string, string>();
+
   /** Package entrypoint path -> Blob URL */
   private static _importCache = new Map<string, string>();
 
   /** Get the path relative to the internal root directory. */
-  private static _getInternalPath(relativePath: string) {
+  private static _getInternalPath(relativePath?: string) {
+    if (!relativePath) return this._PATHS.INTERNAL_ROOT_DIR;
     return PgCommon.joinPaths(this._PATHS.INTERNAL_ROOT_DIR, relativePath);
   }
 
+  /** Get internal file content. */
+  private static async _getInternalFile(path: string) {
+    if (PgExplorer.isTemporary) {
+      const content = this._tempFiles.get(path);
+      if (!content) throw new Error(`File not found: ${path}`);
+      return content;
+    } else {
+      return await PgExplorer.fs.readToString(this._getInternalPath(path));
+    }
+  }
+
+  /** Save internal file. */
+  private static async _saveInternalFile(path: string, content: string) {
+    if (PgExplorer.isTemporary) {
+      this._tempFiles.set(path, content);
+    } else {
+      await PgExplorer.fs.writeFile(this._getInternalPath(path), content, {
+        createParents: true,
+      });
+    }
+  }
+
+  /** Remove all internal files. */
+  private static async _removeInternalFiles() {
+    if (PgExplorer.isTemporary) {
+      this._tempFiles.clear();
+    } else {
+      const internalPath = this._getInternalPath();
+      const hasData = await PgExplorer.fs.exists(internalPath);
+      if (hasData) {
+        await PgExplorer.fs.removeDir(internalPath, { recursive: true });
+      }
+    }
+  }
+
   /** Get the manifest file content (`package.json`). */
-  private static async _getManifest() {
-    return await fs.readToString(this._PATHS.MANIFEST_FILE);
+  // TODO: Make this throw if non-existent?
+  private static _getManifest() {
+    return PgExplorer.getFileContent(this._PATHS.MANIFEST_FILE);
   }
 
   /** Get the lock file content. */
-  private static async _getLock() {
-    return await fs.readToString(this._PATHS.LOCK_FILE);
+  // TODO: Make this throw if non-existent?
+  private static _getLock() {
+    return PgExplorer.getFileContent(this._PATHS.LOCK_FILE);
   }
 
   /**
