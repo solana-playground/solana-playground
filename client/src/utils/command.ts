@@ -350,103 +350,98 @@ ${PgTerminal.formatList(cmd.subcommands!)}`);
           break;
         }
 
-        const hasArgsOrOpts = cmd.args?.length || cmd.options!.length > 1;
-        if (hasArgsOrOpts) {
-          // Handle `help` option
-          if (nextToken === "--help" || nextToken === "-h") {
-            const usagePrefix = `Usage: ${[
-              ...tokens.slice(0, +i),
-              cmd.name,
-            ].join(" ")} [OPTIONS]`;
-            const lines = [cmd.description];
-            if (cmd.subcommands) {
-              lines.push(
-                `${usagePrefix} <COMMAND>`,
-                "Commands:",
-                PgTerminal.formatList(cmd.subcommands)
-              );
-            }
-            if (cmd.args) {
-              const toArgStr = (arg: Arg) => {
-                const name = arg.name.toUpperCase();
-                return arg.multiple ? `[${name}]` : `<${name}>`;
-              };
+        // Handle `help` option
+        if (nextToken === "--help" || nextToken === "-h") {
+          const usagePrefix = `Usage: ${[...tokens.slice(0, +i), cmd.name].join(
+            " "
+          )} [OPTIONS]`;
+          const lines = [cmd.description];
+          if (cmd.subcommands) {
+            lines.push(
+              `${usagePrefix} <COMMAND>`,
+              "Commands:",
+              PgTerminal.formatList(cmd.subcommands)
+            );
+          }
+          if (cmd.args) {
+            const toArgStr = (arg: Arg) => {
+              const name = arg.name.toUpperCase();
+              return arg.multiple ? `[${name}]` : `<${name}>`;
+            };
 
-              const usageArgs = cmd.args.reduce(
-                (acc, arg) => acc + toArgStr(arg) + " ",
-                ""
-              );
-              const argList = cmd.args.map((arg) => [
-                toArgStr(arg),
-                (arg.description ?? "") +
-                  (Array.isArray(arg.values)
-                    ? ` (possible values: ${arg.values.join(", ")})`
-                    : ""),
-              ]);
-              lines.push(
-                `${usagePrefix} ${usageArgs}`,
-                "Arguments:",
-                PgTerminal.formatList(argList)
-              );
-            }
-            if (cmd.options) {
-              const optList = cmd.options.map((opt) => [
-                `${opt.short ? `-${opt.short}, ` : ""}--${opt.name} ${
-                  opt.takeValue ? `<${opt.name.toUpperCase()}>` : ""
-                }`,
-                opt.description ?? "",
-              ]);
-              lines.push("Options:", PgTerminal.formatList(optList));
-            }
-
-            PgTerminal.println(lines.join("\n\n"));
-            return;
+            const usageArgs = cmd.args.reduce(
+              (acc, arg) => acc + toArgStr(arg) + " ",
+              ""
+            );
+            const argList = cmd.args.map((arg) => [
+              toArgStr(arg),
+              (arg.description ?? "") +
+                (Array.isArray(arg.values)
+                  ? ` (possible values: ${arg.values.join(", ")})`
+                  : ""),
+            ]);
+            lines.push(
+              `${usagePrefix} ${usageArgs}`,
+              "Arguments:",
+              PgTerminal.formatList(argList)
+            );
+          }
+          if (cmd.options) {
+            const optList = cmd.options.map((opt) => [
+              `${opt.short ? `-${opt.short}, ` : ""}--${opt.name} ${
+                opt.takeValue ? `<${opt.name.toUpperCase()}>` : ""
+              }`,
+              opt.description ?? "",
+            ]);
+            lines.push("Options:", PgTerminal.formatList(optList));
           }
 
-          // Get subcommands, args and options
-          if (nextToken && !isNextTokenSubcmd) {
-            let takeValue = false;
-            for (const argOrOpt of tokens.slice(nextIndex)) {
-              if (takeValue) {
-                opts.push(argOrOpt);
-                takeValue = false;
-                continue;
-              }
+          PgTerminal.println(lines.join("\n\n"));
+          return;
+        }
 
-              const isOpt = argOrOpt.startsWith("-");
-              if (isOpt && cmd.options) {
-                const opt = cmd.options.find(
-                  (o) =>
-                    "--" + o.name === argOrOpt || "-" + o.short === argOrOpt
-                );
-                if (!opt) throw new Error(`Unexpected option: \`${argOrOpt}\``);
-
-                opts.push(argOrOpt);
-                if (opt.takeValue) takeValue = true;
-              } else if (cmd.args) {
-                args.push(argOrOpt);
-              }
+        // Get subcommands, args and options
+        if (nextToken && !isNextTokenSubcmd) {
+          let takeValue = false;
+          for (const argOrOpt of tokens.slice(nextIndex)) {
+            if (takeValue) {
+              opts.push(argOrOpt);
+              takeValue = false;
+              continue;
             }
 
-            if (!cmd.args && cmd.subcommands) {
-              if (nextToken.startsWith("-")) {
-                throw new Error(`Unexpected option: \`${nextToken}\``);
-              }
+            const isOpt = argOrOpt.startsWith("-");
+            if (isOpt && cmd.options) {
+              const opt = cmd.options.find(
+                (o) => "--" + o.name === argOrOpt || "-" + o.short === argOrOpt
+              );
+              if (!opt) throw new Error(`Unexpected option: \`${argOrOpt}\``);
 
-              throw new Error(
-                `Subcommand doesn't exist: \`${nextToken}\`
+              opts.push(argOrOpt);
+              if (opt.takeValue) takeValue = true;
+            } else if (cmd.args) {
+              args.push(argOrOpt);
+            }
+          }
+
+          if (!cmd.args && cmd.subcommands) {
+            if (nextToken.startsWith("-")) {
+              throw new Error(`Unexpected option: \`${nextToken}\``);
+            }
+
+            throw new Error(
+              `Subcommand doesn't exist: \`${nextToken}\`
 
 Available subcommands: ${cmd.subcommands.map((cmd) => cmd.name).join(", ")}`
-              );
-            }
-            if (
-              args.length > (cmd.args?.length ?? 0) &&
-              !cmd.args?.at(-1)?.multiple
-            ) {
-              throw new Error(
-                `Provided argument count is higher than expected: ${args.length}`
-              );
-            }
+            );
+          }
+          if (
+            args.length > (cmd.args?.length ?? 0) &&
+            !cmd.args?.at(-1)?.multiple
+          ) {
+            throw new Error(
+              `Provided argument count is higher than expected: ${args.length}`
+            );
           }
         }
 
