@@ -265,7 +265,7 @@ export class PgJsRuntime {
       const manifest = PgJsPackage.getParsedManifest();
       const deps = Object.keys(manifest.dependencies ?? {});
 
-      const web3JsPkg = deps.find((dep) => WEB3_JS_DEPENDENTS.includes(dep));
+      const web3JsPkg = deps.find((dep) => dep === WEB3_JS_PKG);
       if (web3JsPkg) globals.push(["web3", await this._import(web3JsPkg)]);
 
       const anchorPkg = deps.find((dep) => ANCHOR_PKGS.includes(dep));
@@ -585,6 +585,3 @@ const ANCHOR_PKGS = [
   "@coral-xyz/anchor",
   "@project-serum/anchor",
 ];
-
-/** All known packages that depend on `web3.js` (including itself) */
-const WEB3_JS_DEPENDENTS = [WEB3_JS_PKG, ...ANCHOR_PKGS];

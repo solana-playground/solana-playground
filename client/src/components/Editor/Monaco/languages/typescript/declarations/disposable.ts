@@ -36,17 +36,14 @@ export const declareDisposableTypes = async () => {
       "@coral-xyz/anchor",
       "@project-serum/anchor",
     ];
-    const WEB3_JS_DEPENDENTS = [WEB3_JS_PKG, ...ANCHOR_PKGS];
 
     const deps = Object.keys(manifest.dependencies);
-    const hasWeb3JsDep = deps.some((dep) => WEB3_JS_DEPENDENTS.includes(dep));
-    if (!hasWeb3JsDep) return;
-
-    try {
-      await PgJsPackage.getTypes(WEB3_JS_PKG);
-      disposables.push(declareNamespace(WEB3_JS_PKG, { as: "web3" }));
-    } catch {
-      return;
+    const web3JsPkg = deps.find((dep) => dep === WEB3_JS_PKG);
+    if (web3JsPkg) {
+      try {
+        await PgJsPackage.getTypes(WEB3_JS_PKG);
+        disposables.push(declareNamespace(web3JsPkg, { as: "web3" }));
+      } catch {}
     }
 
     const anchorPkg = deps.find((dep) => ANCHOR_PKGS.includes(dep));
