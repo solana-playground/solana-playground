@@ -375,7 +375,7 @@ export class PgJsRuntime {
       if (!importMatch) continue;
 
       const importPath = importMatch[6];
-      const pkg = this._import(importPath);
+      const pkg = await this._import(importPath);
       setupImport(pkg);
     } while (importMatch);
 
