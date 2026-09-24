@@ -12,7 +12,7 @@ use regex::Regex;
 use serde::{Deserialize, Serialize};
 use solpg_server::{
     log::info,
-    program::{get_out_path, BINARY_FILE, MAX_FILE_AMOUNT, MAX_PATH_LEN, MAX_STDERR_LEN},
+    program::{get_program_out_path, BINARY_FILE, MAX_FILE_AMOUNT, MAX_PATH_LEN, MAX_STDERR_LEN},
     templates::get_all_templates,
     utils::{get_image_name, Files},
     Result, Sandbox,
@@ -134,7 +134,7 @@ pub async fn build(
         .partition::<Files, _>(|(path, _)| CARGO_REGEX.is_match(path));
 
     // Create host output directory (if it doesn't exist)
-    let host_path = get_out_path(&uuid);
+    let host_path = get_program_out_path(&uuid);
     fs::create_dir_all(&host_path)
         .await
         .map_err(|e| anyhow!("Failed to create host dir: {host_path:?}: {e}"))?;

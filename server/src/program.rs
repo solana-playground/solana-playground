@@ -179,6 +179,11 @@ pub async fn get_binary(program_name: &str) -> tokio::io::Result<Vec<u8>> {
 }
 
 /// Get the path to the process output directory.
-pub fn get_out_path(uuid: &str) -> PathBuf {
-    Path::new(PROGRAMS_DIR).join("out").join(uuid)
+pub fn get_out_path() -> PathBuf {
+    Path::new(PROGRAMS_DIR).join("out")
+}
+
+/// Get the path to the program output directory.
+pub fn get_program_out_path(uuid: &str) -> PathBuf {
+    get_out_path().join(uuid)
 }
