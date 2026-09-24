@@ -268,6 +268,7 @@ export class PgExplorer {
     });
     return await this.createItem(path, content, {
       override: true,
+      skipNameValidation: true,
       openOptions,
     });
   }
