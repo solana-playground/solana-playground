@@ -65,15 +65,25 @@ async fn build_images() -> Result<()> {
 /// Remove all program artifacts from previous runs.
 async fn remove_program_artifacts() -> Result<()> {
     let out_path = program::get_out_path();
-    fs::remove_dir_all(out_path)
-        .await
-        .map_err(|e| anyhow!("Failed to remove program out directory: {e}"))
+    let exists = fs::try_exists(&out_path).await?;
+    if exists {
+        fs::remove_dir_all(out_path)
+            .await
+            .map_err(|e| anyhow!("Failed to remove program out directory: {e}"))?;
+    }
+
+    Ok(())
 }
 
 /// Remove all package artifacts from previous runs.
 async fn remove_package_artifacts() -> Result<()> {
     let out_path = package::get_out_path();
-    fs::remove_dir_all(out_path)
-        .await
-        .map_err(|e| anyhow!("Failed to remove package out directory: {e}"))
+    let exists = fs::try_exists(&out_path).await?;
+    if exists {
+        fs::remove_dir_all(out_path)
+            .await
+            .map_err(|e| anyhow!("Failed to remove package out directory: {e}"))?;
+    }
+
+    Ok(())
 }
