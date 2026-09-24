@@ -41,6 +41,10 @@ export class PgJsPackage {
     for (const file of result.bundle) await this._saveInternalFile(...file);
     for (const file of result.types) await this._saveInternalFile(...file);
 
+    // Revoke cached URLs
+    this._importCache.forEach(([url]) => URL.revokeObjectURL(url));
+    this._importCache.clear();
+
     // Dispatch change event
     PgCommon.createAndDispatchCustomEvent(
       this.events.ON_DID_UPDATE,
@@ -88,7 +92,6 @@ export class PgJsPackage {
 
     const chunk = await this._getInternalFile(path);
     const blob = new Blob([chunk], { type: "text/javascript" });
-    // TODO: Revoke the URL
     const blobUrl = URL.createObjectURL(blob);
     this._importCache.set(cachePath, blobUrl);
     return await import(/* webpackIgnore: true */ blobUrl);
