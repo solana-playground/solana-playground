@@ -5,16 +5,23 @@ use tower_http::cors::{AllowOrigin, CorsLayer};
 
 use crate::log::error;
 
+/// Whether requests from `origin` are allowed.
+///
+/// Prefix matching, because `client_urls` entries like `https://solana-playground-`
+/// stand for every Vercel preview deployment.
+pub fn is_allowed_origin(origin: &[u8], client_urls: &[String]) -> bool {
+    client_urls
+        .iter()
+        .any(|url| origin.starts_with(url.as_bytes()))
+}
+
 /// Create a CORS middleware.
 ///
 /// Request origins other than `client_urls` are not allowed.
 pub fn cors(client_urls: Vec<String>) -> CorsLayer {
     CorsLayer::new()
         .allow_origin(AllowOrigin::predicate(move |origin, _| {
-            let origin_bytes = origin.as_bytes();
-            let allowed = client_urls
-                .iter()
-                .any(|url| origin_bytes.starts_with(url.as_bytes()));
+            let allowed = is_allowed_origin(origin.as_bytes(), &client_urls);
 
             // Logging middleware doesn't catch CORS errors, log the error here instead
             if !allowed {

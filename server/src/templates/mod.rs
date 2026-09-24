@@ -4,8 +4,10 @@ mod legacy;
 use std::{fs, path::Path, process::ExitStatus, sync::LazyLock};
 
 use anchor::*;
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use legacy::*;
+
+use crate::utils::Files;
 
 /// All templates
 static ALL: LazyLock<Vec<Template>> =
@@ -97,17 +99,54 @@ impl Template {
         image_build_args
     }
 
+    /// Pick the template from a project's `cargo` files, the default one when
+    /// there are none.
+    ///
+    /// The manifest selects it; a new Anchor project sends one with no
+    /// `Cargo.lock`, so selection must work from the manifest alone.
+    pub fn find(files: &Files) -> Result<&'static Template> {
+        let manifest = files.iter().find(|(p, _)| p == "Cargo.toml");
+        let lock = files.iter().find(|(p, _)| p == "Cargo.lock");
+        match (manifest, lock) {
+            (None, None) => Ok(Default::default()),
+            (None, Some(_)) => Err(anyhow!("Missing `Cargo.toml`")),
+            (Some((_, manifest)), lock) => {
+                let lock = lock.map(|(_, content)| content.as_str());
+                for template in get_all_templates() {
+                    if template.matches(manifest, lock)? {
+                        return Ok(template);
+                    }
+                }
+                Err(anyhow!(
+                    "The `cargo` files match no build template: the dependency set \
+                    is fixed by the build images. Revert `Cargo.toml` to restore \
+                    builds and intellisense"
+                ))
+            }
+        }
+    }
+
     /// Get whether the given cargo files matches the template.
-    pub fn matches(&self, manifest: &str, lock: &str) -> Result<bool> {
+    ///
+    /// The lock is optional to support projects that send a manifest without
+    /// one: a new Anchor project no longer bundles a `Cargo.lock`, so the LSP
+    /// `open` (and the build) must select a template from the manifest alone.
+    /// That is sound because the manifest is the discriminator: it is distinct
+    /// per template and selects the build image, which fixes the exact
+    /// versions. A lock, when supplied, is byte-checked too.
+    pub fn matches(&self, manifest: &str, lock: Option<&str>) -> Result<bool> {
         // TODO: Cache
         let template_dir = Path::new("templates").join(self.name);
         let manifest_path = template_dir.join(self.program_path).join("Cargo.toml");
         let actual_manifest = fs::read_to_string(manifest_path)?;
+        if manifest != actual_manifest {
+            return Ok(false);
+        }
 
+        let Some(lock) = lock else { return Ok(true) };
         let lock_path = template_dir.join("Cargo.lock");
         let actual_lock = fs::read_to_string(lock_path)?;
-
-        Ok(manifest == actual_manifest && lock == actual_lock)
+        Ok(lock == actual_lock)
     }
 }
 

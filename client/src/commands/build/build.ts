@@ -167,7 +167,15 @@ const getBuildFiles = () => {
     buildFiles.push([buildPath, content]);
   }
 
-  // TODO: Add `cargo` files
+  // Root `cargo` files decide which build template (toolchain image) the
+  // server uses; only the unstable route accepts them
+  if (PgSettings.experimental.unstable) {
+    const rootPath = PgExplorer.getProjectRootPath();
+    for (const name of ["Cargo.toml", "Cargo.lock"]) {
+      const content = files[PgCommon.joinPaths(rootPath, name)]?.content;
+      if (content !== undefined) buildFiles.push([name, content]);
+    }
+  }
 
   return buildFiles;
 };

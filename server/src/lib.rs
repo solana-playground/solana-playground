@@ -3,6 +3,7 @@ mod sandbox;
 
 pub mod db;
 pub mod log;
+pub mod lsp;
 pub mod package;
 pub mod program;
 pub mod templates;
