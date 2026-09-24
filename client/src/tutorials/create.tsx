@@ -1,9 +1,4 @@
-import {
-  PgCommon,
-  TupleString,
-  TutorialData,
-  TutorialDataParam,
-} from "../utils";
+import { FileEntry, PgCommon, TutorialData, TutorialDataParam } from "../utils";
 
 /** Create tutorials with defaults. */
 export const createTutorial = (tutorial: TutorialDataParam) => {
@@ -62,7 +57,7 @@ export const markdownTutorials = MARKDOWN_TUTORIALS.map((tutorial) => {
       await Promise.all(
         info.files.map((name) => `files/${name}`).map(fetchText)
       )
-    ).map((content, i) => [info.files[i], content] as TupleString);
+    ).map((content, i) => [info.files[i], content] as FileEntry);
 
     const { Tutorial } = await import("../components/Tutorial");
     return {

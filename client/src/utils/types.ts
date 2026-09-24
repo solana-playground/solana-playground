@@ -30,9 +30,6 @@ export type Tuple<
   R extends unknown[] = []
 > = R["length"] extends L ? R : Tuple<T, L, [T, ...R]>;
 
-/** Tuple double string */
-export type TupleString = Tuple<string, 2>;
-
 /** Map union to tuple */
 export type UnionToTuple<U> = MergeUnion<
   U extends never ? never : (union: U) => U

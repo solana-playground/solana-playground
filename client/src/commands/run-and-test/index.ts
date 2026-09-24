@@ -1,1 +1,2 @@
-export { run, test } from "./run-and-test";
+export * from "./run";
+export * from "./test";

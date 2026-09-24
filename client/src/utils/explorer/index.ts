@@ -1,2 +1,2 @@
 export * from "./explorer";
-export * from "./types";
+export type { ExplorerFiles, FileEntry, TupleFiles } from "./types";

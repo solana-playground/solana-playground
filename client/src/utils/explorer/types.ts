@@ -1,4 +1,4 @@
-import type { TupleString } from "../types";
+import type { Tuple } from "../types";
 
 /** Playground explorer */
 export interface Explorer {
@@ -71,4 +71,8 @@ export interface Folder {
 }
 
 /** Array<[Path, Content]> */
-export type TupleFiles = TupleString[];
+// TODO: Rename to `Files` for consistency with the server?
+export type TupleFiles = FileEntry[];
+
+/** [Path, Content] */
+export type FileEntry = Tuple<string, 2>;
