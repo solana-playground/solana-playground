@@ -13,6 +13,7 @@
   "num-traits": "0.2.16",
   "pyth-sdk": "0.8.0",
   "pyth-sdk-solana": "0.8.0",
+  "pyth-solana-receiver-sdk": "0.3.1",
   "serde": "1.0.193",
   "solana-program": "1.16.24",
   "spl-account-compression": "0.2.0",
