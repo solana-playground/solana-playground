@@ -49,7 +49,7 @@ export const processValidate = async (
       term.println(
         PgTerminal.italic(
           [
-            "Check https://docs.metaplex.com/developer-tools/sugar/guides/preparing-assets for",
+            "Check https://www.metaplex.com/docs/smart-contracts/candy-machine/sugar/getting-started for",
             "the collection file requirements if you want a collection to be set automatically.",
           ].join(" ")
         )
