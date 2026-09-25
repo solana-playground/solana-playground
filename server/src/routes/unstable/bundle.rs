@@ -25,7 +25,7 @@ pub struct BundleRequest {
     lock: Option<String>,
     /// Package manager command to execute.
     ///
-    /// The first element is assumed to be the package manager name.
+    /// The first item is assumed to be the package manager name.
     ///
     /// If `None`, defaults to installation-only.
     command: Option<Vec<String>>,
@@ -68,6 +68,14 @@ impl BundleState {
             .entry(hash)
             .or_insert_with(|| Arc::new(Semaphore::new(1)))
             .clone();
+
+        // Requests are capped by route's concurrency limit by definition. Clear the permits if
+        // above so that the map doesn't allocate indefinitely.
+        if permits.len() >= self.config.limits.route.concurrency {
+            permits.clear();
+        }
+
+        // Release the lock by dropping the guard
         drop(permits);
 
         let permit = semaphore
