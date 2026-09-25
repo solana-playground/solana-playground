@@ -22,6 +22,7 @@
 | [pyth-sdk-solana](https://docs.rs/pyth-sdk-solana/0.8.0)                           | 0.8.0   |
 | [serde](https://docs.rs/serde/1.0.193)                                             | 1.0.193 |
 | [solana-program](https://docs.rs/solana-program/1.16.24)                           | 1.16.24 |
+| [solana-security-txt](https://docs.rs/solana-security-txt/1.1.1)                   | 1.1.1   |
 | [spl-account-compression](https://docs.rs/spl-account-compression/0.2.0)           | 0.2.0   |
 | [spl-associated-token-account](https://docs.rs/spl-associated-token-account/2.2.0) | 2.2.0   |
 | [spl-pod](https://docs.rs/spl-pod/0.1.0)                                           | 0.1.0   |
