@@ -1,10 +1,11 @@
 import { FileEntry, PgExplorer } from "../../utils";
 import { createCmd } from "../create";
-import { createCommonArgs, processCommon } from "./common";
+import { checkUntrusted, createCommonArgs, processCommon } from "./common";
 
 export const test = createCmd({
   name: "test",
   description: "Run test(s)",
+  preChecks: checkUntrusted,
   args: createCommonArgs(PgExplorer.PATHS.TESTS_DIRNAME),
   handle: (input) => {
     return processCommon({

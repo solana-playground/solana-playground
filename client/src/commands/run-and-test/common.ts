@@ -47,6 +47,34 @@ export const createCommonArgs = (parentPath: string) => {
   ]);
 };
 
+/** Whether to allow executing scripts */
+let allowExecution = false;
+
+/**
+ * Warn the user about the dangers about running untrusted scripts and ask for
+ * confirmation before continueing with execution.
+ *
+ * This only applies to temporary projects.
+ */
+export const checkUntrusted = async () => {
+  if (allowExecution || !PgExplorer.isTemporary) return;
+
+  const term = await PgTerminal.get();
+  term.println(
+    [
+      "Warning: Executing untrusted scripts can be dangerous.",
+      "Never execute code you don't understand.",
+    ].join(" ")
+  );
+  const proceed = await term.waitForInput("Execute anyway?", {
+    confirm: true,
+    default: "no",
+  });
+  if (!proceed) throw new Error("Execution cancelled: user declined");
+
+  allowExecution = true;
+};
+
 /**
  * Process `run` or `test` command.
  *
