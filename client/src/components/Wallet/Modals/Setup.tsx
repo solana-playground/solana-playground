@@ -32,8 +32,8 @@ export const Setup = () => {
       if (PgWallet.accounts.length) PgWallet.remove(0);
       const keypair = await PgWallet.import();
       if (keypair) setText("Imported address: " + keypair.publicKey.toBase58());
-    } catch (err: any) {
-      console.log(err.message);
+    } catch (e: any) {
+      console.log(e.message);
     }
   };
 
@@ -48,8 +48,7 @@ export const Setup = () => {
       <Content>
         <ContentTitle>What is it?</ContentTitle>
         <ContentText>
-          Playground wallet is a native wallet that speeds up development by
-          auto-approving transactions.
+          Playground Wallet is a native wallet that speeds up development.
         </ContentText>
       </Content>
       <Content>
@@ -61,8 +60,8 @@ export const Setup = () => {
         <WarningTextWrapper>
           <Text kind="warning" icon={<Warning color="warning" />}>
             Wallet information is stored in your browser's local storage. You
-            are going to lose the wallet if you clear your browser history
-            unless you save the keypair.
+            are going to lose the wallet if you clear your browser data unless
+            you save the keypair.
           </Text>
         </WarningTextWrapper>
         <WalletButtonsWrapper>

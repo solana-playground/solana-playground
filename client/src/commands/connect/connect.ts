@@ -7,6 +7,7 @@ export const connect = createCmd({
   args: createArgs([
     {
       name: "wallet",
+      description: "Standard Wallet name",
       optional: true,
       values: () => PgWallet.standardWallets.map((w) => w.name.toLowerCase()),
     },
@@ -69,9 +70,66 @@ export const connect = createCmd({
 
         const { changed } = await toggleStandardIfNeeded(input.args.wallet);
         if (!changed) PgWallet.state = "pg";
+        await confirm(() => PgWallet.current?.isPg);
 
         PgTerminal.println(PgTerminal.success("Setup completed."));
-        await confirm(() => PgWallet.current?.isPg);
+
+        PgTerminal.println(
+          [
+            "Note: You can also use other wallets.",
+            "Playground automatically detects all Standard Wallets.",
+          ].join(" ")
+        );
+        switch (PgWallet.standardWallets.length) {
+          case 0: {
+            PgTerminal.println(
+              [
+                "No external wallets have been found.",
+                "You can connect using the `connect <name>` command later.",
+              ].join(" ")
+            );
+            return;
+          }
+          case 1: {
+            const [wallet] = PgWallet.standardWallets;
+            const term = await PgTerminal.get();
+            const proceed = await term.waitForInput(
+              `Wallet "${wallet.name}" has been found. Would you like to connect?`,
+              { confirm: true, default: "yes" }
+            );
+            if (!proceed) return;
+
+            await toggleStandardIfNeeded(wallet.name);
+            break;
+          }
+          default: {
+            const term = await PgTerminal.get();
+            const proceed = await term.waitForInput(
+              [
+                "Multiple wallets have been found.",
+                "Would you like to connect?",
+                "You'll choose them in the next step.",
+              ].join(" "),
+              { confirm: true, default: "yes" }
+            );
+            if (!proceed) return;
+
+            const walletNames = PgWallet.standardWallets.map((w) => w.name);
+            const indices = await term.waitForInput(
+              [
+                "You can connect to multiple wallets at the same time.",
+                "Which ones would you like to connect?",
+              ].join(" "),
+              { choice: { items: walletNames, allowMultiple: true } }
+            );
+            const selectedWalletNames = indices.map((i) => walletNames[i]);
+            for (const walletName of selectedWalletNames) {
+              await toggleStandardIfNeeded(walletName);
+            }
+          }
+        }
+
+        await confirm(() => PgWallet.current && !PgWallet.current.isPg);
       }
     }
   },
@@ -87,10 +145,10 @@ const toggleStandardIfNeeded = async (walletName: string | undefined) => {
   if (!walletName) return { changed: false };
 
   const wallet = PgWallet.standardWallets.find(
-    (wallet) => wallet.name.toLowerCase() === walletName
+    (wallet) => wallet.name.toLowerCase() === walletName.toLowerCase()
   );
   if (!wallet) {
-    throw new Error(`Given wallet '${walletName}' is not detected`);
+    throw new Error(`Given wallet "${walletName}" is not detected`);
   }
 
   if (!wallet.connected) {
