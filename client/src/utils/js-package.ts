@@ -64,9 +64,11 @@ export class PgJsPackage {
     const mod = await this.importChunk(
       PgCommon.joinPaths(name, this._PATHS.BUNDLE_FILE),
       { cache: true }
-    );
+    ).catch(console.log);
+    if (!mod) throw new Error(`Failed to import package: \`${name}\``);
+
     const pkg = mod[this._toModuleName(name)];
-    if (!pkg) throw new Error(`Failed to import: ${name}`);
+    if (!pkg) throw new Error(`Failed to find module: \`${name}\``);
     return pkg;
   }
 
