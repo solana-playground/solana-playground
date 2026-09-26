@@ -331,10 +331,17 @@ export class PgCommandManager {
         const subcmd = cmd.subcommands?.find((cmd) => cmd.name === token);
         if (subcmd) cmd = subcmd;
 
-        // Handle checks
+        // Handle pre-checks
         if (cmd.preChecks) {
           const preChecks = PgCommon.toArray(cmd.preChecks);
-          for (const preCheck of preChecks) await preCheck();
+          try {
+            for (const preCheck of preChecks) await preCheck();
+          } catch (e) {
+            PgCommon.createAndDispatchCustomEvent(eventNames.finish, {
+              err: e,
+            });
+            throw e;
+          }
         }
 
         // Early continue if it's not the end of the command
