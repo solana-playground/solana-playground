@@ -449,6 +449,7 @@ export class PgTerm {
     const disposables = [];
     if (opts?.choice) {
       // Show multi choice items
+      convertedMsg += " (options: ',' separated numbers e.g. 0,1)";
       const items = opts.choice.items;
       convertedMsg += items.reduce(
         (acc, cur, i) => acc + `\n[${i}] - ${cur}`,
@@ -532,7 +533,7 @@ export class PgTerm {
     }
 
     // Return value
-    let returnValue;
+    let returnValue: any;
 
     // Confirm
     if (opts?.confirm) {
@@ -540,8 +541,12 @@ export class PgTerm {
     }
     // Multichoice
     else if (opts?.choice) {
+      // TODO: Return the actual values instead of indices
       if (opts.choice.allowMultiple) {
-        returnValue = JSON.parse(`[${userInput}]`);
+        returnValue = userInput
+          .split(",")
+          .map((s) => s.trim())
+          .map(parseInt);
       } else {
         returnValue = parseInt(userInput);
       }
