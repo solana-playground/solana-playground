@@ -1,5 +1,5 @@
 use std::{
-    collections::HashMap,
+    collections::{HashMap, HashSet},
     env,
     fs::{self, DirEntry},
     io,
@@ -268,11 +268,10 @@ where
 /// Currently, the server tries to collect the minimum amount of type files instead of serving all
 /// type declaration files inside `node_modules`. This is a design decision to make the types as
 /// light as possible, as the the target client is a web browser.
-//
-// TODO: Cache
 fn generate_types(manifest: &Manifest) -> Result<()> {
+    let mut cache = HashSet::new();
     for dep in manifest.get_all_dependencies().keys() {
-        if let Err(e) = generate_package_types(dep) {
+        if let Err(e) = generate_package_types(dep, &mut cache) {
             eprintln!("Failed to generate types for `{dep}`: {e}")
         }
     }
@@ -292,7 +291,16 @@ fn generate_types(manifest: &Manifest) -> Result<()> {
 /// Port of [`generate-packages.mjs`] (without the Monaco editor parts).
 ///
 /// [`generate-packages.mjs`]: https://github.com/solana-playground/solana-playground/blob/7d9f365a5009fd65aaa388e85bc541e5f4f51ae9/client/scripts/generate-packages.mjs
-fn generate_package_types(name: &str) -> Result<()> {
+fn generate_package_types(name: &str, cache: &mut HashSet<String>) -> Result<()> {
+    if cache.contains(name) {
+        return Ok(());
+    }
+
+    // Always cache independent of failure because the process will almost certainly return an error
+    // in all subsequent calls if the first one was an error. This also fixes potential infinite
+    // recursion when type generation fails for both circular dependencies.
+    cache.insert(name.to_owned());
+
     let build_path = get_build_path();
     // Flatten the `@types` into the out directory so that clients have a easier time importing
     let out_path = build_path.join(name.replace("@types/", ""));
@@ -347,9 +355,9 @@ fn generate_package_types(name: &str) -> Result<()> {
             // TODO: Make this more robust (if necesssary)
             .filter(|dep| files.iter().any(|(_, content)| content.contains(dep)))
             .fold(vec![], |mut acc, dep| {
-                match generate_package_types(&dep) {
+                match generate_package_types(&dep, cache) {
                     Ok(_) => acc.push(dep),
-                    Err(e1) => match generate_package_types(&format!("@types/{dep}")) {
+                    Err(e1) => match generate_package_types(&format!("@types/{dep}"), cache) {
                         Ok(_) => acc.push(dep),
                         Err(e2) => eprintln!("Failed to generate types for `{dep}`: {e1}\n{e2}"),
                     },
