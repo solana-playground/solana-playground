@@ -475,7 +475,7 @@ export class PgTty {
         })
 
         // Secondary text color for (...)
-        .replace(/\(.+\)/gm, (match) =>
+        .replace(/\([^)]+\)/gm, (match) =>
           match === "(s)" ? match : PgTerminal.secondaryText(match)
         )
 
