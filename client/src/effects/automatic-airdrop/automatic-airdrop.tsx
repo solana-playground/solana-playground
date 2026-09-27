@@ -12,6 +12,10 @@ import {
 export const automaticAirdrop = () => {
   const disposables: Disposable[] = [];
 
+  let isConnecting = false;
+  disposables.push(PgCommand.connect.onDidStart(() => (isConnecting = true)));
+  disposables.push(PgCommand.connect.onDidFinish(() => (isConnecting = false)));
+
   let isDeploying = false;
   disposables.push(PgCommand.deploy.onDidStart(() => (isDeploying = true)));
   disposables.push(PgCommand.deploy.onDidFinish(() => (isDeploying = false)));
@@ -25,8 +29,8 @@ export const automaticAirdrop = () => {
       const cluster = PgConnection.cluster;
       if (!cluster || errorCache.has(cluster)) return;
 
-      // Skip during deployment because automatic airdrop might conflict with it
-      if (isDeploying) return;
+      // Skip during processes that might conflict
+      if (isConnecting || isDeploying) return;
 
       // Get airdrop amount based on network (in SOL)
       const airdropAmount = PgConnection.getAirdropAmount();
