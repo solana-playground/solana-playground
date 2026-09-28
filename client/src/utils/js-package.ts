@@ -53,6 +53,18 @@ export class PgJsPackage {
   }
 
   /**
+   * Get whether packages have been installed.
+   *
+   * NOTE: This does not check whether the installation is up-to-date.
+   *
+   * @returns whether the packages have been installed
+   */
+  static async isInstalled() {
+    if (PgExplorer.isTemporary) return this._tempFiles.size !== 0;
+    return await PgExplorer.fs.exists(this._getInternalPath());
+  }
+
+  /**
    * Import a package.
    *
    * The packages must be installed before using {@link PgJsPackage.update}.

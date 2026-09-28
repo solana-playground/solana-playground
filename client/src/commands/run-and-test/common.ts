@@ -1,7 +1,9 @@
 import {
   FileEntry,
+  PgCommand,
   PgCommon,
   PgExplorer,
+  PgJsPackage,
   PgJsRuntimeImporter,
   PgLanguage,
   PgTerminal,
@@ -91,6 +93,21 @@ export const processCommon = async (params: {
   defaultFile: FileEntry;
 }) => {
   const { paths, isTest, folderPath, defaultFile } = params;
+
+  // Ask to install packages if not installed
+  const isInstalled = await PgJsPackage.isInstalled();
+  if (!isInstalled) {
+    const term = await PgTerminal.get();
+    term.println("Warning: Packages have not been installed.");
+    const proceed = await term.waitForInput("Would you like to install?", {
+      confirm: true,
+      default: "yes",
+    });
+    if (!proceed) throw new Error("Cannot execute without packages");
+
+    await PgCommand.packageManager.execute("install");
+  }
+
   PgTerminal.println(
     PgTerminal.info(`Running ${isTest ? "tests" : "client"}...`)
   );
