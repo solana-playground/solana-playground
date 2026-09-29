@@ -115,14 +115,13 @@ export const connect = createCmd({
             if (!proceed) return;
 
             const walletNames = PgWallet.standardWallets.map((w) => w.name);
-            const indices = await term.waitForInput(
+            const selectedWalletNames = await term.waitForInput(
               [
                 "You can connect to multiple wallets at the same time.",
                 "Which ones would you like to connect?",
               ].join(" "),
-              { choice: { items: walletNames, allowMultiple: true } }
+              { choice: { items: walletNames, multiple: true } }
             );
-            const selectedWalletNames = indices.map((i) => walletNames[i]);
             for (const walletName of selectedWalletNames) {
               await toggleStandardIfNeeded(walletName);
             }

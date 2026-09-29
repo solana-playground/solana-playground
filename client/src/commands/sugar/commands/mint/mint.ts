@@ -53,22 +53,18 @@ export const processMint = async (
   let progressCount = 0;
 
   // Check for candy guard groups
-  const groupLen = candyState.candyGuard?.groups.length;
-  let groupIndex = 0;
-  if (groupLen && groupLen > 1) {
-    groupIndex = await term.waitForInput(
-      "Candy guard has multiple groups. Which group do you belong to?",
-      {
-        choice: {
-          items: candyState.candyGuard.groups.map((g) => g.label),
-        },
-      }
-    );
-  }
+  const groups = candyState.candyGuard?.groups;
+  const groupLen = groups?.length;
   // Need to specify the group label when we are minting if guards have groups
-  const group = groupLen
-    ? candyState.candyGuard.groups[groupIndex].label
-    : null;
+  let group: string | null;
+  if (groupLen) {
+    group = await term.waitForInput(
+      "Candy guard has multiple groups. Which group do you belong to?",
+      { choice: { items: groups.map((g) => g.label) } }
+    );
+  } else {
+    group = null;
+  }
 
   const CONCURRENT = 4;
   const errors: string[] = [];

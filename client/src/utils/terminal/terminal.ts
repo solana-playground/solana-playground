@@ -406,26 +406,24 @@ export class PgTerm {
    * @param msg message to print to the terminal before prompting user
    * @param opts -
    * - allowEmpty: whether to allow the input to be empty
-   * - choice.items: set of values to choose from. Returns the selected index if
-   * `allowMultiple` is not specified.
-   * - choice.allowMultiple: whether to allow multiple choices. Returns the indices.
-   * - confirm: yes/no question. Returns the result as boolean.
    * - default: default value to set
+   * - choice.items: set of values to choose from. Returns the selected value if
+   * `multiple` is not specified.
+   * - choice.multiple: whether to allow multiple choices. Returns the values.
+   * - confirm: yes/no question. Returns the result as a boolean.
    * - validator: callback function to validate the user input
    * @returns user input
    */
   async waitForInput<
     O extends {
       allowEmpty?: boolean;
-      confirm?: boolean;
       default?: string;
+      confirm?: boolean;
       choice?: {
         items: string[];
-        allowMultiple?: boolean;
+        multiple?: boolean;
       };
-      validator?: (
-        userInput: string
-      ) => boolean | void | Promise<boolean | void>;
+      validator?: (input: string) => SyncOrAsync<boolean | void>;
     }
   >(
     msg: string,
@@ -434,9 +432,9 @@ export class PgTerm {
     O["confirm"] extends boolean
       ? boolean
       : O["choice"] extends object
-      ? O["choice"]["allowMultiple"] extends boolean
-        ? number[]
-        : number
+      ? O["choice"]["multiple"] extends boolean
+        ? O["choice"]["items"]
+        : O["choice"]["items"][number]
       : string
   > {
     // Avoid `this.focus()` here because it calls `scrollToCursor`, which may
@@ -499,7 +497,7 @@ export class PgTerm {
         opts.validator = (input) => {
           const parsed: number[] = JSON.parse(`[${input}]`);
           return (
-            (opts.choice?.allowMultiple ? true : parsed.length === 1) &&
+            (opts.choice?.multiple ? true : parsed.length === 1) &&
             parsed.every(
               (v) =>
                 PgCommon.isInt(v.toString()) && v >= 0 && v <= choiceMaxLength
@@ -541,14 +539,16 @@ export class PgTerm {
     }
     // Multichoice
     else if (opts?.choice) {
+      const { items, multiple } = opts.choice;
       // TODO: Return the actual values instead of indices
-      if (opts.choice.allowMultiple) {
+      if (multiple) {
         returnValue = userInput
           .split(",")
           .map((s) => s.trim())
-          .map(parseInt);
+          .map(parseInt)
+          .map((i) => items[i]);
       } else {
-        returnValue = parseInt(userInput);
+        returnValue = items[parseInt(userInput)];
       }
     }
     // Default as string

@@ -112,21 +112,19 @@ export const processCreateConfig = async () => {
   }
 
   // Optional extra features
+  const ITEMS = {
+    HIDDEN_SETTINGS: "Hidden Settings",
+  };
   const choices = await term.waitForInput(
     "Which extra features do you want to use? Leave empty for no extra features.",
     {
       allowEmpty: true,
-      choice: {
-        items: [
-          "Hidden Settings", // 0
-        ],
-        allowMultiple: true,
-      },
+      choice: { items: [ITEMS.HIDDEN_SETTINGS], multiple: true },
     }
   );
 
   // Hidden Settings
-  if (choices.includes(0)) {
+  if (choices.includes(ITEMS.HIDDEN_SETTINGS)) {
     let name = await term.waitForInput(
       [
         "What is the prefix name for your hidden settings mints? The mint index will be appended at the end of the name.",
@@ -292,6 +290,7 @@ export const processCreateConfig = async () => {
 
   let saveFile = true;
   if (await PgExplorer.fs.exists(PgSugar.PATHS.CANDY_MACHINE_CONFIG_FILEPATH)) {
+    const items = ["Overwrite the file", "Log to console"];
     saveFile =
       (await term.waitForInput(
         [
@@ -300,11 +299,9 @@ export const processCreateConfig = async () => {
         ].join(" "),
         {
           default: "0",
-          choice: {
-            items: ["Overwrite the file", "Log to console"],
-          },
+          choice: { items },
         }
-      )) === 0;
+      )) === items[0];
   }
 
   const prettyConfigData = PgCommon.toPrettyJson(configData);
