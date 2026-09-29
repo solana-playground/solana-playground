@@ -5,7 +5,10 @@ use axum::{extract::State, response::IntoResponse, Json};
 use blake3::{Hash, Hasher};
 use serde::{Deserialize, Serialize};
 use solpg_server::{
-    package::{get_out_path, BUNDLE_FILE, LOCK_FILE, MANIFEST_FILE, PACKAGES_DIR, TYPES_FILE},
+    package::{
+        get_out_path, YarnCommand, BUNDLE_FILE, LOCK_FILE, MANIFEST_FILE, PACKAGES_DIR,
+        PACKAGE_MANAGER, TYPES_FILE,
+    },
     utils::{get_image_name, Files},
     Result, Sandbox,
 };
@@ -91,6 +94,8 @@ pub async fn bundle(
     State(state): State<BundleState>,
     Json(payload): Json<BundleRequest>,
 ) -> Result<impl IntoResponse> {
+    let command = YarnCommand::parse(payload.command.as_deref().unwrap_or_default())?;
+
     let hash = {
         let mut hasher = Hasher::new();
         hasher.update(payload.manifest.as_bytes());
@@ -141,7 +146,11 @@ pub async fn bundle(
                 format!("{}/.", temp_host_path.display()),
                 format!("container:{PACKAGES_DIR}"),
             )
-            .command(Command::new("bundle").args(payload.command.unwrap_or_default()))
+            .command(
+                Command::new("bundle")
+                    .arg(PACKAGE_MANAGER)
+                    .args(command.args()),
+            )
             .copy(
                 format!("container:{}/.", container_path.display()),
                 &temp_host_path,
