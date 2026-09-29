@@ -7,6 +7,9 @@ on:
 
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   # Resolve the App Engine version from the tag at HEAD. Push to master deploys
   # only when that commit is tagged; manual dispatch falls back to the latest

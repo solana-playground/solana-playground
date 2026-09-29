@@ -6,6 +6,9 @@ name: Checks
 on:
   workflow_call:
 
+permissions:
+  contents: read
+
 jobs:
   format_client:
     name: Format client

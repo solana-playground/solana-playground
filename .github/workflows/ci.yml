@@ -10,6 +10,9 @@ on:
 
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   checks:
     uses: ./.github/workflows/reusable-checks.yml
