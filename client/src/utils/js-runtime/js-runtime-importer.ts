@@ -30,14 +30,14 @@ export class PgJsRuntimeImporter {
                 PgTerminal.success(Emoji.CHECKMARK)
               )
               // Make '1) testname' red
-              .replace(/\s+\d\)\s\w*$/, PgTerminal.error)
+              .replace(/^\s+\d\)\s\w*$/, PgTerminal.error)
               // Passing text
-              .replace(/\d+\spassing/, PgTerminal.success)
+              .replace(/^\s+\d+\spassing/, PgTerminal.success)
               // Failing text
-              .replace(/\d+\sfailing/, PgTerminal.error)
+              .replace(/^\s+\d+\sfailing/, PgTerminal.error)
               // Don't show the stack trace because it shows the transpiled code
               // TODO: show where the error actually happened in user code
-              .replace(/\s+at.*$/gm, "");
+              .replace(/\n[ \t]*at.*$/gm, "");
 
             PgTerminal.println(editedMessage);
           }
