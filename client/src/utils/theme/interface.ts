@@ -1,10 +1,10 @@
-import { StandardProperties } from "csstype";
-import { ITerminalOptions as XtermOptions } from "xterm";
+import type { StandardProperties } from "csstype";
+import type { ITerminalOptions as XtermOptions } from "xterm";
 
-import { ButtonKind } from "../../components/Button";
-import { MenuKind } from "../../components/Menu";
-import { TextKind } from "../../components/Text";
-import { AllRequired, ChildRequired, NestedRequired } from "../types";
+import type { ButtonKind } from "../../components/Button";
+import type { MenuKind } from "../../components/Menu";
+import type { TextKind } from "../../components/Text";
+import type { AllRequired, ChildRequired, NestedRequired } from "../types";
 
 /** Playground theme */
 export interface ThemeParam {
