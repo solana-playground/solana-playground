@@ -179,6 +179,7 @@ export class PgExplorer {
     content: string = "",
     opts?: {
       skipNameValidation?: boolean;
+      // TODO: Remove (dedicated `saveItem` method handles now)
       override?: boolean;
       openOptions?: {
         noOpen?: boolean;
@@ -236,7 +237,10 @@ export class PgExplorer {
       files[absolutePath] = {};
     }
 
-    PgCommon.createAndDispatchCustomEvent(this.events.ON_DID_CREATE_ITEM);
+    PgCommon.createAndDispatchCustomEvent(
+      this.events.ON_DID_CREATE_ITEM,
+      absolutePath
+    );
 
     await this.saveMeta();
   }
@@ -266,6 +270,8 @@ export class PgExplorer {
       noOpen: true,
       refreshIfAlreadyOpen: true,
     });
+    // TODO: Make `createItem` use this function instead of the other way around
+    // because every creation is a save but not all saves are creations
     return await this.createItem(path, content, {
       override: true,
       skipNameValidation: true,
@@ -1004,7 +1010,7 @@ export class PgExplorer {
    * @param cb callback function to run
    * @returns a dispose function to clear the event
    */
-  static onDidCreateItem(cb: () => unknown) {
+  static onDidCreateItem(cb: (path: string) => unknown) {
     return PgCommon.onDidChange(PgExplorer.events.ON_DID_CREATE_ITEM, cb);
   }
 
