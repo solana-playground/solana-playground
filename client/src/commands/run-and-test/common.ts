@@ -99,13 +99,11 @@ export const processCommon = async (params: {
   if (!isInstalled) {
     const term = await PgTerminal.get();
     term.println("Warning: Packages have not been installed.");
-    const proceed = await term.waitForInput("Would you like to install?", {
-      confirm: true,
-      default: "yes",
-    });
-    if (!proceed) throw new Error("Cannot execute without packages");
-
-    await PgCommand.packageManager.execute("install");
+    const shouldInstall = await term.waitForInput(
+      "Would you like to install?",
+      { confirm: true, default: "yes" }
+    );
+    if (shouldInstall) await PgCommand.packageManager.execute("install");
   }
 
   PgTerminal.println(
