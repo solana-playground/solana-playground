@@ -156,9 +156,6 @@ skip-lint = false
 [programs.localnet]
 default = "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS"
 
-[registry]
-url = "https://api.apr.dev"
-
 [provider]
 cluster = "localnet"
 wallet = "${PgWallet.DEFAULT_KEYPAIR_PATH}"
