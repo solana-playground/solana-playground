@@ -86,3 +86,23 @@ const IMAGE_PREFIX: &str = concat!(env!("CARGO_PKG_NAME"), "-sandbox");
 pub fn get_image_name(name: impl fmt::Display) -> String {
     format!("{IMAGE_PREFIX}-{name}")
 }
+
+/// Remove space-based indentations.
+pub fn dedent<S: AsRef<str>>(input: S) -> String {
+    let lines = input.as_ref().lines().collect::<Vec<_>>();
+    let common_indent = lines
+        .iter()
+        .filter(|line| !line.trim().is_empty())
+        .map(|line| line.len() - line.trim_start_matches(' ').len())
+        .min()
+        .unwrap_or_default();
+
+    lines.iter().fold(String::new(), |mut acc, line| {
+        if !line.trim().is_empty() {
+            acc.push_str(&line[common_indent..]);
+        }
+
+        acc.push('\n');
+        acc
+    })
+}

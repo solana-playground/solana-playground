@@ -1,14 +1,36 @@
 use std::{
+    mem,
     path::{Path, PathBuf},
     process::{Output, Stdio},
-    time::Duration,
+    sync::OnceLock,
 };
 
 use anyhow::{anyhow, Result};
-use tokio::{process::Command, time::timeout};
+use tokio::{
+    io::{self, AsyncWriteExt},
+    process::Command,
+    spawn,
+    sync::mpsc,
+    time::{sleep, timeout, Duration},
+};
 use uuid::Uuid;
 
-/// Sandbox manager
+use crate::{
+    log::error,
+    utils::{dedent, get_image_name},
+};
+
+/// Sandbox manager.
+///
+/// # Security
+///
+/// The implementation is based on Docker containers. It is intended to run processes as quickly as
+/// possible with *relatively* safe defaults.
+///
+/// However, do note that while Docker containers are fast, they achieve this by sharing a decent
+/// amount of the base functionality with the host, meaning they do not provide VM-level sandboxing.
+///
+/// It is recommended to use Rootless Docker to reduce the attack surface.
 #[derive(Debug, Default)]
 pub struct Sandbox<'a> {
     /// Configuration
@@ -32,6 +54,8 @@ impl<'a> Sandbox<'a> {
     }
 
     /// Set the Docker image.
+    ///
+    /// Only Linux images are supported.
     #[must_use]
     pub fn image(mut self, image: impl ToString) -> Self {
         self.cfg.image.replace(image.to_string());
@@ -46,14 +70,22 @@ impl<'a> Sandbox<'a> {
         self
     }
 
-    /// Allow networking.
+    /// Enable the proxy network mode.
+    ///
+    /// This mode restricts public network access to everywhere except `allowed_domains`.
     ///
     /// # Note
     ///
-    /// This is dangerous. Only allow if it's absolutely necessary.
+    /// [Self::build_proxy_image] must be called beforehand.
     #[must_use]
-    pub fn allow_networking(mut self) -> Self {
-        self.cfg.allow_networking = true;
+    pub fn proxy<I, S>(mut self, allowed_domains: I) -> Self
+    where
+        I: IntoIterator<Item = S>,
+        S: ToString,
+    {
+        self.cfg.network = Network::Proxy {
+            allowed_domains: allowed_domains.into_iter().map(|s| s.to_string()).collect(),
+        };
         self
     }
 
@@ -142,11 +174,13 @@ impl<'a> Sandbox<'a> {
 
     /// Start the sandboxed process.
     pub async fn run(self) -> Result<Output> {
-        const NAME_PREFIX: &str = concat!(env!("CARGO_PKG_NAME"), "-sandbox");
-        let container = format!("{NAME_PREFIX}-{}", Uuid::new_v4());
-
-        // Run command(s) in a container
         let fut = async {
+            let mut cleanup_guard = CleanupGuard::new();
+
+            const NAME_PREFIX: &str = concat!(env!("CARGO_PKG_NAME"), "-sandbox");
+            let uuid = Uuid::new_v4();
+            let container = format!("{NAME_PREFIX}-{uuid}");
+
             let mut cmd = Command::new("docker");
             cmd.arg("run")
                 .arg("--name")
@@ -155,16 +189,9 @@ impl<'a> Sandbox<'a> {
                 .arg("--rm")
                 .arg("--cap-drop=ALL")
                 .arg("--memory-swap=-1")
-                // TODO: Allow creating a new network with only specified URLs whitelisted (e.g. npmjs.com)?
                 .arg("--oom-score-adj=1000") // Make the container easily killable when OOM
                 .arg("--security-opt=no-new-privileges");
 
-            if let Some(user) = &self.cfg.user {
-                cmd.arg("--user").arg(user);
-            }
-            if !self.cfg.allow_networking {
-                cmd.arg("--network=none");
-            }
             if let Some(cpu) = self.cfg.limits.cpu {
                 cmd.arg("--cpus").arg(cpu.to_string());
             }
@@ -178,18 +205,270 @@ impl<'a> Sandbox<'a> {
                 cmd.arg("--storage-opt").arg(format!("size={storage}b"));
             }
 
-            match &self.cfg.image {
-                Some(image) => cmd.arg(image),
-                _ => return Err(anyhow!("Image not specified")),
+            let Some(user) = &self.cfg.user else {
+                return Err(anyhow!("An unprivileged user is required"));
             };
 
-            cmd.arg("sleep");
-            match self.cfg.limits.timeout {
-                Some(timeout) => cmd.arg(timeout.to_string()),
-                _ => cmd.arg("infinity"),
+            let Some(image) = &self.cfg.image else {
+                return Err(anyhow!("Image is required"));
             };
 
-            run_cmd(&mut cmd).await?;
+            let sleep_timeout = match self.cfg.limits.timeout {
+                Some(timeout) => format!("sleep {timeout}"),
+                _ => "sleep infinity".to_owned(),
+            };
+            match self.cfg.network {
+                Network::None => {
+                    run_cmd(
+                        cmd.arg("--network=none")
+                            .arg("--user")
+                            .arg(user)
+                            .arg(image)
+                            .arg(sleep_timeout),
+                    )
+                    .await?;
+                    cleanup_guard.container(&container);
+                }
+                Network::Proxy { allowed_domains } => {
+                    // Both container and network name
+                    let proxy_resource = format!("{NAME_PREFIX}-proxy-{uuid}");
+
+                    // TODO: Add dynamic subnet and IP allocation
+                    // TODO: Make the proxy port dynamic
+                    // Create the proxy network
+                    run_cmd(
+                        Command::new("docker")
+                            .arg("network")
+                            .arg("create")
+                            .arg("--driver=bridge")
+                            .arg("--subnet=172.28.0.0/16")
+                            .arg("--gateway=172.28.0.1")
+                            .arg(&proxy_resource),
+                    )
+                    .await?;
+                    cleanup_guard.network(&proxy_resource);
+
+                    const HEALTH_ARGS: &[&str] = &[
+                        "--health-interval=100ms",
+                        "--health-timeout=100ms",
+                        "--health-retries=5",
+                    ];
+
+                    // Create and start the proxy container
+                    let allowed_domains = allowed_domains.join(" ");
+                    run_cmd(
+                        Command::new("docker")
+                            .arg("run")
+                            .arg("--rm")
+                            .arg("--detach")
+                            .arg("--name")
+                            .arg(&proxy_resource)
+                            .arg("--network")
+                            .arg(&proxy_resource)
+                            .arg("--ip=172.28.0.2")
+                            .arg("--health-cmd")
+                            // Check whether the proxy TCP port has been binded
+                            .arg("grep -q :0C38 /proc/net/tcp")
+                            .args(HEALTH_ARGS)
+                            .arg("--entrypoint=/bin/sh")
+                            .arg(Self::proxy_image_name())
+                            .arg("-c")
+                            .arg(dedent(format!(
+                                r#"
+                                set -eu
+
+                                openssl req \
+                                    -new \
+                                    -newkey rsa:2048 \
+                                    -nodes \
+                                    -x509 \
+                                    -days 3650 \
+                                    -subj "/CN=Playground Interception Service" \
+                                    -addext "basicConstraints=critical,CA:TRUE,pathlen:1" \
+                                    -addext "keyUsage=critical,keyCertSign,cRLSign" \
+                                    -addext "subjectKeyIdentifier=hash" \
+                                    -keyout /etc/squid/interception.key \
+                                    -out /etc/squid/interception.crt
+
+                                cat >/etc/squid/squid.conf <<\CONF
+
+                                # Unused but required
+                                http_port 127.0.0.0:3127
+
+                                # Intercept HTTPS traffic
+                                https_port 127.0.0.1:3128 intercept ssl-bump \
+                                    tls-cert=/etc/squid/interception.crt \
+                                    tls-key=/etc/squid/interception.key \
+                                    generate-host-certificates=on \
+                                    dynamic_cert_mem_cache_size=4MB
+
+                                sslcrtd_program /usr/lib/squid/security_file_certgen \
+                                    -s /var/spool/squid/ssl_db \
+                                    -M 4MB
+
+                                sslcrtd_children 5
+
+                                acl app_net src 172.28.0.0/16
+
+                                acl tls_step1 at_step SslBump1
+                                acl tls_step2 at_step SslBump2
+
+                                acl allowed_sni ssl::server_name {allowed_domains}
+
+                                # TODO: Make it work with `splice` instead of `bump`
+                                ssl_bump peek tls_step1
+                                ssl_bump bump allowed_sni
+                                ssl_bump terminate tls_step2
+
+                                http_access allow app_net
+                                http_access deny all
+
+                                cache deny all
+                                # access_log none
+                                # cache_log none
+                                access_log stdio:/var/log/squid/access.log
+                                cache_log stdio:/var/log/squid/cache.log
+                                CONF
+
+                                squid -N -f /etc/squid/squid.conf &
+                                squid_pid=$!
+                                {sleep_timeout}
+                                kill -KILL "$squid_pid"
+                                wait "$squid_pid"
+                                "#
+                            ))),
+                    )
+                    .await?;
+                    cleanup_guard.container(&proxy_resource);
+
+                    // Wait until the proxy container is ready (networking doesn't work otherwise)
+                    wait_until_healthy(&proxy_resource).await?;
+
+                    // Create and start the main container
+                    cmd.arg("--network")
+                        .arg(format!("container:{proxy_resource}"))
+                        .arg("--user=0:0")
+                        // Allows `ipconfig` changes
+                        .arg("--cap-add=CAP_NET_ADMIN")
+                        // Next two allow changing the user
+                        .arg("--cap-add=SETUID")
+                        .arg("--cap-add=SETGID")
+                        // Important: allows `--bounding-set=-all`
+                        .arg("--cap-add=SETPCAP")
+                        .arg("--health-cmd")
+                        // Check whether all capabilities have been dropped
+                        .arg(dedent(
+                            r#"
+                            awk '
+                            BEGIN {
+                                ok = 1
+                                n = 0
+                            }
+                            /^Cap(Inh|Prm|Eff|Bnd|Amb):/ {
+                                n++
+                                if ($2 != "0000000000000000")
+                                    ok = 0
+                            }
+                            /^NoNewPrivs:/ {
+                                n++
+                                if ($2 != "1")
+                                    ok = 0
+                            }
+                            END {
+                                exit !(ok && n == 6)
+                            }
+                            ' /proc/1/status
+                            "#)
+                        )
+                        .args(HEALTH_ARGS)
+                        .arg(image)
+                        .arg("sh")
+                        .arg("-c")
+                        .arg(dedent(format!(
+                            r#"
+                            # Set sane flags
+                            set -eu
+
+                            # Disable IPv6
+                            ip6tables -F
+                            ip6tables -X
+                            ip6tables -P INPUT DROP
+                            ip6tables -P OUTPUT DROP
+                            ip6tables -P FORWARD DROP
+
+                            # Drop all traffic by default
+                            iptables -F
+                            iptables -X
+                            iptables -P INPUT DROP
+                            iptables -P OUTPUT DROP
+                            iptables -P FORWARD DROP
+
+                            # Allow DNS queries to Docker
+                            # Do not add `--dport 53` because Docker rewrites it to dynamic ports
+                            iptables -A OUTPUT -d 127.0.0.11 -p udp -j ACCEPT
+                            iptables -A OUTPUT -d 127.0.0.11 -p tcp -j ACCEPT
+
+                            # Allow loopback (for proxy and DNS)
+                            iptables -A INPUT -i lo -d 127.0.0.1/8 -p udp -j ACCEPT
+                            iptables -A INPUT -i lo -d 127.0.0.1/8 -p tcp -j ACCEPT
+                            iptables -A OUTPUT -o lo -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+
+                            # Allow replies from the proxy
+                            iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+
+                            # Do not redirect the proxy's own outbound HTTPS connections
+                            iptables -t nat -A OUTPUT -p tcp --dport 443 -m owner --uid-owner 13 -j RETURN
+
+                            # Redirect the main container HTTPS locally to the proxy
+                            iptables -t nat -A OUTPUT -p tcp --dport 443 -j REDIRECT --to-ports 3128
+
+                            # Permit output to proxy
+                            iptables -A OUTPUT -d 127.0.0.1 -p tcp -m owner ! --uid-owner 13 --dport 3128 -j ACCEPT
+
+                            # Permit the proxy itself to connect to origin HTTPS servers
+                            iptables -A OUTPUT -p tcp -m owner --uid-owner 13 --dport 443 -j ACCEPT
+
+                            # Remove all privileges and switch user
+                            exec setpriv \
+                                --reuid={user} \
+                                --regid={user} \
+                                --clear-groups \
+                                --inh-caps=-all \
+                                --ambient-caps=-all \
+                                --bounding-set=-all \
+                                --no-new-privs \
+                                --reset-env \
+                                {sleep_timeout}
+                            "#
+                        )));
+
+                    run_cmd(&mut cmd).await?;
+                    cleanup_guard.container(&container);
+
+                    // Confirm all capabilities have been removed via health checks
+                    wait_until_healthy(&container).await?;
+
+                    // Install the certificates (requires `root`, but without capabilities)
+                    pipe(
+                        Command::new("docker")
+                            .arg("exec")
+                            .arg(&proxy_resource)
+                            .arg("cat")
+                            .arg("/etc/squid/interception.crt"),
+                        Command::new("docker")
+                            .arg("exec")
+                            .arg("--interactive")
+                            .arg(&container)
+                            .arg("sh")
+                            .arg("-c")
+                            .arg(
+                                "cat > /usr/local/share/ca-certificates/squid-interception.crt \
+                                    && update-ca-certificates",
+                            ),
+                    )
+                    .await?;
+                }
+            };
 
             let mut all_output = Output {
                 status: Default::default(),
@@ -207,6 +486,8 @@ impl<'a> Sandbox<'a> {
                         let workdir = output_cmd(
                             Command::new("docker")
                                 .arg("exec")
+                                .arg("--user")
+                                .arg(user)
                                 .arg(&container)
                                 .arg("pwd"),
                         )
@@ -219,13 +500,13 @@ impl<'a> Sandbox<'a> {
                             .ok_or_else(|| anyhow!("Invalid path: {dst:?}"))?
                             .strip_prefix("container:")
                             .map(Path::new);
-                        match (&self.cfg.user, stripped_container_dst) {
+                        match stripped_container_dst {
                             // If transfering to the container, `docker cp` does not set the current
                             // user as the owner. The owner cannot be changed because `CAP_CHOWN` is
                             // removed (by `--cap-drop=ALL`). As a workaround, `docker cp` into a
                             // temp directory and then copy the files to the actual destination
                             // using the current user.
-                            (Some(_), Some(stripped_container_dst)) => {
+                            Some(stripped_container_dst) => {
                                 // TODO: Get temp dir from the container instead of hardcoding
                                 let temp_dst = Path::new("/tmp").join(stripped_container_dst);
                                 let dst = Action::copy_path(
@@ -237,6 +518,8 @@ impl<'a> Sandbox<'a> {
                                 run_cmd(
                                     Command::new("docker")
                                         .arg("exec")
+                                        .arg("--user")
+                                        .arg(user)
                                         .arg(&container)
                                         .arg("cp")
                                         .arg("--recursive")
@@ -255,6 +538,8 @@ impl<'a> Sandbox<'a> {
                         let cmd = cmd.as_std();
                         let output = Command::new("docker")
                             .arg("exec")
+                            .arg("--user")
+                            .arg(user)
                             .arg(&container)
                             .arg(cmd.get_program())
                             .args(cmd.get_args())
@@ -276,20 +561,76 @@ impl<'a> Sandbox<'a> {
         };
 
         // Wait for completion
-        let result = match self.cfg.limits.timeout {
+        match self.cfg.limits.timeout {
             Some(to) => match timeout(Duration::from_secs(to), fut).await {
                 Ok(res) => res,
                 Err(_) => Err(anyhow!("Timed out")),
             },
             _ => fut.await,
-        };
+        }
+    }
 
-        // Cleanup container (killing is enough for cleanup because of `--rm` during creation)
-        run_cmd(Command::new("docker").arg("kill").arg(&container))
-            .await
-            .ok();
+    /// Build the proxy image.
+    pub async fn build_proxy_image() -> Result<()> {
+        let mut child = Command::new("docker")
+            .arg("build")
+            .arg("--tag")
+            .arg(Self::proxy_image_name())
+            .arg("-")
+            .stdin(Stdio::piped())
+            .stdout(Stdio::inherit())
+            .stderr(Stdio::inherit())
+            .kill_on_drop(true)
+            .spawn()?;
 
-        result
+        let mut stdin = child
+            .stdin
+            .take()
+            .ok_or_else(|| anyhow!("Failed to take stdin"))?;
+        stdin
+            .write_all(
+                dedent(
+                    r#"
+                    # `ubuntu/squid` image doesn't work because it is compiled without `openssl` support
+                    # TODO: Use the shared `ubuntu` image?
+                    FROM debian:trixie-slim@sha256:a99cfc517144bc59b1978475ec53b46ecabec7e43635402ee5b77cc54cd1b20a
+
+                    ARG DEBIAN_FRONTEND=noninteractive
+
+                    RUN apt-get update \
+                        && apt-get install -y \
+                            ca-certificates \
+                            openssl \
+                            squid-openssl
+                    RUN install -d -o proxy -g proxy /var/log/squid \
+                        && install -d -o proxy -g proxy /var/spool/squid \
+                        && /usr/lib/squid/security_file_certgen \
+                            -c \
+                            -s /var/spool/squid/ssl_db \
+                            -M 4MB \
+                        && chown -R proxy:proxy /var/spool/squid/ssl_db
+
+                    ENTRYPOINT ["squid"]
+                    "#,
+                )
+                .as_bytes(),
+            )
+            .await?;
+
+        // Manually drop `stdin` to send `EOF` to `docker build`
+        drop(stdin);
+
+        let status = child.wait().await?;
+        if !status.success() {
+            return Err(anyhow!("Failed to build the proxy image"));
+        }
+
+        Ok(())
+    }
+
+    /// Get the proxy image name.
+    fn proxy_image_name() -> String {
+        get_image_name("proxy")
     }
 }
 
@@ -298,12 +639,23 @@ impl<'a> Sandbox<'a> {
 struct Config {
     /// Image name
     image: Option<String>,
-    /// Image user
+    /// Image user (unprivileged; no `root` or `sudo`)
     user: Option<String>,
-    /// Whether to allow networking
-    allow_networking: bool,
+    /// Container network
+    network: Network,
     /// Container limits
     limits: Limits,
+}
+
+/// Sandbox network
+#[derive(Debug, Default)]
+enum Network {
+    /// No networking in the container (default, unlike Docker)
+    #[default]
+    None,
+    // TODO: Custom DNS
+    /// Proxy connection using a dedicated network or another container's network stack
+    Proxy { allowed_domains: Vec<String> },
 }
 
 /// Sandbox limits
@@ -353,6 +705,80 @@ impl Action<'_> {
     }
 }
 
+/// A guard to cleanup sandbox resources.
+///
+/// Resources are cleaned in reverse order once the value is dropped.
+#[derive(Debug, Default)]
+struct CleanupGuard {
+    /// Sandbox resources to clean
+    resources: Vec<Resource>,
+}
+
+impl CleanupGuard {
+    /// Create a new clean guard.
+    fn new() -> Self {
+        Self::default()
+    }
+
+    /// Add a container to be cleaned up later.
+    fn container(&mut self, name: impl ToString) {
+        self.resources.push(Resource::Container(name.to_string()))
+    }
+
+    /// Add a network to be cleaned up later.
+    fn network(&mut self, name: impl ToString) {
+        self.resources.push(Resource::Network(name.to_string()))
+    }
+}
+
+impl Drop for CleanupGuard {
+    fn drop(&mut self) {
+        let resources = mem::take(&mut self.resources);
+        if !resources.is_empty() {
+            static SERVICE: OnceLock<mpsc::UnboundedSender<Vec<Resource>>> = OnceLock::new();
+            let _ = SERVICE
+                .get_or_init(|| {
+                    let (tx, mut rx) = mpsc::unbounded_channel::<Vec<Resource>>();
+                    spawn(async move {
+                        while let Some(mut resources) = rx.recv().await {
+                            while let Some(resource) = resources.pop() {
+                                if let Err(e) = resource.cleanup().await {
+                                    error!("Sandbox cleanup failed: {e}")
+                                }
+                            }
+                        }
+                    });
+
+                    tx
+                })
+                .send(resources);
+        }
+    }
+}
+
+/// Sandbox resource type
+#[derive(Debug)]
+enum Resource {
+    /// Docker container
+    Container(String),
+    /// Docker network
+    Network(String),
+}
+
+impl Resource {
+    /// Cleanup the resource.
+    async fn cleanup(&self) -> Result<()> {
+        match self {
+            // Killing is enough for cleanup because of `--rm` during creation
+            Self::Container(name) => run_cmd(Command::new("docker").arg("kill").arg(&name)).await,
+            Self::Network(name) => {
+                run_cmd(Command::new("docker").arg("network").arg("rm").arg(&name)).await
+            }
+        }
+    }
+}
+
+// TODO: Make shared command utils
 /// Run a command and error if it fails.
 async fn run_cmd(cmd: &mut Command) -> Result<()> {
     let status = cmd
@@ -390,4 +816,56 @@ async fn output_cmd(cmd: &mut Command) -> Result<String> {
         .map(|s| s.trim())
         .map(ToOwned::to_owned)
         .map_err(Into::into)
+}
+
+/// Pipe the `src` output to `dst`.
+async fn pipe(src: &mut Command, dst: &mut Command) -> Result<()> {
+    let mut src = src.stdout(Stdio::piped()).spawn()?;
+    let mut src_stdout = src
+        .stdout
+        .take()
+        .ok_or_else(|| anyhow!("Failed to take source `stdout`"))?;
+
+    let mut dst = dst.stdin(Stdio::piped()).spawn()?;
+    let mut dst_stdin = dst
+        .stdin
+        .take()
+        .ok_or_else(|| anyhow!("Failed to take destination `stdin`"))?;
+
+    io::copy(&mut src_stdout, &mut dst_stdin).await?;
+
+    drop(dst_stdin);
+
+    let src_status = src.wait().await?;
+    let dst_status = dst.wait().await?;
+
+    if !src_status.success() {
+        return Err(anyhow!("Failed to read the source command output"));
+    }
+    if !dst_status.success() {
+        return Err(anyhow!("Failed to accept the destination command"));
+    }
+
+    Ok(())
+}
+
+/// Wait until the Docker resource is "healthy".
+///
+/// This requires `--health-cmd` during container creation.
+async fn wait_until_healthy(resource: &str) -> Result<()> {
+    loop {
+        let status = output_cmd(
+            Command::new("docker")
+                .arg("inspect")
+                .arg("--format")
+                .arg("{{.State.Health.Status}}")
+                .arg(resource),
+        )
+        .await?;
+        match status.as_str() {
+            "healthy" => return Ok(()),
+            "unhealthy" => return Err(anyhow!("Container became unhealthy")),
+            _ => sleep(Duration::from_millis(100)).await,
+        }
+    }
 }
