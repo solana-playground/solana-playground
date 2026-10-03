@@ -1,6 +1,7 @@
 use anyhow::{anyhow, Result};
 use solpg_server::{
-    package, program, templates::get_all_templates, utils::get_image_name, Sandbox,
+    command::AsyncCommand, package, program, templates::get_all_templates, utils::get_image_name,
+    Sandbox,
 };
 use tokio::{fs, process::Command};
 
@@ -79,10 +80,7 @@ async fn build_images() -> Result<()> {
             cmd.arg("--build-arg").arg(arg);
         }
 
-        let status = cmd.arg(".").status().await?;
-        if !status.success() {
-            return Err(anyhow!("Failed to build image: `{name}`"));
-        }
+        cmd.arg(".").run().await?;
     }
 
     Ok(())

@@ -16,6 +16,7 @@ use tokio::{
 use uuid::Uuid;
 
 use crate::{
+    command::AsyncCommand,
     log::error,
     utils::{dedent, get_image_name},
 };
@@ -72,7 +73,8 @@ impl<'a> Sandbox<'a> {
 
     /// Enable the proxy network mode.
     ///
-    /// This mode restricts public network access to everywhere except `allowed_domains`.
+    /// This mode restricts public network access to everywhere except `allowed_domains`. Only
+    /// requests to TCP port 443 (HTTPS) is allowed.
     ///
     /// # Note
     ///
@@ -219,14 +221,13 @@ impl<'a> Sandbox<'a> {
             };
             match self.cfg.network {
                 Network::None => {
-                    run_cmd(
-                        cmd.arg("--network=none")
-                            .arg("--user")
-                            .arg(user)
-                            .arg(image)
-                            .arg(sleep_timeout),
-                    )
-                    .await?;
+                    cmd.arg("--network=none")
+                        .arg("--user")
+                        .arg(user)
+                        .arg(image)
+                        .arg(sleep_timeout)
+                        .run_silent()
+                        .await?;
                     cleanup_guard.container(&container);
                 }
                 Network::Proxy { allowed_domains } => {
@@ -236,16 +237,15 @@ impl<'a> Sandbox<'a> {
                     // TODO: Add dynamic subnet and IP allocation
                     // TODO: Make the proxy port dynamic
                     // Create the proxy network
-                    run_cmd(
-                        Command::new("docker")
-                            .arg("network")
-                            .arg("create")
-                            .arg("--driver=bridge")
-                            .arg("--subnet=172.28.0.0/16")
-                            .arg("--gateway=172.28.0.1")
-                            .arg(&proxy_resource),
-                    )
-                    .await?;
+                    Command::new("docker")
+                        .arg("network")
+                        .arg("create")
+                        .arg("--driver=bridge")
+                        .arg("--subnet=172.28.0.0/16")
+                        .arg("--gateway=172.28.0.1")
+                        .arg(&proxy_resource)
+                        .run_silent()
+                        .await?;
                     cleanup_guard.network(&proxy_resource);
 
                     const HEALTH_ARGS: &[&str] = &[
@@ -256,89 +256,89 @@ impl<'a> Sandbox<'a> {
 
                     // Create and start the proxy container
                     let allowed_domains = allowed_domains.join(" ");
-                    run_cmd(
-                        Command::new("docker")
-                            .arg("run")
-                            .arg("--rm")
-                            .arg("--detach")
-                            .arg("--name")
-                            .arg(&proxy_resource)
-                            .arg("--network")
-                            .arg(&proxy_resource)
-                            .arg("--ip=172.28.0.2")
-                            .arg("--health-cmd")
-                            // Check whether the proxy TCP port has been binded
-                            .arg("grep -q :0C38 /proc/net/tcp")
-                            .args(HEALTH_ARGS)
-                            .arg("--entrypoint=/bin/sh")
-                            .arg(Self::proxy_image_name())
-                            .arg("-c")
-                            .arg(dedent(format!(
-                                r#"
-                                set -eu
+                    Command::new("docker")
+                        .arg("run")
+                        .arg("--rm")
+                        .arg("--detach")
+                        .arg("--name")
+                        .arg(&proxy_resource)
+                        .arg("--network")
+                        .arg(&proxy_resource)
+                        .arg("--ip=172.28.0.2")
+                        .arg("--health-cmd")
+                        // Check whether the proxy TCP port has been binded
+                        .arg("grep -q :0C38 /proc/net/tcp")
+                        .args(HEALTH_ARGS)
+                        .arg("--entrypoint=/bin/sh")
+                        .arg(Self::proxy_image_name())
+                        .arg("-c")
+                        .arg(dedent(format!(
+                            r#"
+                            # Set sane flags
+                            set -eu
 
-                                openssl req \
-                                    -new \
-                                    -newkey rsa:2048 \
-                                    -nodes \
-                                    -x509 \
-                                    -days 3650 \
-                                    -subj "/CN=Playground Interception Service" \
-                                    -addext "basicConstraints=critical,CA:TRUE,pathlen:1" \
-                                    -addext "keyUsage=critical,keyCertSign,cRLSign" \
-                                    -addext "subjectKeyIdentifier=hash" \
-                                    -keyout /etc/squid/interception.key \
-                                    -out /etc/squid/interception.crt
+                            openssl req \
+                                -new \
+                                -newkey rsa:2048 \
+                                -nodes \
+                                -x509 \
+                                -days 3650 \
+                                -subj "/CN=Playground Interception Service" \
+                                -addext "basicConstraints=critical,CA:TRUE,pathlen:1" \
+                                -addext "keyUsage=critical,keyCertSign,cRLSign" \
+                                -addext "subjectKeyIdentifier=hash" \
+                                -keyout /etc/squid/interception.key \
+                                -out /etc/squid/interception.crt
 
-                                cat >/etc/squid/squid.conf <<\CONF
+                            cat >/etc/squid/squid.conf <<\CONF
 
-                                # Unused but required
-                                http_port 127.0.0.0:3127
+                            # Unused but required
+                            http_port 127.0.0.0:3127
 
-                                # Intercept HTTPS traffic
-                                https_port 127.0.0.1:3128 intercept ssl-bump \
-                                    tls-cert=/etc/squid/interception.crt \
-                                    tls-key=/etc/squid/interception.key \
-                                    generate-host-certificates=on \
-                                    dynamic_cert_mem_cache_size=4MB
+                            # Intercept HTTPS traffic
+                            https_port 127.0.0.1:3128 intercept ssl-bump \
+                                tls-cert=/etc/squid/interception.crt \
+                                tls-key=/etc/squid/interception.key \
+                                generate-host-certificates=on \
+                                dynamic_cert_mem_cache_size=4MB
 
-                                sslcrtd_program /usr/lib/squid/security_file_certgen \
-                                    -s /var/spool/squid/ssl_db \
-                                    -M 4MB
+                            sslcrtd_program /usr/lib/squid/security_file_certgen \
+                                -s /var/spool/squid/ssl_db \
+                                -M 4MB
 
-                                sslcrtd_children 5
+                            sslcrtd_children 5
 
-                                acl app_net src 172.28.0.0/16
+                            acl app_net src 172.28.0.0/16
 
-                                acl tls_step1 at_step SslBump1
-                                acl tls_step2 at_step SslBump2
+                            acl tls_step1 at_step SslBump1
+                            acl tls_step2 at_step SslBump2
 
-                                acl allowed_sni ssl::server_name {allowed_domains}
+                            acl allowed_sni ssl::server_name {allowed_domains}
 
-                                # TODO: Make it work with `splice` instead of `bump`
-                                ssl_bump peek tls_step1
-                                ssl_bump bump allowed_sni
-                                ssl_bump terminate tls_step2
+                            # TODO: Make it work with `splice` instead of `bump`
+                            ssl_bump peek tls_step1
+                            ssl_bump bump allowed_sni
+                            ssl_bump terminate tls_step2
 
-                                http_access allow app_net
-                                http_access deny all
+                            http_access allow app_net
+                            http_access deny all
 
-                                cache deny all
-                                # access_log none
-                                # cache_log none
-                                access_log stdio:/var/log/squid/access.log
-                                cache_log stdio:/var/log/squid/cache.log
-                                CONF
+                            cache deny all
+                            # access_log none
+                            # cache_log none
+                            access_log stdio:/var/log/squid/access.log
+                            cache_log stdio:/var/log/squid/cache.log
+                            CONF
 
-                                squid -N -f /etc/squid/squid.conf &
-                                squid_pid=$!
-                                {sleep_timeout}
-                                kill -KILL "$squid_pid"
-                                wait "$squid_pid"
-                                "#
-                            ))),
-                    )
-                    .await?;
+                            squid -N -f /etc/squid/squid.conf &
+                            squid_pid=$!
+                            {sleep_timeout}
+                            kill -KILL "$squid_pid"
+                            wait "$squid_pid"
+                            "#
+                        )))
+                        .run_silent()
+                        .await?;
                     cleanup_guard.container(&proxy_resource);
 
                     // Wait until the proxy container is ready (networking doesn't work otherwise)
@@ -378,8 +378,8 @@ impl<'a> Sandbox<'a> {
                                 exit !(ok && n == 6)
                             }
                             ' /proc/1/status
-                            "#)
-                        )
+                            "#,
+                        ))
                         .args(HEALTH_ARGS)
                         .arg(image)
                         .arg("sh")
@@ -440,9 +440,9 @@ impl<'a> Sandbox<'a> {
                                 --reset-env \
                                 {sleep_timeout}
                             "#
-                        )));
-
-                    run_cmd(&mut cmd).await?;
+                        )))
+                        .run_silent()
+                        .await?;
                     cleanup_guard.container(&container);
 
                     // Confirm all capabilities have been removed via health checks
@@ -483,16 +483,15 @@ impl<'a> Sandbox<'a> {
                         // running container and make the path absolute.
                         //
                         // TODO: Only run when there is a relative container path
-                        let workdir = output_cmd(
-                            Command::new("docker")
-                                .arg("exec")
-                                .arg("--user")
-                                .arg(user)
-                                .arg(&container)
-                                .arg("pwd"),
-                        )
-                        .await
-                        .map(PathBuf::from)?;
+                        let workdir = Command::new("docker")
+                            .arg("exec")
+                            .arg("--user")
+                            .arg(user)
+                            .arg(&container)
+                            .arg("pwd")
+                            .output_stdout()
+                            .await
+                            .map(PathBuf::from)?;
 
                         let src = Action::copy_path(src, &container, &workdir)?;
                         let stripped_container_dst = dst
@@ -514,23 +513,32 @@ impl<'a> Sandbox<'a> {
                                     &container,
                                     &workdir,
                                 )?;
-                                run_cmd(Command::new("docker").arg("cp").arg(src).arg(dst)).await?;
-                                run_cmd(
-                                    Command::new("docker")
-                                        .arg("exec")
-                                        .arg("--user")
-                                        .arg(user)
-                                        .arg(&container)
-                                        .arg("cp")
-                                        .arg("--recursive")
-                                        .arg(temp_dst)
-                                        .arg(stripped_container_dst),
-                                )
-                                .await?;
+                                Command::new("docker")
+                                    .arg("cp")
+                                    .arg(src)
+                                    .arg(dst)
+                                    .run_silent()
+                                    .await?;
+                                Command::new("docker")
+                                    .arg("exec")
+                                    .arg("--user")
+                                    .arg(user)
+                                    .arg(&container)
+                                    .arg("cp")
+                                    .arg("--recursive")
+                                    .arg(temp_dst)
+                                    .arg(stripped_container_dst)
+                                    .run_silent()
+                                    .await?;
                             }
                             _ => {
                                 let dst = Action::copy_path(dst, &container, &workdir)?;
-                                run_cmd(Command::new("docker").arg("cp").arg(src).arg(dst)).await?;
+                                Command::new("docker")
+                                    .arg("cp")
+                                    .arg(src)
+                                    .arg(dst)
+                                    .run_silent()
+                                    .await?;
                             }
                         }
                     }
@@ -770,52 +778,23 @@ impl Resource {
     async fn cleanup(&self) -> Result<()> {
         match self {
             // Killing is enough for cleanup because of `--rm` during creation
-            Self::Container(name) => run_cmd(Command::new("docker").arg("kill").arg(&name)).await,
+            Self::Container(name) => {
+                Command::new("docker")
+                    .arg("kill")
+                    .arg(name)
+                    .run_silent()
+                    .await
+            }
             Self::Network(name) => {
-                run_cmd(Command::new("docker").arg("network").arg("rm").arg(&name)).await
+                Command::new("docker")
+                    .arg("network")
+                    .arg("rm")
+                    .arg(name)
+                    .run_silent()
+                    .await
             }
         }
     }
-}
-
-// TODO: Make shared command utils
-/// Run a command and error if it fails.
-async fn run_cmd(cmd: &mut Command) -> Result<()> {
-    let status = cmd
-        .stdout(Stdio::null())
-        .stderr(Stdio::null())
-        .status()
-        .await?;
-    if !status.success() {
-        let cmd = cmd.as_std();
-        return Err(anyhow!(
-            "Failed to run `{:?} {:?}",
-            cmd.get_program(),
-            cmd.get_args()
-        ));
-    }
-
-    Ok(())
-}
-
-/// Run a command and get its output from `stdout` (trimmed).
-///
-/// If the command fails, an error is returned.
-async fn output_cmd(cmd: &mut Command) -> Result<String> {
-    let output = cmd.output().await?;
-    if !output.status.success() {
-        let cmd = cmd.as_std();
-        return Err(anyhow!(
-            "Failed to run `{:?} {:?}",
-            cmd.get_program(),
-            cmd.get_args()
-        ));
-    }
-
-    str::from_utf8(&output.stdout)
-        .map(|s| s.trim())
-        .map(ToOwned::to_owned)
-        .map_err(Into::into)
 }
 
 /// Pipe the `src` output to `dst`.
@@ -854,14 +833,13 @@ async fn pipe(src: &mut Command, dst: &mut Command) -> Result<()> {
 /// This requires `--health-cmd` during container creation.
 async fn wait_until_healthy(resource: &str) -> Result<()> {
     loop {
-        let status = output_cmd(
-            Command::new("docker")
-                .arg("inspect")
-                .arg("--format")
-                .arg("{{.State.Health.Status}}")
-                .arg(resource),
-        )
-        .await?;
+        let status = Command::new("docker")
+            .arg("inspect")
+            .arg("--format")
+            .arg("{{.State.Health.Status}}")
+            .arg(resource)
+            .output_stdout()
+            .await?;
         match status.as_str() {
             "healthy" => return Ok(()),
             "unhealthy" => return Err(anyhow!("Container became unhealthy")),
