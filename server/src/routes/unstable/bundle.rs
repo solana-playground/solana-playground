@@ -135,7 +135,7 @@ pub async fn bundle(
             .image(get_image_name("bundle"))
             .user("solpg")
             // TODO: Allow networking only during the installation step
-            .allow_networking()
+            .proxy(["registry.yarnpkg.com", "github.com"])
             .limits(state.config.limits.sandbox)
             .copy(
                 format!("{}/.", temp_host_path.display()),

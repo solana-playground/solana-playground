@@ -3,6 +3,9 @@ ARG BIN="bundle"
 
 FROM node:22.20.0@sha256:c190e697545bdb4fb32b29c0f47bf742f3c3d974965b825f1437aa127ee7b866 AS base
 
+# Install `iptables` (for proxy)
+RUN apt-get update -qq && apt-get install -qq iptables
+
 # Create a non-root user
 ARG USER
 RUN useradd -m -u 1001 -s /bin/bash ${USER}
@@ -34,15 +37,16 @@ RUN cargo build --release --bin ${BIN} --features unstable
 FROM base AS final
 
 ARG USER
+ARG PACKAGES_DIR="packages"
 
 # Copy files
-COPY --chown=${USER}:${USER} packages packages
+COPY --chown=${USER}:${USER} ${PACKAGES_DIR} ${PACKAGES_DIR}
 
 # Install polyfill deps
 RUN yarn --ignore-scripts --cwd packages/polyfills
 
 # Make `webpack` available globally
-ENV PATH="${HOME}/packages/polyfills/node_modules/.bin:${PATH}"
+ENV PATH="${HOME}/${PACKAGES_DIR}/polyfills/node_modules/.bin:${PATH}"
 
 # Temporarily pre-install deps to avoid excessive installations during development
 # TODO: Remove
