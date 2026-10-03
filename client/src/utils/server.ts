@@ -58,7 +58,11 @@ export class PgServer {
    */
   static async build(req: BuildRequest) {
     interface BuildResponse {
-      /** Build output */
+      /** Whether the build was successful */
+      success: boolean;
+      /** Build output to `stdout` regardless of the compilation status */
+      stdout: string;
+      /** Build output to `stderr` regardless of the compilation status (main output) */
       stderr: string;
       /** UUID of the program */
       uuid: Option<string>;
