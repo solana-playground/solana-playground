@@ -125,6 +125,10 @@ export const declarePackage = async (
       content = declareModule(packageName, content);
     }
 
+    if (PgSettings.experimental.unstable) {
+      path = PgCommon.joinPaths("node_modules", path);
+    }
+
     return monaco.languages.typescript.typescriptDefaults.addExtraLib(
       content,
       "file:///" + path

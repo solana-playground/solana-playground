@@ -418,9 +418,8 @@ fn get_all_declaration_files(path: &Path) -> io::Result<Vec<(PathBuf, String)>> 
 }
 
 /// Convert files to the expected format.
-fn convert_type_files(files: Vec<(PathBuf, String)>) -> anyhow::Result<Files> {
+fn convert_type_files(files: Vec<(PathBuf, String)>) -> Result<Files> {
     // TODO: Sort alphabetically for consistent output?
-    // TODO: Remove `node_modules` prefix?
     files
         .into_iter()
         .map(|(path, content)| {
@@ -432,7 +431,8 @@ fn convert_type_files(files: Vec<(PathBuf, String)>) -> anyhow::Result<Files> {
                 return Err(anyhow!("Invalid path: {path:?}"));
             };
 
-            let path = path[index..].to_owned();
+            let after_node_modules_index = index + NODE_MODULES.len() + "/".len();
+            let path = path[after_node_modules_index..].to_owned();
             Ok((path, content))
         })
         .collect()
