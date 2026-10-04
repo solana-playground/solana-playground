@@ -76,6 +76,10 @@ impl<'a> Sandbox<'a> {
     /// This mode restricts public network access to everywhere except `allowed_domains`. Only
     /// requests to TCP port 443 (HTTPS) is allowed.
     ///
+    /// Allowed domains are converted to lowercase and request URLs are not case-sensitive.
+    ///
+    /// Subdomains are not allowed by default. To also allow subdomains, add the `.` prefix.
+    ///
     /// # Note
     ///
     /// [Self::build_proxy_image] must be called beforehand.
@@ -86,7 +90,11 @@ impl<'a> Sandbox<'a> {
         S: ToString,
     {
         self.cfg.network = Network::Proxy {
-            allowed_domains: allowed_domains.into_iter().map(|s| s.to_string()).collect(),
+            allowed_domains: allowed_domains
+                .into_iter()
+                .map(|s| s.to_string())
+                .map(|s| s.to_ascii_lowercase())
+                .collect(),
         };
         self
     }
@@ -255,7 +263,15 @@ impl<'a> Sandbox<'a> {
                     ];
 
                     // Create and start the proxy container
-                    let allowed_domains = allowed_domains.join(" ");
+                    let allowed_domains = allowed_domains
+                        .into_iter()
+                        .reduce(|mut acc, domain| {
+                            acc.push('"');
+                            acc.push_str(&domain);
+                            acc.push('"');
+                            acc
+                        })
+                        .unwrap_or_default();
                     Command::new("docker")
                         .arg("run")
                         .arg("--rm")
@@ -277,6 +293,7 @@ impl<'a> Sandbox<'a> {
                             # Set sane flags
                             set -eu
 
+                            # TODO: Make it work without custom certificates
                             openssl req \
                                 -new \
                                 -newkey rsa:2048 \
@@ -290,7 +307,94 @@ impl<'a> Sandbox<'a> {
                                 -keyout /etc/squid/interception.key \
                                 -out /etc/squid/interception.crt
 
+                            cat >/etc/squid/check-sni-dst-acl.sh <<'SH'
+                            #!/usr/bin/env bash
+
+                            exec 2>>/tmp/sni-acl-debug.log
+
+                            ALLOWED_DOMAINS=({allowed_domains})
+
+                            is_approved_domain() {{
+                                local sni=$1
+                                local domain
+
+                                for domain in "${{ALLOWED_DOMAINS[@]}}"; do
+                                    domain=${{domain#.}}
+                                    domain=${{domain,,}}
+                                    domain=${{domain%.}}
+                                    if [[ "$sni" == "$domain" ]]; then
+                                        return 0
+                                    fi
+                                done
+
+                                return 1
+                            }}
+
+                            destination_matches_sni() {{
+                                local sni=$1
+                                local dst=$2
+                                local dns_output
+                                local resolved_ip
+
+                                dns_output=$(mktemp /tmp/sni-dns.XXXXXX) || return 2
+
+                                if ! getent ahostsv4 "$sni" >"$dns_output"; then
+                                    rm -f "$dns_output"
+                                    return 2
+                                fi
+
+                                while read -r resolved_ip _; do
+                                    if [[ "$resolved_ip" == "$dst" ]]; then
+                                        rm -f "$dns_output"
+                                        return 0
+                                    fi
+                                done <"$dns_output"
+
+                                rm -f "$dns_output"
+                                return 1
+                            }}
+
+                            while IFS=' ' read -r sni dst rest; do
+                                sni=${{sni,,}}
+                                sni=${{sni%.}}
+
+                                if [[ -z "$sni" || -z "$dst" ]]; then
+                                    printf '%s\n' ERR
+                                    continue
+                                fi
+
+                                if [[ ! "$sni" =~ ^[a-z0-9.-]+$ ]]; then
+                                    printf '%s\n' ERR
+                                    continue
+                                fi
+
+                                if [[ ! "$dst" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+                                    printf '%s\n' ERR
+                                    continue
+                                fi
+
+                                if ! is_approved_domain "$sni"; then
+                                    printf '%s\n' ERR
+                                    continue
+                                fi
+
+                                destination_matches_sni "$sni" "$dst"
+                                result=$?
+
+                                case "$result" in
+                                    0) printf '%s\n' OK ;;
+                                    1) printf '%s\n' ERR ;;
+                                    *) printf '%s\n' BH ;;
+                                esac
+                            done
+                            SH
+
+                            chmod 0755 /etc/squid/check-sni-dst-acl.sh
+
                             cat >/etc/squid/squid.conf <<\CONF
+
+                            # TODO: Remove
+                            debug_options 82,9 84,9
 
                             # Unused but required
                             http_port 127.0.0.0:3127
@@ -313,11 +417,18 @@ impl<'a> Sandbox<'a> {
                             acl tls_step1 at_step SslBump1
                             acl tls_step2 at_step SslBump2
 
-                            acl allowed_sni ssl::server_name {allowed_domains}
+                            # TODO: Provide options to be more intentional
+                            # TODO: Add tests
+                            external_acl_type sni_dst \
+                                %ssl::>sni %DST \
+                                /etc/squid/check-sni-dst-acl.sh
+
+                            acl sni_destination_ok external sni_dst
 
                             # TODO: Make it work with `splice` instead of `bump`
+                            # Require allowed SNIs and DST during TLS
                             ssl_bump peek tls_step1
-                            ssl_bump bump allowed_sni
+                            ssl_bump bump tls_step2 sni_destination_ok
                             ssl_bump terminate tls_step2
 
                             http_access allow app_net
@@ -389,12 +500,15 @@ impl<'a> Sandbox<'a> {
                             # Set sane flags
                             set -eu
 
-                            # Disable IPv6
+                            # Disable IPv6 except loopback
                             ip6tables -F
                             ip6tables -X
                             ip6tables -P INPUT DROP
                             ip6tables -P OUTPUT DROP
                             ip6tables -P FORWARD DROP
+                            # Loopback is required for `external_acl_type sni_dst` to work
+                            ip6tables -A INPUT -i lo -s ::1/128 -d ::1/128 -p tcp -j ACCEPT
+                            ip6tables -A OUTPUT -o lo -s ::1/128 -d ::1/128 -p tcp -j ACCEPT
 
                             # Drop all traffic by default
                             iptables -F
