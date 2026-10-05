@@ -57,6 +57,9 @@ impl Config {
                             "UNSTABLE_BUILD_MEMORY_LIMIT",
                             2usize * 1024 * 1024 * 1024, // 2 GiB
                         )),
+                        swap: get_env_raw("UNSTABLE_BUILD_SWAP_LIMIT")
+                            .map(|v| v.parse())
+                            .transpose()?,
                         process: Some(get_env("UNSTABLE_BUILD_PROCESS_LIMIT", 64usize)),
                         storage: get_env_raw("UNSTABLE_BUILD_STORAGE_LIMIT")
                             .map(|v| v.parse())
@@ -78,6 +81,9 @@ impl Config {
                             "UNSTABLE_BUNDLE_MEMORY_LIMIT",
                             4usize * 1024 * 1024 * 1024, // 4 GiB (also affects speed)
                         )),
+                        swap: get_env_raw("UNSTABLE_BUNDLE_SWAP_LIMIT")
+                            .map(|v| v.parse())
+                            .transpose()?,
                         process: Some(get_env("UNSTABLE_BUNDLE_PROCESS_LIMIT", 64usize)),
                         storage: get_env_raw("UNSTABLE_BUNDLE_STORAGE_LIMIT")
                             .map(|v| v.parse())

@@ -127,6 +127,20 @@ impl<'a> Sandbox<'a> {
         self
     }
 
+    /// Set the swap limit.
+    ///
+    /// This configuration only applies if there is a [`Self::memory_limit`].
+    ///
+    /// Unlike Docker:
+    ///
+    /// - Swap is disabled by default.
+    /// - This is the exact swap value, not additional.
+    #[must_use]
+    pub fn swap_limit(mut self, swap_limit: usize) -> Self {
+        self.cfg.limits.swap.replace(swap_limit);
+        self
+    }
+
     /// Set the process (PIDs) limit.
     #[must_use]
     pub fn process_limit(mut self, process_limit: usize) -> Self {
@@ -198,7 +212,6 @@ impl<'a> Sandbox<'a> {
                 .arg("--detach")
                 .arg("--rm")
                 .arg("--cap-drop=ALL")
-                .arg("--memory-swap=-1")
                 .arg("--oom-score-adj=1000") // Make the container easily killable when OOM
                 .arg("--security-opt=no-new-privileges");
 
@@ -206,7 +219,20 @@ impl<'a> Sandbox<'a> {
                 cmd.arg("--cpus").arg(cpu.to_string());
             }
             if let Some(mem) = self.cfg.limits.memory {
-                cmd.arg("--memory").arg(format!("{mem}b"));
+                let mem_arg = format!("{mem}b");
+                cmd.arg("--memory").arg(&mem_arg);
+
+                // Docker uses swap as an additional value; if `--memory` and `--memory-swap` are
+                // equal, there is no swap
+                cmd.arg("--memory-swap");
+                match self.cfg.limits.swap {
+                    // Configured `swap` value is the actual value (without `mem`). Add the values
+                    // to account for what Docker expects.
+                    Some(swap) => cmd.arg(format!("{}b", mem + swap)),
+                    // Docker does not limit swap by default (host OS dependent). Set it to the same
+                    // value as the memory argument to disable swap.
+                    _ => cmd.arg(mem_arg),
+                };
             }
             if let Some(pids) = self.cfg.limits.process {
                 cmd.arg("--pids-limit").arg(pids.to_string());
@@ -218,7 +244,6 @@ impl<'a> Sandbox<'a> {
             let Some(user) = &self.cfg.user else {
                 return Err(anyhow!("An unprivileged user is required"));
             };
-
             let Some(image) = &self.cfg.image else {
                 return Err(anyhow!("Image is required"));
             };
@@ -233,6 +258,8 @@ impl<'a> Sandbox<'a> {
                         .arg("--user")
                         .arg(user)
                         .arg(image)
+                        .arg("sh")
+                        .arg("-c")
                         .arg(sleep_timeout)
                         .run_silent()
                         .await?;
@@ -789,6 +816,8 @@ pub struct Limits {
     pub cpu: Option<usize>,
     /// Memory limit (in bytes)
     pub memory: Option<usize>,
+    /// Swap limit (in bytes)
+    pub swap: Option<usize>,
     /// Process (PIDs) limit
     pub process: Option<usize>,
     /// Storage limit
