@@ -48,8 +48,6 @@ pub struct BuildRequest {
     /// return a `uuid`. Client is responsible for saving the `uuid` and using it with every
     /// subseqent requests in order to save resources and be able to get the program binary.
     uuid: Option<String>,
-    /// Arguments to pass to the build command
-    args: Option<Vec<String>>,
 }
 
 /// Build response
@@ -193,8 +191,7 @@ pub async fn build(
                 .arg(template_name)
                 .arg(input_files_path)
                 .arg(output_binary_path)
-                .arg(output_idl_path)
-                .args(payload.args.unwrap_or_default()),
+                .arg(output_idl_path),
         )
         // Make sure the output directory always exists so that the following copy always works
         .command(Command::new("mkdir").arg("-p").arg(output_path))

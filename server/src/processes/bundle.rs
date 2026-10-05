@@ -10,7 +10,10 @@ use std::{
 use anyhow::{anyhow, Result};
 use serde::{Deserialize, Serialize};
 use solpg_server::{
-    package::{get_out_path, BUNDLE_FILE, LOCK_FILE, MANIFEST_FILE, PACKAGES_DIR, TYPES_FILE},
+    package::{
+        get_out_path, YarnCommand, BUNDLE_FILE, LOCK_FILE, MANIFEST_FILE, PACKAGES_DIR,
+        PACKAGE_MANAGER, TYPES_FILE,
+    },
     utils::Files,
 };
 
@@ -74,33 +77,10 @@ impl Manifest {
 
 /// `package.json` dependencies map
 type Dependencies = HashMap<String, String>;
-
-/// Install packages.
+/// Run the package manager command, then expose the resulting manifest and lock file.
 fn handle_package_manager_command(args: &Args) -> Result<Manifest> {
-    match args.command.as_slice() {
-        [name, args @ ..] => match name.as_str() {
-            "yarn" => {
-                match args {
-                    [command, args @ ..] => match command.as_str() {
-                        "add" | "install" | "remove" | "upgrade" => run_yarn(
-                            command,
-                            args,
-                            match command.as_str() {
-                                "add" => &["--dev", "-D", "--peer", "-P", "--optional", "-O"],
-                                _ => &[],
-                            },
-                        )?,
-                        _ => return Err(anyhow!("Unsupported command: `{command}`")),
-                    },
-                    // Empty `yarn` defaults to install
-                    _ => run_yarn("install", &[], &[])?,
-                }
-            }
-            _ => return Err(anyhow!("Unsupported package manager: `{name}`")),
-        },
-        // TODO: `npm` as a safer default?
-        _ => run_yarn("install", &[], &[])?,
-    }
+    let command = YarnCommand::parse(&args.command)?;
+    run_yarn(&command)?;
 
     let packages_path = Path::new(PACKAGES_DIR);
     let out_path = get_out_path();
@@ -117,31 +97,16 @@ fn handle_package_manager_command(args: &Args) -> Result<Manifest> {
         .map_err(Into::into)
 }
 
-/// Run the `yarn` command using safe(r) defaults.
-///
-/// # Safety
-///
-/// Only options specified in `allowed_options` are allowed to be passed in.
-///
-/// **Arguments are not sanitized!**
-fn run_yarn(command: &str, args: &[String], allowed_options: &[&'static str]) -> Result<()> {
-    if let Some(opt) = args
-        .iter()
-        .filter(|arg| arg.starts_with('-'))
-        .find(|arg| !allowed_options.iter().any(|opt| opt == arg))
-    {
-        return Err(anyhow!("Invalid option: `{opt}`"));
-    }
-
-    let status = Command::new("yarn")
+/// Run `yarn` with lifecycle scripts disabled.
+fn run_yarn(command: &YarnCommand) -> Result<()> {
+    let status = Command::new(PACKAGE_MANAGER)
         .current_dir(PACKAGES_DIR)
         .arg("--ignore-scripts")
         .arg("--prefer-offline")
-        .arg(command)
-        .args(args)
+        .args(command.args())
         .status()?;
     if !status.success() {
-        return Err(anyhow!("Failed to {command}"));
+        return Err(anyhow!("Failed to {}", command.subcommand));
     }
 
     Ok(())
