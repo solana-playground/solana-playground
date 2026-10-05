@@ -717,23 +717,10 @@ impl<'a> Sandbox<'a> {
                 dedent(
                     r#"
                     # `ubuntu/squid` image doesn't work because it is compiled without `openssl` support
-                    # TODO: Use the shared `ubuntu` image?
-                    FROM debian:trixie-slim@sha256:a99cfc517144bc59b1978475ec53b46ecabec7e43635402ee5b77cc54cd1b20a
+                    FROM ubuntu:24.04@sha256:80dd3c3b9c6cecb9f1667e9290b3bc61b78c2678c02cbdae5f0fea92cc6734ab
 
-                    ARG DEBIAN_FRONTEND=noninteractive
-
-                    RUN apt-get update \
-                        && apt-get install -y \
-                            ca-certificates \
-                            openssl \
-                            squid-openssl
-                    RUN install -d -o proxy -g proxy /var/log/squid \
-                        && install -d -o proxy -g proxy /var/spool/squid \
-                        && /usr/lib/squid/security_file_certgen \
-                            -c \
-                            -s /var/spool/squid/ssl_db \
-                            -M 4MB \
-                        && chown -R proxy:proxy /var/spool/squid/ssl_db
+                    RUN apt-get update && apt-get install -y \
+                        squid-openssl=6.14-0ubuntu0.24.04.4
 
                     ENTRYPOINT ["squid"]
                     "#,
