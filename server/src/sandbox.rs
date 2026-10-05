@@ -17,7 +17,7 @@ use uuid::Uuid;
 
 use crate::{
     command::AsyncCommand,
-    log::error,
+    log::{debug, warn},
     utils::{dedent, get_image_name},
 };
 
@@ -241,30 +241,12 @@ impl<'a> Sandbox<'a> {
                 cmd.arg("--storage-opt").arg(format!("size={storage}b"));
             }
 
-            let Some(user) = &self.cfg.user else {
-                return Err(anyhow!("An unprivileged user is required"));
-            };
-            let Some(image) = &self.cfg.image else {
-                return Err(anyhow!("Image is required"));
-            };
-
             let sleep_timeout = match self.cfg.limits.timeout {
                 Some(timeout) => format!("sleep {timeout}"),
                 _ => "sleep infinity".to_owned(),
             };
-            match self.cfg.network {
-                Network::None => {
-                    cmd.arg("--network=none")
-                        .arg("--user")
-                        .arg(user)
-                        .arg(image)
-                        .arg("sh")
-                        .arg("-c")
-                        .arg(sleep_timeout)
-                        .run_silent()
-                        .await?;
-                    cleanup_guard.container(&container);
-                }
+            let network = match self.cfg.network {
+                Network::None => "none".to_owned(),
                 Network::Proxy { allowed_domains } => {
                     // Both container and network name
                     let proxy_resource = format!("{NAME_PREFIX}-proxy-{uuid}");
@@ -282,12 +264,6 @@ impl<'a> Sandbox<'a> {
                         .run_silent()
                         .await?;
                     cleanup_guard.network(&proxy_resource);
-
-                    const HEALTH_ARGS: &[&str] = &[
-                        "--health-interval=100ms",
-                        "--health-timeout=100ms",
-                        "--health-retries=5",
-                    ];
 
                     // Convert allowed domains to a `bash` array values
                     let allowed_domains = allowed_domains.into_iter().fold(
@@ -314,7 +290,17 @@ impl<'a> Sandbox<'a> {
                         .arg("--health-cmd")
                         // Check whether the proxy TCP port has been binded
                         .arg("grep -q :0C38 /proc/net/tcp")
-                        .args(HEALTH_ARGS)
+                        .arg("--health-interval=100ms")
+                        .arg("--health-timeout=100ms")
+                        .arg("--health-retries=10")
+                        .arg("--cap-drop=ALL")
+                         // Allow `ipconfig` changes
+                        .arg("--cap-add=CAP_NET_ADMIN")
+                        // // Next 2 allow changing the user (`squid` does internally)
+                        .arg("--cap-add=SETUID")
+                        .arg("--cap-add=SETGID")
+                        // // Important: allow setting capabilities (to remove later)
+                        // .arg("--cap-add=SETPCAP")
                         .arg("--entrypoint=/bin/sh")
                         .arg(Self::proxy_image_name())
                         .arg("-c")
@@ -322,6 +308,50 @@ impl<'a> Sandbox<'a> {
                             r#"
                             # Set sane flags
                             set -eu
+
+                            # Disable IPv6 except loopback
+                            ip6tables -F
+                            ip6tables -X
+                            ip6tables -P INPUT DROP
+                            ip6tables -P OUTPUT DROP
+                            ip6tables -P FORWARD DROP
+                            # Loopback is required for `external_acl_type sni_dst` to work
+                            ip6tables -A INPUT -i lo -s ::1/128 -d ::1/128 -p tcp -j ACCEPT
+                            ip6tables -A INPUT  -i lo -s ::1/128 -d ::1/128 -p udp -j ACCEPT
+                            ip6tables -A OUTPUT -o lo -s ::1/128 -d ::1/128 -p tcp -j ACCEPT
+                            ip6tables -A OUTPUT -o lo -s ::1/128 -d ::1/128 -p udp -j ACCEPT
+
+                            # Drop all traffic by default
+                            iptables -F
+                            iptables -X
+                            iptables -P INPUT DROP
+                            iptables -P OUTPUT DROP
+                            iptables -P FORWARD DROP
+
+                            # Allow DNS queries to Docker
+                            # Do not add `--dport 53` because Docker rewrites it to dynamic ports
+                            iptables -A OUTPUT -d 127.0.0.11 -p udp -j ACCEPT
+                            iptables -A OUTPUT -d 127.0.0.11 -p tcp -j ACCEPT
+
+                            # Allow loopback (for proxy and DNS)
+                            iptables -A INPUT -i lo -d 127.0.0.1/8 -p udp -j ACCEPT
+                            iptables -A INPUT -i lo -d 127.0.0.1/8 -p tcp -j ACCEPT
+                            iptables -A OUTPUT -o lo -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+
+                            # Allow replies from the proxy
+                            iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+
+                            # Do not redirect the proxy's own outbound HTTPS connections
+                            iptables -t nat -A OUTPUT -p tcp --dport 443 -m owner --uid-owner 13 -j RETURN
+
+                            # Redirect the main container HTTPS to the proxy
+                            iptables -t nat -A OUTPUT -p tcp --dport 443 -j REDIRECT --to-ports 3128
+
+                            # Permit output to the proxy
+                            iptables -A OUTPUT -d 127.0.0.1 -p tcp -m owner ! --uid-owner 13 --dport 3128 -j ACCEPT
+
+                            # Permit the proxy itself to connect to origin HTTPS servers
+                            iptables -A OUTPUT -p tcp -m owner --uid-owner 13 --dport 443 -j ACCEPT
 
                             # TODO: Make it work without custom certificates
                             openssl req \
@@ -335,7 +365,8 @@ impl<'a> Sandbox<'a> {
                                 -addext "keyUsage=critical,keyCertSign,cRLSign" \
                                 -addext "subjectKeyIdentifier=hash" \
                                 -keyout /etc/squid/interception.pem \
-                                -out /etc/squid/interception.crt
+                                -out /etc/squid/interception.crt \
+                                > /dev/null 2>&1
 
                             cat >/etc/squid/check-sni-dst-acl.sh <<'SH'
                             #!/usr/bin/env bash
@@ -426,6 +457,9 @@ impl<'a> Sandbox<'a> {
                             # TODO: Remove
                             debug_options 82,9 84,9
 
+                            # ICMP pinger logs redundant errors
+                            pinger_enable off
+
                             # Unused but required
                             http_port 127.0.0.0:3127
 
@@ -467,11 +501,8 @@ impl<'a> Sandbox<'a> {
                             cache_log stdio:/var/log/squid/cache.log
                             CONF
 
-                            squid -N -f /etc/squid/squid.conf &
-                            squid_pid=$!
-                            {sleep_timeout}
-                            kill -KILL "$squid_pid"
-                            wait "$squid_pid"
+                            # TODO: Drop `NET_ADMIN` and `SETPCAP`
+                            squid -N -f /etc/squid/squid.conf
                             "#
                         )))
                         .run_silent()
@@ -481,114 +512,29 @@ impl<'a> Sandbox<'a> {
                     // Wait until the proxy container is ready (networking doesn't work otherwise)
                     wait_until_healthy(&proxy_resource).await?;
 
-                    // Create and start the main container
-                    cmd.arg("--network")
-                        .arg(format!("container:{proxy_resource}"))
-                        .arg("--user=0:0")
-                        // Allows `ipconfig` changes
-                        .arg("--cap-add=CAP_NET_ADMIN")
-                        // Next two allow changing the user
-                        .arg("--cap-add=SETUID")
-                        .arg("--cap-add=SETGID")
-                        // Important: allows `--bounding-set=-all`
-                        .arg("--cap-add=SETPCAP")
-                        .arg("--health-cmd")
-                        // Check whether all capabilities have been dropped
-                        .arg(dedent(
-                            r#"
-                            awk '
-                            BEGIN {
-                                ok = 1
-                                n = 0
-                            }
-                            /^Cap(Inh|Prm|Eff|Bnd|Amb):/ {
-                                n++
-                                if ($2 != "0000000000000000")
-                                    ok = 0
-                            }
-                            /^NoNewPrivs:/ {
-                                n++
-                                if ($2 != "1")
-                                    ok = 0
-                            }
-                            END {
-                                exit !(ok && n == 6)
-                            }
-                            ' /proc/1/status
-                            "#,
-                        ))
-                        .args(HEALTH_ARGS)
-                        .arg(image)
-                        .arg("sh")
-                        .arg("-c")
-                        .arg(dedent(format!(
-                            r#"
-                            # Set sane flags
-                            set -eu
-
-                            # Disable IPv6 except loopback
-                            ip6tables -F
-                            ip6tables -X
-                            ip6tables -P INPUT DROP
-                            ip6tables -P OUTPUT DROP
-                            ip6tables -P FORWARD DROP
-                            # Loopback is required for `external_acl_type sni_dst` to work
-                            ip6tables -A INPUT -i lo -s ::1/128 -d ::1/128 -p tcp -j ACCEPT
-                            ip6tables -A OUTPUT -o lo -s ::1/128 -d ::1/128 -p tcp -j ACCEPT
-
-                            # Drop all traffic by default
-                            iptables -F
-                            iptables -X
-                            iptables -P INPUT DROP
-                            iptables -P OUTPUT DROP
-                            iptables -P FORWARD DROP
-
-                            # Allow DNS queries to Docker
-                            # Do not add `--dport 53` because Docker rewrites it to dynamic ports
-                            iptables -A OUTPUT -d 127.0.0.11 -p udp -j ACCEPT
-                            iptables -A OUTPUT -d 127.0.0.11 -p tcp -j ACCEPT
-
-                            # Allow loopback (for proxy and DNS)
-                            iptables -A INPUT -i lo -d 127.0.0.1/8 -p udp -j ACCEPT
-                            iptables -A INPUT -i lo -d 127.0.0.1/8 -p tcp -j ACCEPT
-                            iptables -A OUTPUT -o lo -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
-
-                            # Allow replies from the proxy
-                            iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
-
-                            # Do not redirect the proxy's own outbound HTTPS connections
-                            iptables -t nat -A OUTPUT -p tcp --dport 443 -m owner --uid-owner 13 -j RETURN
-
-                            # Redirect the main container HTTPS locally to the proxy
-                            iptables -t nat -A OUTPUT -p tcp --dport 443 -j REDIRECT --to-ports 3128
-
-                            # Permit output to proxy
-                            iptables -A OUTPUT -d 127.0.0.1 -p tcp -m owner ! --uid-owner 13 --dport 3128 -j ACCEPT
-
-                            # Permit the proxy itself to connect to origin HTTPS servers
-                            iptables -A OUTPUT -p tcp -m owner --uid-owner 13 --dport 443 -j ACCEPT
-
-                            # Remove all privileges and switch user
-                            exec setpriv \
-                                --reuid={user} \
-                                --regid={user} \
-                                --clear-groups \
-                                --inh-caps=-all \
-                                --ambient-caps=-all \
-                                --bounding-set=-all \
-                                --no-new-privs \
-                                --reset-env \
-                                {sleep_timeout}
-                            "#
-                        )))
-                        .run_silent()
-                        .await?;
-                    cleanup_guard.container(&container);
-
-                    // Confirm all capabilities have been removed via health checks
-                    wait_until_healthy(&container).await?;
+                    format!("container:{proxy_resource}")
                 }
             };
+
+            let Some(user) = &self.cfg.user else {
+                return Err(anyhow!("An unprivileged user is required"));
+            };
+            let Some(image) = &self.cfg.image else {
+                return Err(anyhow!("Image is required"));
+            };
+
+            // Create and start the main container
+            cmd.arg("--network")
+                .arg(network)
+                .arg("--user")
+                .arg(user)
+                .arg(image)
+                .arg("sh")
+                .arg("-c")
+                .arg(sleep_timeout)
+                .run_silent()
+                .await?;
+            cleanup_guard.container(&container);
 
             let mut all_output = Output {
                 status: Default::default(),
@@ -723,6 +669,7 @@ impl<'a> Sandbox<'a> {
                     FROM ubuntu:24.04@sha256:80dd3c3b9c6cecb9f1667e9290b3bc61b78c2678c02cbdae5f0fea92cc6734ab
 
                     RUN apt-get update && apt-get install -y \
+                        iptables=1.8.10-3ubuntu2 \
                         squid-openssl=6.14-0ubuntu0.24.04.4
 
                     ENTRYPOINT ["squid"]
@@ -769,7 +716,7 @@ enum Network {
     #[default]
     None,
     // TODO: Custom DNS
-    /// Proxy connection using a dedicated network or another container's network stack
+    /// Proxy connection using a custom network
     Proxy { allowed_domains: Vec<String> },
 }
 
@@ -860,7 +807,7 @@ impl Drop for CleanupGuard {
                         while let Some(mut resources) = rx.recv().await {
                             while let Some(resource) = resources.pop() {
                                 if let Err(e) = resource.cleanup().await {
-                                    error!("Sandbox cleanup failed: {e}")
+                                    warn!("Sandbox cleanup failed: {e}")
                                 }
                             }
                         }
@@ -920,7 +867,23 @@ async fn wait_until_healthy(resource: &str) -> Result<()> {
             .await?;
         match status.as_str() {
             "healthy" => return Ok(()),
-            "unhealthy" => return Err(anyhow!("Container became unhealthy")),
+            "unhealthy" => {
+                let output = Command::new("docker")
+                    .arg("logs")
+                    .arg("--timestamps")
+                    .arg("--tail")
+                    .arg("all")
+                    .arg(resource)
+                    .output()
+                    .await?;
+
+                debug!(
+                    "{resource} logs:\nStdout: {}\nStderr: {}",
+                    String::from_utf8_lossy(&output.stdout),
+                    String::from_utf8_lossy(&output.stderr)
+                );
+                return Err(anyhow!("Container became unhealthy"));
+            }
             _ => sleep(Duration::from_millis(100)).await,
         }
     }

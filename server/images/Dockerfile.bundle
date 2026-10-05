@@ -3,9 +3,6 @@ ARG BIN="bundle"
 
 FROM node:22.20.0@sha256:c190e697545bdb4fb32b29c0f47bf742f3c3d974965b825f1437aa127ee7b866 AS base
 
-# Install `iptables` (for proxy)
-RUN apt-get update -qq && apt-get install -qq iptables
-
 # Create a non-root user
 ARG USER
 RUN useradd -m -u 1001 -s /bin/bash ${USER}
