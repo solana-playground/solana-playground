@@ -7,7 +7,7 @@ use std::{
 
 use anyhow::{anyhow, Result};
 use tokio::{
-    io::{self, AsyncWriteExt},
+    io::AsyncWriteExt,
     process::Command,
     spawn,
     sync::mpsc,
@@ -289,16 +289,19 @@ impl<'a> Sandbox<'a> {
                         "--health-retries=5",
                     ];
 
-                    // Create and start the proxy container
-                    let allowed_domains = allowed_domains
-                        .into_iter()
-                        .reduce(|mut acc, domain| {
+                    // Convert allowed domains to a `bash` array values
+                    let allowed_domains = allowed_domains.into_iter().fold(
+                        String::new(),
+                        |mut acc, allowed_domain| {
                             acc.push('"');
-                            acc.push_str(&domain);
+                            acc.push_str(&allowed_domain);
                             acc.push('"');
+                            acc.push(' ');
                             acc
-                        })
-                        .unwrap_or_default();
+                        },
+                    );
+
+                    // Create and start the proxy container
                     Command::new("docker")
                         .arg("run")
                         .arg("--rm")
@@ -331,7 +334,7 @@ impl<'a> Sandbox<'a> {
                                 -addext "basicConstraints=critical,CA:TRUE,pathlen:1" \
                                 -addext "keyUsage=critical,keyCertSign,cRLSign" \
                                 -addext "subjectKeyIdentifier=hash" \
-                                -keyout /etc/squid/interception.key \
+                                -keyout /etc/squid/interception.pem \
                                 -out /etc/squid/interception.crt
 
                             cat >/etc/squid/check-sni-dst-acl.sh <<'SH'
@@ -428,16 +431,10 @@ impl<'a> Sandbox<'a> {
 
                             # Intercept HTTPS traffic
                             https_port 127.0.0.1:3128 intercept ssl-bump \
+                                # The following 2 are unused but required
                                 tls-cert=/etc/squid/interception.crt \
-                                tls-key=/etc/squid/interception.key \
-                                generate-host-certificates=on \
-                                dynamic_cert_mem_cache_size=4MB
-
-                            sslcrtd_program /usr/lib/squid/security_file_certgen \
-                                -s /var/spool/squid/ssl_db \
-                                -M 4MB
-
-                            sslcrtd_children 5
+                                tls-key=/etc/squid/interception.pem \
+                                generate-host-certificates=off
 
                             acl app_net src 172.28.0.0/16
 
@@ -452,10 +449,9 @@ impl<'a> Sandbox<'a> {
 
                             acl sni_destination_ok external sni_dst
 
-                            # TODO: Make it work with `splice` instead of `bump`
                             # Require allowed SNIs and DST during TLS
                             ssl_bump peek tls_step1
-                            ssl_bump bump tls_step2 sni_destination_ok
+                            ssl_bump splice tls_step2 sni_destination_ok
                             ssl_bump terminate tls_step2
 
                             http_access allow app_net
@@ -588,26 +584,6 @@ impl<'a> Sandbox<'a> {
 
                     // Confirm all capabilities have been removed via health checks
                     wait_until_healthy(&container).await?;
-
-                    // Install the certificates (requires `root`, but without capabilities)
-                    pipe(
-                        Command::new("docker")
-                            .arg("exec")
-                            .arg(&proxy_resource)
-                            .arg("cat")
-                            .arg("/etc/squid/interception.crt"),
-                        Command::new("docker")
-                            .arg("exec")
-                            .arg("--interactive")
-                            .arg(&container)
-                            .arg("sh")
-                            .arg("-c")
-                            .arg(
-                                "cat > /usr/local/share/ca-certificates/squid-interception.crt \
-                                    && update-ca-certificates",
-                            ),
-                    )
-                    .await?;
                 }
             };
 
@@ -938,37 +914,6 @@ impl Resource {
             }
         }
     }
-}
-
-/// Pipe the `src` output to `dst`.
-async fn pipe(src: &mut Command, dst: &mut Command) -> Result<()> {
-    let mut src = src.stdout(Stdio::piped()).spawn()?;
-    let mut src_stdout = src
-        .stdout
-        .take()
-        .ok_or_else(|| anyhow!("Failed to take source `stdout`"))?;
-
-    let mut dst = dst.stdin(Stdio::piped()).spawn()?;
-    let mut dst_stdin = dst
-        .stdin
-        .take()
-        .ok_or_else(|| anyhow!("Failed to take destination `stdin`"))?;
-
-    io::copy(&mut src_stdout, &mut dst_stdin).await?;
-
-    drop(dst_stdin);
-
-    let src_status = src.wait().await?;
-    let dst_status = dst.wait().await?;
-
-    if !src_status.success() {
-        return Err(anyhow!("Failed to read the source command output"));
-    }
-    if !dst_status.success() {
-        return Err(anyhow!("Failed to accept the destination command"));
-    }
-
-    Ok(())
 }
 
 /// Wait until the Docker resource is "healthy".
