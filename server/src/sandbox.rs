@@ -444,6 +444,9 @@ impl<'a> Sandbox<'a> {
                             # TODO: Provide options to be more intentional
                             # TODO: Add tests
                             external_acl_type sni_dst \
+                                # Next 2 disable caching
+                                ttl=0 \
+                                negative_ttl=0 \
                                 %ssl::>sni %DST \
                                 /etc/squid/check-sni-dst-acl.sh
 
