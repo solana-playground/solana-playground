@@ -42,6 +42,14 @@ ARG PACKAGES_DIR="packages"
 # Copy files
 COPY --chown=${USER}:${USER} ${PACKAGES_DIR} ${PACKAGES_DIR}
 
+# Disable self-update checks.
+#
+# ```
+# Performing "GET" request to "https://yarnpkg.com/latest-version".
+# There appears to be trouble with your network connection. Retrying...
+# ```
+RUN yarn config set disable-self-update-check true
+
 # Install polyfill deps
 RUN yarn --ignore-scripts --cwd packages/polyfills
 
