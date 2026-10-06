@@ -811,12 +811,21 @@ impl Resource {
     /// Cleanup the resource.
     async fn cleanup(&self) -> Result<()> {
         match self {
-            // Killing is enough for cleanup because of `--rm` during creation
-            Self::Container(name) => Command::new("docker").arg("kill").arg(name).run().await,
+            Self::Container(name) => {
+                Command::new("docker")
+                    .arg("rm")
+                    // `--force` to make it not error if the container does not exist
+                    .arg("--force")
+                    .arg(name)
+                    .run()
+                    .await
+            }
             Self::Network(name) => {
                 Command::new("docker")
                     .arg("network")
                     .arg("rm")
+                    // `--force` to make it not error if the network does not exist
+                    .arg("--force")
                     .arg(name)
                     .run()
                     .await

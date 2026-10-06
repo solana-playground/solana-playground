@@ -55,11 +55,9 @@ async fn build_images() -> Result<()> {
                 .to_str()
                 .ok_or_else(|| anyhow!("Invalid file name: {path:?}"))
                 .map(|name| name.trim_start_matches("Dockerfile.").to_owned())?;
-            if name != "bundle" {
-                continue;
-            }
             match name.as_str() {
                 "bundle" => {
+                    info!("Building the proxy image");
                     Sandbox::build_proxy_image().await?;
                     images.push((path, name, vec![]))
                 }
