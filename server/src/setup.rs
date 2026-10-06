@@ -1,7 +1,6 @@
 use anyhow::{anyhow, Result};
 use solpg_server::{
-    command::AsyncCommand, log::info, package, program, templates::get_all_templates,
-    utils::get_image_name, Sandbox,
+    command::AsyncCommand, log::info, package, program, templates::get_all_templates, Sandbox,
 };
 use tokio::{fs, process::Command};
 
@@ -19,7 +18,6 @@ pub async fn setup() -> Result<()> {
 
 /// Remove all artifacts leftover from previous runs.
 async fn remove_previous_artifacts() -> Result<()> {
-    // Program artifacts
     info!("Removing program artifacts");
     let out_path = program::get_out_path();
     let exists = fs::try_exists(&out_path).await?;
@@ -29,7 +27,6 @@ async fn remove_previous_artifacts() -> Result<()> {
             .map_err(|e| anyhow!("Failed to remove program out directory: {e}"))?;
     }
 
-    // Package artifacts
     info!("Removing package artifacts");
     let out_path = package::get_out_path();
     let exists = fs::try_exists(&out_path).await?;
@@ -38,6 +35,9 @@ async fn remove_previous_artifacts() -> Result<()> {
             .await
             .map_err(|e| anyhow!("Failed to remove package out directory: {e}"))?;
     }
+
+    info!("Removing sandbox artifacts");
+    Sandbox::cleanup().await?;
 
     Ok(())
 }
@@ -75,7 +75,7 @@ async fn build_images() -> Result<()> {
     };
 
     for (path, name, args) in images {
-        let name = get_image_name(&name);
+        let name = Sandbox::get_image_name(&name);
         let mut cmd = Command::new("docker");
         cmd.arg("build")
             .arg("--file")

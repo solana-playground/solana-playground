@@ -5,7 +5,7 @@ use std::process::{ExitStatus, Stdio};
 use anyhow::{anyhow, Result};
 use tokio::io::AsyncWriteExt;
 
-use crate::log::enabled_debug;
+use crate::log::{debug, enabled_debug};
 
 /// Async command helpers
 pub trait AsyncCommand {
@@ -39,6 +39,14 @@ impl AsyncCommand for tokio::process::Command {
 
     async fn output_stdout(&mut self) -> Result<String> {
         let output = self.output().await?;
+        if enabled_debug!() && !output.status.success() {
+            let stdout = String::from_utf8_lossy(&output.stderr);
+            let stderr = String::from_utf8_lossy(&output.stderr);
+            if !stdout.is_empty() || !stderr.is_empty() {
+                debug!("{stdout}{stderr}");
+            }
+        }
+
         handle_error(self.as_std(), output.status)?;
         str::from_utf8(&output.stdout)
             .map(|s| s.trim())

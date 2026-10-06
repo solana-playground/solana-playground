@@ -14,7 +14,7 @@ use solpg_server::{
     log::info,
     program::{get_program_out_path, BINARY_FILE, MAX_FILE_AMOUNT, MAX_PATH_LEN, MAX_STDERR_LEN},
     templates::get_all_templates,
-    utils::{get_image_name, Files},
+    utils::Files,
     Result, Sandbox,
 };
 use tokio::{fs, io, process::Command};
@@ -169,7 +169,7 @@ pub async fn build(
         _ => return Err(anyhow!("Too many `cargo` files: {}", cargo_files.len()))?,
     }
     .name();
-    let image = get_image_name(format!("program-{template_name}"));
+    let image = Sandbox::get_image_name(format!("program-{template_name}"));
     info!("Building using image: {image}");
 
     // Container paths

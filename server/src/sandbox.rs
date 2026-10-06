@@ -1,5 +1,5 @@
 use std::{
-    mem,
+    fmt, mem,
     net::Ipv4Addr,
     path::{Path, PathBuf},
     process::Output,
@@ -13,13 +13,14 @@ use tokio::{
     sync::mpsc,
     task::JoinSet,
     time::{sleep, timeout, Duration},
+    try_join,
 };
 use uuid::Uuid;
 
 use crate::{
     command::AsyncCommand,
     log::{debug, enabled_debug, warn},
-    utils::{dedent, get_image_name},
+    utils::dedent,
 };
 
 /// Sandbox manager.
@@ -42,14 +43,15 @@ pub struct Sandbox<'a> {
 }
 
 impl<'a> Sandbox<'a> {
+    /// Sandbox resource name prefix
+    const NAME_PREFIX: &'static str = concat!(env!("CARGO_PKG_NAME"), "-sandbox");
+
     /// Create a new [`Sandbox`] instance.
     ///
     /// # Note
     ///
-    /// It's recommended to set [the timeout limit] when the process can be cancelled externally.
-    /// Not doing so may leave orphan containers.
-    ///
-    /// [the timeout limit]: Self::timeout_limit
+    /// It's recommended to set [`Self::timeout_limit`] when the process can be cancelled
+    /// externally. Not doing so may leave orphan containers.
     #[must_use]
     pub fn new() -> Self {
         Self::default()
@@ -83,7 +85,7 @@ impl<'a> Sandbox<'a> {
     ///
     /// # Note
     ///
-    /// [Self::build_proxy_image] must be called beforehand.
+    /// [`Self::build_proxy_image`] must be called beforehand.
     #[must_use]
     pub fn proxy<I, S>(mut self, allowed_domains: I) -> Self
     where
@@ -163,7 +165,7 @@ impl<'a> Sandbox<'a> {
     /// Docker documentation mentions that `btrfs` and `zfs` storage drivers are also supported, but
     /// they have additional limitations that make it infeasible to work with.
     ///
-    /// `extfs` is still not supported: https://github.com/moby/moby/issues/29364
+    /// `extfs` is still not supported: <https://github.com/moby/moby/issues/29364>
     #[must_use]
     pub fn storage_limit(mut self, storage_limit: usize) -> Self {
         self.cfg.limits.storage.replace(storage_limit);
@@ -202,9 +204,8 @@ impl<'a> Sandbox<'a> {
         let fut = async {
             let mut cleanup_guard = CleanupGuard::new();
 
-            const NAME_PREFIX: &str = concat!(env!("CARGO_PKG_NAME"), "-sandbox");
             let uuid = Uuid::new_v4();
-            let container = format!("{NAME_PREFIX}-{uuid}");
+            let container = format!("{}-{uuid}", Self::NAME_PREFIX);
 
             let mut cmd = Command::new("docker");
             cmd.arg("run")
@@ -246,35 +247,26 @@ impl<'a> Sandbox<'a> {
                 Network::None => "none".to_owned(),
                 Network::Proxy { allowed_domains } => {
                     // Both container and network name
-                    let proxy_resource = format!("{NAME_PREFIX}-proxy-{uuid}");
+                    let proxy_resource = format!("{}-proxy-{uuid}", Self::NAME_PREFIX);
 
                     // 1 address for the proxy container and 3 to Docker (internal)
-                    const BUMP: u32 = 4;
+                    const BUMP: u32 = 1 + 3;
                     const CIDR_MAX: u8 = 32;
                     let cidr = CIDR_MAX - (BUMP as f64).log2().ceil() as u8;
-                    let subnet_addr = Command::new("docker")
-                        .arg("network")
-                        .arg("ls")
-                        .arg("--format")
-                        .arg("{{.Name}}")
-                        .output_stdout()
+                    let subnet_addr = Self::get_resources(Resource::network())
                         .await?
-                        .lines()
-                        .filter(|network| network.starts_with(NAME_PREFIX))
-                        .map(|network| {
-                            let network = network.to_owned();
-                            async {
-                                Command::new("docker")
-                                    .arg("network")
-                                    .arg("inspect")
-                                    .arg(network)
-                                    .arg("--format")
-                                    .arg("{{range .IPAM.Config}}{{.Subnet}}{{end}}")
-                                    .output_stdout()
-                                    .await
-                            }
+                        .into_iter()
+                        .map(|network| async move {
+                            Command::new("docker")
+                                .arg("network")
+                                .arg("inspect")
+                                .arg(network.name().to_owned())
+                                .arg("--format")
+                                .arg("{{range .IPAM.Config}}{{.Subnet}}{{end}}")
+                                .output_stdout()
+                                .await
                         })
-                        .collect::<JoinSet<Result<_>>>()
+                        .collect::<JoinSet<_>>()
                         .join_all()
                         .await
                         .into_iter()
@@ -287,8 +279,7 @@ impl<'a> Sandbox<'a> {
                         .collect::<Result<Vec<_>>>()?
                         .into_iter()
                         .max()
-                        .map(|addr| addr.to_bits().checked_add(BUMP).map(Ipv4Addr::from))
-                        .flatten()
+                        .and_then(|addr| addr.to_bits().checked_add(BUMP).map(Ipv4Addr::from))
                         .unwrap_or_else(|| Ipv4Addr::new(172, 42, 0, 0));
                     let subnet = format!("{subnet_addr}/{cidr}");
                     let ip = subnet_addr
@@ -715,6 +706,16 @@ impl<'a> Sandbox<'a> {
         }
     }
 
+    /// Get sandboxed image name.
+    pub fn get_image_name(name: impl fmt::Display) -> String {
+        format!("{}-{name}", Self::NAME_PREFIX)
+    }
+
+    /// Get the proxy image name.
+    fn proxy_image_name() -> String {
+        Self::get_image_name("proxy")
+    }
+
     /// Build the proxy image.
     pub async fn build_proxy_image() -> Result<()> {
         Command::new("docker")
@@ -740,9 +741,63 @@ impl<'a> Sandbox<'a> {
             .await
     }
 
-    /// Get the proxy image name.
-    fn proxy_image_name() -> String {
-        get_image_name("proxy")
+    /// Remove all resources created by the sandbox process.
+    ///
+    /// Images are excluded.
+    pub async fn cleanup() -> Result<()> {
+        let (containers, networks) = try_join!(
+            Self::get_resources(Resource::container()),
+            Self::get_resources(Resource::network())
+        )?;
+
+        let cleanup = async |resources: Vec<Resource>| {
+            resources
+                .into_iter()
+                .map(|resource| async { resource.cleanup().await })
+                .collect::<JoinSet<_>>()
+                .join_all()
+                .await
+                .into_iter()
+                .collect::<Result<Vec<_>>>()
+        };
+
+        // Important: containers must be cleaned up before networks
+        cleanup(containers).await?;
+        cleanup(networks).await?;
+
+        Ok(())
+    }
+
+    /// Get all resources for the given resource type.
+    ///
+    /// It may seem strange that this takes a [`Resource`]. This is done to avoid duplicating it
+    /// with an enum that is almost identical.
+    async fn get_resources(resource: Resource) -> Result<Vec<Resource>> {
+        let mut cmd = Command::new("docker");
+        match resource {
+            Resource::Container(_) => cmd
+                .arg("container")
+                .arg("ls")
+                .arg("--all")
+                .arg("--format")
+                .arg("{{.Names}}"),
+            Resource::Network(_) => cmd
+                .arg("network")
+                .arg("ls")
+                .arg("--format")
+                .arg("{{.Name}}"),
+        };
+        Ok(cmd
+            .output_stdout()
+            .await?
+            .lines()
+            .filter(|name| name.starts_with(Self::NAME_PREFIX))
+            .map(ToOwned::to_owned)
+            .map(|name| match resource {
+                Resource::Container(_) => Resource::Container(name),
+                Resource::Network(_) => Resource::Network(name),
+            })
+            .collect())
     }
 }
 
@@ -880,8 +935,27 @@ enum Resource {
 }
 
 impl Resource {
+    /// A value to indicate container resources.
+    fn container() -> Self {
+        Self::Container(String::default())
+    }
+
+    /// A value to indicate network resources.
+    fn network() -> Self {
+        Self::Network(String::default())
+    }
+
+    /// Name of the resource.
+    fn name(&self) -> &str {
+        match self {
+            Self::Container(name) => name,
+            Self::Network(name) => name,
+        }
+    }
+
     /// Cleanup the resource.
-    async fn cleanup(&self) -> Result<()> {
+    async fn cleanup(self) -> Result<()> {
+        debug!("Cleaning up: {:?}", self);
         match self {
             Self::Container(name) => {
                 Command::new("docker")
@@ -924,20 +998,15 @@ async fn wait_until_healthy(resource: &str) -> Result<()> {
             "healthy" => return Ok(()),
             "unhealthy" => {
                 if enabled_debug!() {
-                    let output = Command::new("docker")
+                    let logs = Command::new("docker")
                         .arg("logs")
                         .arg("--timestamps")
                         .arg("--tail")
                         .arg("all")
                         .arg(resource)
-                        .output()
+                        .output_stdout()
                         .await?;
-
-                    debug!(
-                        "{resource} logs:\nStdout: {}\nStderr: {}",
-                        String::from_utf8_lossy(&output.stdout),
-                        String::from_utf8_lossy(&output.stderr)
-                    );
+                    debug!(resource, logs);
                 }
 
                 return Err(anyhow!("Container became unhealthy"));
