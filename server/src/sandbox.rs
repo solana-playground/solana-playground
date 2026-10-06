@@ -1,13 +1,12 @@
 use std::{
     mem,
     path::{Path, PathBuf},
-    process::{Output, Stdio},
+    process::Output,
     sync::OnceLock,
 };
 
 use anyhow::{anyhow, Result};
 use tokio::{
-    io::AsyncWriteExt,
     process::Command,
     spawn,
     sync::mpsc,
@@ -17,7 +16,7 @@ use uuid::Uuid;
 
 use crate::{
     command::AsyncCommand,
-    log::{debug, warn},
+    log::{debug, enabled_debug, warn},
     utils::{dedent, get_image_name},
 };
 
@@ -261,7 +260,7 @@ impl<'a> Sandbox<'a> {
                         .arg("--subnet=172.28.0.0/16")
                         .arg("--gateway=172.28.0.1")
                         .arg(&proxy_resource)
-                        .run_silent()
+                        .run()
                         .await?;
                     cleanup_guard.network(&proxy_resource);
 
@@ -505,7 +504,7 @@ impl<'a> Sandbox<'a> {
                             squid -N -f /etc/squid/squid.conf
                             "#
                         )))
-                        .run_silent()
+                        .run()
                         .await?;
                     cleanup_guard.container(&proxy_resource);
 
@@ -532,7 +531,7 @@ impl<'a> Sandbox<'a> {
                 .arg("sh")
                 .arg("-c")
                 .arg(sleep_timeout)
-                .run_silent()
+                .run()
                 .await?;
             cleanup_guard.container(&container);
 
@@ -583,7 +582,7 @@ impl<'a> Sandbox<'a> {
                                     .arg("cp")
                                     .arg(src)
                                     .arg(dst)
-                                    .run_silent()
+                                    .run()
                                     .await?;
                                 Command::new("docker")
                                     .arg("exec")
@@ -594,7 +593,7 @@ impl<'a> Sandbox<'a> {
                                     .arg("--recursive")
                                     .arg(temp_dst)
                                     .arg(stripped_container_dst)
-                                    .run_silent()
+                                    .run()
                                     .await?;
                             }
                             _ => {
@@ -603,7 +602,7 @@ impl<'a> Sandbox<'a> {
                                     .arg("cp")
                                     .arg(src)
                                     .arg(dst)
-                                    .run_silent()
+                                    .run()
                                     .await?;
                             }
                         }
@@ -646,26 +645,15 @@ impl<'a> Sandbox<'a> {
 
     /// Build the proxy image.
     pub async fn build_proxy_image() -> Result<()> {
-        let mut child = Command::new("docker")
+        Command::new("docker")
             .arg("build")
             .arg("--tag")
             .arg(Self::proxy_image_name())
             .arg("-")
-            .stdin(Stdio::piped())
-            .stdout(Stdio::inherit())
-            .stderr(Stdio::inherit())
-            .kill_on_drop(true)
-            .spawn()?;
-
-        let mut stdin = child
-            .stdin
-            .take()
-            .ok_or_else(|| anyhow!("Failed to take stdin"))?;
-        stdin
-            .write_all(
+            .input(
                 dedent(
                     r#"
-                    # `ubuntu/squid` image doesn't work because it is compiled without `openssl` support
+                    # `ubuntu/squid` image doesn't work because it's compiled without `openssl` support
                     FROM ubuntu:24.04@sha256:80dd3c3b9c6cecb9f1667e9290b3bc61b78c2678c02cbdae5f0fea92cc6734ab
 
                     RUN apt-get update && apt-get install -y \
@@ -677,17 +665,7 @@ impl<'a> Sandbox<'a> {
                 )
                 .as_bytes(),
             )
-            .await?;
-
-        // Manually drop `stdin` to send `EOF` to `docker build`
-        drop(stdin);
-
-        let status = child.wait().await?;
-        if !status.success() {
-            return Err(anyhow!("Failed to build the proxy image"));
-        }
-
-        Ok(())
+            .await
     }
 
     /// Get the proxy image name.
@@ -834,19 +812,13 @@ impl Resource {
     async fn cleanup(&self) -> Result<()> {
         match self {
             // Killing is enough for cleanup because of `--rm` during creation
-            Self::Container(name) => {
-                Command::new("docker")
-                    .arg("kill")
-                    .arg(name)
-                    .run_silent()
-                    .await
-            }
+            Self::Container(name) => Command::new("docker").arg("kill").arg(name).run().await,
             Self::Network(name) => {
                 Command::new("docker")
                     .arg("network")
                     .arg("rm")
                     .arg(name)
-                    .run_silent()
+                    .run()
                     .await
             }
         }
@@ -854,6 +826,8 @@ impl Resource {
 }
 
 /// Wait until the Docker resource is "healthy".
+///
+/// An error is returned if the container becomes "unhealthy".
 ///
 /// This requires `--health-cmd` during container creation.
 async fn wait_until_healthy(resource: &str) -> Result<()> {
@@ -868,20 +842,23 @@ async fn wait_until_healthy(resource: &str) -> Result<()> {
         match status.as_str() {
             "healthy" => return Ok(()),
             "unhealthy" => {
-                let output = Command::new("docker")
-                    .arg("logs")
-                    .arg("--timestamps")
-                    .arg("--tail")
-                    .arg("all")
-                    .arg(resource)
-                    .output()
-                    .await?;
+                if enabled_debug!() {
+                    let output = Command::new("docker")
+                        .arg("logs")
+                        .arg("--timestamps")
+                        .arg("--tail")
+                        .arg("all")
+                        .arg(resource)
+                        .output()
+                        .await?;
 
-                debug!(
-                    "{resource} logs:\nStdout: {}\nStderr: {}",
-                    String::from_utf8_lossy(&output.stdout),
-                    String::from_utf8_lossy(&output.stderr)
-                );
+                    debug!(
+                        "{resource} logs:\nStdout: {}\nStderr: {}",
+                        String::from_utf8_lossy(&output.stdout),
+                        String::from_utf8_lossy(&output.stderr)
+                    );
+                }
+
                 return Err(anyhow!("Container became unhealthy"));
             }
             _ => sleep(Duration::from_millis(100)).await,

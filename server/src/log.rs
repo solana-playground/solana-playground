@@ -20,3 +20,14 @@ pub fn init(verbose: bool) {
         fmt.compact().init();
     }
 }
+
+/// Check whether the [`Level::DEBUG`] event or span is enabled.
+///
+/// This is useful to have when the data to log using [`debug!`] does not exist.
+macro_rules! enabled_debug {
+    () => {
+        $crate::log::enabled!($crate::log::Level::DEBUG)
+    };
+}
+
+pub(crate) use enabled_debug;
