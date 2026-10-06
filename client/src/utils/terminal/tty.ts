@@ -435,43 +435,36 @@ export class PgTty {
     }
 
     const hl = (s: string, colorCb: (s: string) => string) => colorCb(s);
+    const ERROR_REGEX = /^\s*(\w*[^\S\n]+)?error(:|\[.*?:)/gim;
+    const WARNING_REGEX = /(\d+\s)?warning(s|:)?/gim;
 
     return (
       text
         // Match for error
-        .replace(/\w*\s?(\w*)error(:|\[.*?:)/gim, (match) =>
-          hl(match, PgTerminal.error)
-        )
+        .replace(ERROR_REGEX, (match) => hl(match, PgTerminal.error))
 
         // Match for warning
-        .replace(/(\d+\s)?warning(s|:)?/gim, (match) =>
-          hl(match, PgTerminal.warning)
-        )
+        .replace(WARNING_REGEX, (match) => hl(match, PgTerminal.warning))
 
         // Match until ':' from the start of the line: e.g "Commands:"
         .replace(/^(.*?:)/gm, (match) => {
           if (
+            ERROR_REGEX.test(match) ||
+            WARNING_REGEX.test(match) ||
             /(http|{|})/.test(match) ||
             /"\w+":/.test(match) ||
             /\(\w+:/.test(match) ||
             /^\s*\|/.test(match) ||
             /^\s?\d+/.test(match) ||
-            /\(/.test(match)
+            /\(/.test(match) ||
+            match.includes("   ")
           ) {
             return match;
           }
 
-          if (!match.includes("   ")) {
-            if (match.startsWith(" ")) {
-              // Indented
-              return hl(match, PgTerminal.bold);
-            }
-            if (!match.toLowerCase().includes("error")) {
-              return hl(match, PgTerminal.primary);
-            }
-          }
-
-          return match;
+          // Indented
+          if (match.startsWith(" ")) return hl(match, PgTerminal.bold);
+          return hl(match, PgTerminal.primary);
         })
 
         // Secondary text color for (...)
