@@ -1,5 +1,6 @@
 use std::{
     mem,
+    net::Ipv4Addr,
     path::{Path, PathBuf},
     process::Output,
     sync::OnceLock,
@@ -10,6 +11,7 @@ use tokio::{
     process::Command,
     spawn,
     sync::mpsc,
+    task::JoinSet,
     time::{sleep, timeout, Duration},
 };
 use uuid::Uuid;
@@ -246,15 +248,65 @@ impl<'a> Sandbox<'a> {
                     // Both container and network name
                     let proxy_resource = format!("{NAME_PREFIX}-proxy-{uuid}");
 
-                    // TODO: Add dynamic subnet and IP allocation
+                    // 1 address for the proxy container and 3 to Docker (internal)
+                    const BUMP: u32 = 4;
+                    const CIDR_MAX: u8 = 32;
+                    let cidr = CIDR_MAX - (BUMP as f64).log2().ceil() as u8;
+                    let subnet_addr = Command::new("docker")
+                        .arg("network")
+                        .arg("ls")
+                        .arg("--format")
+                        .arg("{{.Name}}")
+                        .output_stdout()
+                        .await?
+                        .lines()
+                        .filter(|network| network.starts_with(NAME_PREFIX))
+                        .map(|network| {
+                            let network = network.to_owned();
+                            async {
+                                Command::new("docker")
+                                    .arg("network")
+                                    .arg("inspect")
+                                    .arg(network)
+                                    .arg("--format")
+                                    .arg("{{range .IPAM.Config}}{{.Subnet}}{{end}}")
+                                    .output_stdout()
+                                    .await
+                            }
+                        })
+                        .collect::<JoinSet<Result<_>>>()
+                        .join_all()
+                        .await
+                        .into_iter()
+                        .collect::<Result<Vec<_>>>()?
+                        .into_iter()
+                        .map(|subnet| match subnet.split_once('/') {
+                            Some((addr, _)) => addr.parse::<Ipv4Addr>().map_err(Into::into),
+                            _ => Err(anyhow!("Invalid subnet: {subnet}")),
+                        })
+                        .collect::<Result<Vec<_>>>()?
+                        .into_iter()
+                        .max()
+                        .map(|addr| addr.to_bits().checked_add(BUMP).map(Ipv4Addr::from))
+                        .flatten()
+                        .unwrap_or_else(|| Ipv4Addr::new(172, 42, 0, 0));
+                    let subnet = format!("{subnet_addr}/{cidr}");
+                    let ip = subnet_addr
+                        .to_bits()
+                        // `subnet_addr + 1` is the default gateway; take the next
+                        .checked_add(2)
+                        .map(Ipv4Addr::from)
+                        .ok_or_else(|| anyhow!("Failed to create ip from subnet: {subnet_addr}"))?
+                        .to_string();
+
                     // TODO: Make the proxy port dynamic
                     // Create the proxy network
                     Command::new("docker")
                         .arg("network")
                         .arg("create")
                         .arg("--driver=bridge")
-                        .arg("--subnet=172.28.0.0/16")
-                        .arg("--gateway=172.28.0.1")
+                        .arg("--subnet")
+                        .arg(&subnet)
                         .arg(&proxy_resource)
                         .run()
                         .await?;
@@ -281,7 +333,8 @@ impl<'a> Sandbox<'a> {
                         .arg(&proxy_resource)
                         .arg("--network")
                         .arg(&proxy_resource)
-                        .arg("--ip=172.28.0.2")
+                        .arg("--ip")
+                        .arg(ip)
                         .arg("--health-cmd")
                         // Check whether:
                         //
@@ -307,7 +360,7 @@ impl<'a> Sandbox<'a> {
                         .arg("--cap-drop=ALL")
                          // Allow `ipconfig` changes
                         .arg("--cap-add=CAP_NET_ADMIN")
-                        // // Next 2 allow changing the user (`squid` does internally)
+                        // Next 2 allow changing the user (`squid` does internally)
                         .arg("--cap-add=SETUID")
                         .arg("--cap-add=SETGID")
                         // // Important: allow setting capabilities (to remove later)
@@ -319,18 +372,6 @@ impl<'a> Sandbox<'a> {
                             r#"
                             # Set sane flags
                             set -eu
-
-                            # Disable IPv6 except loopback
-                            ip6tables -F
-                            ip6tables -X
-                            ip6tables -P INPUT DROP
-                            ip6tables -P OUTPUT DROP
-                            ip6tables -P FORWARD DROP
-                            # Loopback is required for `external_acl_type sni_dst` to work
-                            ip6tables -A INPUT -i lo -s ::1/128 -d ::1/128 -p tcp -j ACCEPT
-                            ip6tables -A INPUT  -i lo -s ::1/128 -d ::1/128 -p udp -j ACCEPT
-                            ip6tables -A OUTPUT -o lo -s ::1/128 -d ::1/128 -p tcp -j ACCEPT
-                            ip6tables -A OUTPUT -o lo -s ::1/128 -d ::1/128 -p udp -j ACCEPT
 
                             # Drop all traffic by default
                             iptables -F
@@ -364,6 +405,18 @@ impl<'a> Sandbox<'a> {
                             # Permit the proxy itself to connect to origin HTTPS servers
                             iptables -A OUTPUT -p tcp -m owner --uid-owner 13 --dport 443 -j ACCEPT
 
+                            # Disable IPv6 except loopback
+                            ip6tables -F
+                            ip6tables -X
+                            ip6tables -P INPUT DROP
+                            ip6tables -P OUTPUT DROP
+                            ip6tables -P FORWARD DROP
+                            # Loopback is required for `external_acl_type sni_dst` to work
+                            ip6tables -A INPUT -i lo -s ::1/128 -d ::1/128 -p tcp -j ACCEPT
+                            ip6tables -A INPUT  -i lo -s ::1/128 -d ::1/128 -p udp -j ACCEPT
+                            ip6tables -A OUTPUT -o lo -s ::1/128 -d ::1/128 -p tcp -j ACCEPT
+                            ip6tables -A OUTPUT -o lo -s ::1/128 -d ::1/128 -p udp -j ACCEPT
+
                             # TODO: Make it work without custom certificates
                             openssl req \
                                 -new \
@@ -379,6 +432,7 @@ impl<'a> Sandbox<'a> {
                                 -out /etc/squid/interception.crt \
                                 > /dev/null 2>&1
 
+                            # Create SNI and DST comparison check for `squid`
                             cat >/etc/squid/check-sni-dst-acl.sh <<'SH'
                             #!/usr/bin/env bash
 
@@ -461,12 +515,10 @@ impl<'a> Sandbox<'a> {
                             done
                             SH
 
-                            chmod 0755 /etc/squid/check-sni-dst-acl.sh
+                            chmod 755 /etc/squid/check-sni-dst-acl.sh
 
+                            # Create `squid` configuration
                             cat >/etc/squid/squid.conf <<\CONF
-
-                            # TODO: Remove
-                            debug_options 82,9 84,9
 
                             # ICMP pinger logs redundant errors
                             pinger_enable off
@@ -481,7 +533,7 @@ impl<'a> Sandbox<'a> {
                                 tls-key=/etc/squid/interception.pem \
                                 generate-host-certificates=off
 
-                            acl app_net src 172.28.0.0/16
+                            acl subnet src {subnet}
 
                             acl tls_step1 at_step SslBump1
                             acl tls_step2 at_step SslBump2
@@ -502,7 +554,7 @@ impl<'a> Sandbox<'a> {
                             ssl_bump splice tls_step2 sni_destination_ok
                             ssl_bump terminate tls_step2
 
-                            http_access allow app_net
+                            http_access allow subnet
                             http_access deny all
 
                             cache deny all
@@ -512,7 +564,9 @@ impl<'a> Sandbox<'a> {
                             cache_log stdio:/var/log/squid/cache.log
                             CONF
 
+                            # Drop capabilities
                             exec setpriv \
+                                --no-new-privs \
                                 --bounding-set=-net_admin,-setpcap \
                                 squid -N -f /etc/squid/squid.conf
                             "#
