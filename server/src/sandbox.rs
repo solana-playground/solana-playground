@@ -240,10 +240,6 @@ impl<'a> Sandbox<'a> {
                 cmd.arg("--storage-opt").arg(format!("size={storage}b"));
             }
 
-            let sleep_timeout = match self.cfg.limits.timeout {
-                Some(timeout) => format!("sleep {timeout}"),
-                _ => "sleep infinity".to_owned(),
-            };
             let network = match self.cfg.network {
                 Network::None => "none".to_owned(),
                 Network::Proxy { allowed_domains } => {
@@ -287,8 +283,24 @@ impl<'a> Sandbox<'a> {
                         .arg(&proxy_resource)
                         .arg("--ip=172.28.0.2")
                         .arg("--health-cmd")
-                        // Check whether the proxy TCP port has been binded
-                        .arg("grep -q :0C38 /proc/net/tcp")
+                        // Check whether:
+                        //
+                        // - the proxy TCP port has been binded
+                        // - only the required capabilities remain
+                        .arg(dedent(
+                            r#"
+                            grep -q ':0C38' /proc/net/tcp && awk '
+                            $1=="Uid:"     && $2=="13" && $3=="13" && $4=="0"  && $5=="13" { uid=1 }
+                            $1=="Gid:"     && $2=="13" && $3=="13" && $4=="13" && $5=="13" { gid=1 }
+                            $1=="CapInh:"  && $2=="0000000000000000" { inh=1 }
+                            $1=="CapPrm:"  && $2=="00000000000000c0" { prm=1 }
+                            $1=="CapEff:"  && $2=="0000000000000000" { eff=1 }
+                            $1=="CapBnd:"  && $2=="00000000000000c0" { bnd=1 }
+                            $1=="CapAmb:"  && $2=="0000000000000000" { amb=1 }
+                            END { exit !(uid && gid && inh && prm && eff && bnd && amb) }
+                            ' /proc/1/status
+                            "#
+                        ))
                         .arg("--health-interval=100ms")
                         .arg("--health-timeout=100ms")
                         .arg("--health-retries=10")
@@ -299,7 +311,7 @@ impl<'a> Sandbox<'a> {
                         .arg("--cap-add=SETUID")
                         .arg("--cap-add=SETGID")
                         // // Important: allow setting capabilities (to remove later)
-                        // .arg("--cap-add=SETPCAP")
+                        .arg("--cap-add=SETPCAP")
                         .arg("--entrypoint=/bin/sh")
                         .arg(Self::proxy_image_name())
                         .arg("-c")
@@ -396,7 +408,7 @@ impl<'a> Sandbox<'a> {
                                 local dns_output
                                 local resolved_ip
 
-                                dns_output=$(mktemp /tmp/sni-dns.XXXXXX) || return 2
+                                dns_output=$(mktemp /tmp/sni-dns) || return 2
 
                                 if ! getent ahostsv4 "$sni" >"$dns_output"; then
                                     rm -f "$dns_output"
@@ -500,8 +512,9 @@ impl<'a> Sandbox<'a> {
                             cache_log stdio:/var/log/squid/cache.log
                             CONF
 
-                            # TODO: Drop `NET_ADMIN` and `SETPCAP`
-                            squid -N -f /etc/squid/squid.conf
+                            exec setpriv \
+                                --bounding-set=-net_admin,-setpcap \
+                                squid -N -f /etc/squid/squid.conf
                             "#
                         )))
                         .run()
@@ -520,6 +533,11 @@ impl<'a> Sandbox<'a> {
             };
             let Some(image) = &self.cfg.image else {
                 return Err(anyhow!("Image is required"));
+            };
+
+            let sleep_timeout = match self.cfg.limits.timeout {
+                Some(timeout) => format!("sleep {timeout}"),
+                _ => "sleep infinity".to_owned(),
             };
 
             // Create and start the main container
