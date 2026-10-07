@@ -260,7 +260,7 @@ impl<'a> Sandbox<'a> {
                             Command::new("docker")
                                 .arg("network")
                                 .arg("inspect")
-                                .arg(network.name().to_owned())
+                                .arg(network.name())
                                 .arg("--format")
                                 .arg("{{range .IPAM.Config}}{{.Subnet}}{{end}}")
                                 .output_stdout()
@@ -314,6 +314,10 @@ impl<'a> Sandbox<'a> {
                             acc
                         },
                     );
+
+                    // Quotas
+                    let download_quota = self.cfg.limits.download.unwrap_or(usize::MAX);
+                    let upload_quota = self.cfg.limits.upload.unwrap_or(usize::MAX);
 
                     // Create and start the proxy container
                     Command::new("docker")
@@ -407,6 +411,30 @@ impl<'a> Sandbox<'a> {
                             ip6tables -A INPUT  -i lo -s ::1/128 -d ::1/128 -p udp -j ACCEPT
                             ip6tables -A OUTPUT -o lo -s ::1/128 -d ::1/128 -p tcp -j ACCEPT
                             ip6tables -A OUTPUT -o lo -s ::1/128 -d ::1/128 -p udp -j ACCEPT
+
+                            # Add quotas
+                            nft -f - <<'QUOTAS'
+                            table inet proxy_quota {{
+                                quota download {{ over {download_quota} bytes; }}
+                                quota upload {{ over {upload_quota} bytes; }}
+                                define DOWNLOAD_MARK = 0x444f574e # ASCII "DOWN"
+
+                                chain mark_https_connections {{
+                                    type filter hook output priority mangle; policy accept;
+                                    meta skuid 13 tcp dport 443 ct mark set $DOWNLOAD_MARK
+                                }}
+
+                                chain download_limit {{
+                                    type filter hook input priority -1; policy accept;
+                                    ct mark $DOWNLOAD_MARK tcp sport 443 quota name "download" drop
+                                }}
+
+                                chain upload_limit {{
+                                    type filter hook output priority -1; policy accept;
+                                    meta skuid 13 tcp dport 443 quota name "upload" drop
+                                }}
+                            }}
+                            QUOTAS
 
                             # TODO: Make it work without custom certificates
                             openssl req \
@@ -840,6 +868,10 @@ pub struct Limits {
     pub process: Option<usize>,
     /// Storage limit
     pub storage: Option<usize>,
+    /// Proxy network download limit (total quota in bytes)
+    pub download: Option<usize>,
+    /// Proxy network upload limit (total quota in bytes)
+    pub upload: Option<usize>,
 }
 
 /// Sandbox action

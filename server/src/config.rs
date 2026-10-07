@@ -52,6 +52,7 @@ impl Config {
                         concurrency: get_env("UNSTABLE_BUILD_CONCURRENCY_LIMIT", 16usize),
                     },
                     sandbox: SandboxLimits {
+                        timeout: Some(get_env("UNSTABLE_BUILD_TIMEOUT_LIMIT", 30u64)),
                         cpu: Some(get_env("UNSTABLE_BUILD_CPU_LIMIT", 1usize)),
                         memory: Some(get_env(
                             "UNSTABLE_BUILD_MEMORY_LIMIT",
@@ -64,7 +65,7 @@ impl Config {
                         storage: get_env_raw("UNSTABLE_BUILD_STORAGE_LIMIT")
                             .map(|v| v.parse())
                             .transpose()?,
-                        timeout: Some(get_env("UNSTABLE_BUILD_TIMEOUT_LIMIT", 30u64)),
+                        ..Default::default()
                     },
                 },
             },
@@ -75,11 +76,12 @@ impl Config {
                         concurrency: get_env("UNSTABLE_BUNDLE_CONCURRENCY_LIMIT", 16usize),
                     },
                     sandbox: SandboxLimits {
+                        timeout: Some(get_env("UNSTABLE_BUNDLE_TIMEOUT_LIMIT", 120u64)),
                         // Diminishing returns after 4
                         cpu: Some(get_env("UNSTABLE_BUNDLE_CPU_LIMIT", 4usize)),
                         memory: Some(get_env(
                             "UNSTABLE_BUNDLE_MEMORY_LIMIT",
-                            4usize * 1024 * 1024 * 1024, // 4 GiB (also affects speed)
+                            6usize * 1024 * 1024 * 1024, // 6 GiB (also affects speed)
                         )),
                         swap: get_env_raw("UNSTABLE_BUNDLE_SWAP_LIMIT")
                             .map(|v| v.parse())
@@ -88,7 +90,16 @@ impl Config {
                         storage: get_env_raw("UNSTABLE_BUNDLE_STORAGE_LIMIT")
                             .map(|v| v.parse())
                             .transpose()?,
-                        timeout: Some(get_env("UNSTABLE_BUNDLE_TIMEOUT_LIMIT", 180u64)),
+                        // For reference, the legacy template uses ~54MiB
+                        download: Some(get_env(
+                            "UNSTABLE_BUNDLE_DOWNLOAD_LIMIT",
+                            128usize * 1024 * 1024, // 128 MiB
+                        )),
+                        // For reference, the legacy template uses ~1MiB
+                        upload: Some(get_env(
+                            "UNSTABLE_BUNDLE_UPLOAD_LIMIT",
+                            4usize * 1024 * 1024, // 4 MiB
+                        )),
                     },
                 },
             },
