@@ -46,15 +46,23 @@ export as namespace ${name};`,
 };
 
 /**
+ * Declare a module if it hasn't been declared already.
+ *
  * Some declaration files need to be declared for them to be referenced by other
  * declaration files.
  *
  * @param packageName package name to be referenced in declaration files
- * @param module contents of the module
+ * @param mod contents of the module
  * @returns module declaration for the given package
  */
-export const declareModule = (packageName: string, module: string = "") => {
-  return `declare module "${packageName}" { ${module} }`;
+export const declareModule = (packageName: string, mod: string = "") => {
+  if (
+    mod.includes(`declare module "${packageName}"`) ||
+    mod.includes(`declare module '${packageName}'`)
+  ) {
+    return mod;
+  }
+  return `declare module "${packageName}" { ${mod} }`;
 };
 
 /**
@@ -90,27 +98,53 @@ export const declarePackage = async (
   }
 
   const { files, dependencies } = types;
-  if (files.length > 1) {
-    // Type root is always the first index (sorted by the server)
-    const typeRootFile = files[0];
-    const parts = typeRootFile[0].split("/");
-    typeRootFile[0] = parts
-      .map((part, i) => (i === parts.length - 1 ? "old-index.d.ts" : part))
-      .join("/");
-    const [oldIndexPath] = typeRootFile;
 
-    // Renaming exports allows us to export everything
-    files.push([
-      oldIndexPath.replace("old-index", "index"),
-      declareModule(
-        packageName,
-        `export * from "${oldIndexPath
-          // TODO: Remove
-          .replace(PgSettings.experimental.unstable ? "" : "node_modules/", "")
-          .replace(".d.ts", "")}"`
-      ),
-    ]);
-  }
+  // Type root is always the first index (sorted by the server)
+  const typeRootFile = files[0];
+
+  // Make the package discoverable by declaring it as a module
+  const parts = typeRootFile[0].split("/");
+  typeRootFile[0] = parts
+    .map((part, i) => (i === parts.length - 1 ? "old-index.d.ts" : part))
+    .join("/");
+  const [oldIndexPath] = typeRootFile;
+
+  const oldIndexCodePath = oldIndexPath
+    // TODO: Remove
+    .replace(PgSettings.experimental.unstable ? "" : "node_modules/", "")
+    // Always use `<package>` for `@types/<package>` imports to avoid:
+    //
+    // ```
+    // Cannot import type declaration files. Consider importing 'mocha/old-index'
+    // instead of '@types/mocha/old-index'.
+    // ```
+    .replace("@types/", "")
+    .replace(".d.ts", "");
+
+  // Always declare `@types/<package>` as `<package>` to avoid:
+  //
+  // ```
+  // File 'file:///node_modules/@types/bn.js/index.d.ts' is not a module.
+  // ```
+  const declaredPackageName = packageName.replace("@types/", "");
+
+  // Fix being unable to export CommonJS modules:
+  //
+  // ```
+  // Module '"file:///node_modules/@types/bn.js/old-index"' uses 'export =' and
+  // cannot be used with 'export *'.
+  // ```
+  const commonJsExport = /export\s+=\s+(\w+)/.exec(typeRootFile[1])?.[1];
+  const mod = commonJsExport
+    ? `import ${commonJsExport} from "${oldIndexCodePath}";
+       export default ${commonJsExport};`
+    : `export * from "${oldIndexCodePath}";`;
+
+  // Renaming exports allows us to export everything
+  files.push([
+    oldIndexPath.replace("old-index", "index"),
+    declareModule(declaredPackageName, mod),
+  ]);
 
   // TODO: Monaco TS worker historically had a problem about directory imports
   // and exports not working without an explicit `/index` suffix. See
@@ -121,16 +155,6 @@ export const declarePackage = async (
 
   // Add all files
   const disposables = files.map(([path, content]) => {
-    // Declare module on `index.d.ts` if it's not declared
-    if (files.length === 1 && !content.includes("declare module")) {
-      // Always declare `@types/<package>` as `<package>`. Otherwise the worker
-      // shows an error similar to:
-      // ```
-      // File 'file:///node_modules/@types/bn.js/index.d.ts' is not a module.
-      // ```
-      content = declareModule(packageName.replace("@types/", ""), content);
-    }
-
     if (PgSettings.experimental.unstable) {
       path = PgCommon.joinPaths("node_modules", path);
     }
