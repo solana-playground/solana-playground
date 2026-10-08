@@ -148,13 +148,7 @@ export class PgJsPackage {
       throw new Error(`Invalid manifest name: ${name}`);
     }
 
-    const depKeys = [
-      "dependencies",
-      "devDependencies",
-      "peerDependencies",
-      "optionalDependencies",
-    ] as const;
-    depKeys.forEach((key) => {
+    PgJsPackage._dependencyKeys.forEach((key) => {
       const value = manifest[key];
       if (value !== undefined && typeof value !== "object") {
         throw new Error(`Invalid dependencies: ${key}: ${value}`);
@@ -162,6 +156,19 @@ export class PgJsPackage {
     });
 
     return manifest;
+  }
+
+  /**
+   * Combine all dependencies into a single map.
+   *
+   * @returns the combined dependencies.
+   */
+  static getAllDependencies() {
+    const manifest = PgJsPackage.getParsedManifest();
+    return PgJsPackage._dependencyKeys.reduce((acc, key) => {
+      const deps = manifest[key];
+      return deps ? { ...acc, ...deps } : acc;
+    }, {} as Dependencies);
   }
 
   /**
@@ -187,6 +194,14 @@ export class PgJsPackage {
     TYPES_FILE: "types.json",
     DEPENDENCIES_FILE: "dependencies.json",
   };
+
+  /** All manifest dependency key names */
+  private static readonly _dependencyKeys = [
+    "dependencies",
+    "devDependencies",
+    "peerDependencies",
+    "optionalDependencies",
+  ] as const;
 
   // TODO: Look into removing this and letting `PgExplorer` deal with it
   /**

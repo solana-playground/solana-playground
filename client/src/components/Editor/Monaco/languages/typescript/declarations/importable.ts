@@ -22,10 +22,10 @@ export const declareImportableTypes = async () => {
     );
   }
 
-  const manifest = PgCommon.tryCall(PgJsPackage.getParsedManifest);
-  if (!manifest?.dependencies) return;
+  const depsMap = PgCommon.tryCall(PgJsPackage.getAllDependencies);
+  if (!depsMap) return;
 
-  const deps = Object.keys(manifest.dependencies);
+  const deps = Object.keys(depsMap);
   const disposables = await Promise.all(
     deps.map((name) => declarePackage(name))
   ).then((disposables) => disposables.filter(PgCommon.isNonNullish));
