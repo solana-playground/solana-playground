@@ -97,7 +97,7 @@ export const declarePackage = async (
     return;
   }
 
-  const { files, dependencies } = types;
+  const { manifest, files } = types;
 
   // Type root is always the first index (sorted by the server)
   const typeRootFile = files[0];
@@ -170,8 +170,9 @@ export const declarePackage = async (
   // transitive dependencies because that results in excessive amount of
   // requests without adding much benefit.
   if (!opts?.transitive) {
+    const deps = Object.keys(PgJsPackage.getAllDependencies(manifest));
     const transitiveDisposables = await Promise.all(
-      dependencies.map((dep) => declarePackage(dep, { transitive: true }))
+      deps.map((dep) => declarePackage(dep, { transitive: true }))
     );
     disposables.push(...transitiveDisposables.filter(PgCommon.isNonNullish));
   }
@@ -193,10 +194,18 @@ const getTypes = async (
     const files = await PgCommon.fetchJson(
       `/packages/${packageName}/types.json`
     );
-    const dependencies = await PgCommon.fetchJson(
+    const dependencies: string[] = await PgCommon.fetchJson(
       `/packages/${packageName}/deps.json`
     );
-    return { files, dependencies };
+    return {
+      files,
+      manifest: {
+        dependencies: dependencies.reduce((acc, cur) => {
+          acc[cur] = "0.0.0";
+          return acc;
+        }, {} as Record<string, string>),
+      },
+    };
   }
 
   return await PgJsPackage.getTypes(packageName);

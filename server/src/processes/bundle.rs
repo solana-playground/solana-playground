@@ -278,7 +278,7 @@ fn generate_types(manifest: &Manifest) -> Result<()> {
 
     let files = get_output_files(|entry| {
         let file_name = entry.file_name();
-        file_name == TYPES_FILE || file_name == DEPENDENCIES_FILE
+        file_name == MANIFEST_FILE || file_name == TYPES_FILE
     })?;
     fs::write(
         get_out_path().join(TYPES_FILE),
@@ -289,6 +289,9 @@ fn generate_types(manifest: &Manifest) -> Result<()> {
 }
 
 /// Port of [`generate-packages.mjs`] (without the Monaco editor parts).
+///
+/// Packages are cached eagerly without waiting for their results. This function will return `Ok`
+/// if the package is cached, even if there was an error.
 ///
 /// [`generate-packages.mjs`]: https://github.com/solana-playground/solana-playground/blob/7d9f365a5009fd65aaa388e85bc541e5f4f51ae9/client/scripts/generate-packages.mjs
 fn generate_package_types(name: &str, cache: &mut HashSet<String>) -> Result<()> {
@@ -303,30 +306,29 @@ fn generate_package_types(name: &str, cache: &mut HashSet<String>) -> Result<()>
 
     let build_path = get_build_path();
     let out_path = build_path.join(name);
-    let types_path = out_path.join(TYPES_FILE);
-    let deps_path = out_path.join(DEPENDENCIES_FILE);
+    let types_out_path = out_path.join(TYPES_FILE);
+    let manifest_out_path = out_path.join(MANIFEST_FILE);
 
     // Node built-ins are handled differently because each file is a different module and we don't
     // need all of them
     let node_modules = Path::new(PACKAGES_DIR).join(NODE_MODULES);
-    let types_node_path = node_modules
-        .join("@types")
-        .join("node")
-        .join(name)
-        .with_extension("d.ts");
+    let types_dir = node_modules.join("@types");
+    let types_node_dir = types_dir.join("node");
+    let types_node_path = types_node_dir.join(name).with_extension("d.ts");
     if fs::exists(&types_node_path)? {
         let content = fs::read_to_string(&types_node_path)?;
         let files = convert_type_files(vec![(types_node_path, content)])?;
         fs::create_dir_all(out_path)?;
-        fs::write(types_path, serde_json::to_string(&files)?)?;
-        fs::write(deps_path, "[]")?;
+        fs::write(types_out_path, serde_json::to_string(&files)?)?;
+        fs::copy(types_node_dir.join(MANIFEST_FILE), manifest_out_path)?;
         return Ok(());
     }
 
-    let pkg_roots = [&node_modules, &node_modules.join("@types")];
+    let pkg_roots = [&node_modules, &types_dir];
     for pkg_root in pkg_roots {
         let pkg_path = pkg_root.join(name);
-        let manifest = match fs::read(pkg_path.join(MANIFEST_FILE)) {
+        let manifest_path = pkg_path.join(MANIFEST_FILE);
+        let manifest = match fs::read(&manifest_path) {
             Ok(b) => serde_json::from_slice::<Manifest>(&b)?,
             Err(e) if e.kind() == std::io::ErrorKind::NotFound => continue,
             Err(e) => return Err(anyhow!("Unexpected fs error: {e}")),
@@ -345,25 +347,22 @@ fn generate_package_types(name: &str, cache: &mut HashSet<String>) -> Result<()>
 
         // Save type declarations
         fs::create_dir_all(out_path)?;
-        fs::write(types_path, serde_json::to_string(&files)?)?;
+        fs::write(types_out_path, serde_json::to_string(&files)?)?;
 
         // Get transitive dependencies that are being referenced in type declarations
-        let deps = manifest
+        manifest
             .get_all_dependencies()
             .into_keys()
             // TODO: Make this more robust (if necesssary)
             .filter(|dep| files.iter().any(|(_, content)| content.contains(dep)))
-            .fold(vec![], |mut acc, dep| {
-                match generate_package_types(&dep, cache) {
-                    Ok(_) => acc.push(dep),
-                    Err(e) => eprintln!("Failed to generate types for `{dep}`: {e}"),
+            .for_each(|dep| {
+                if let Err(e) = generate_package_types(&dep, cache) {
+                    eprintln!("Failed to generate types for `{dep}`: {e}")
                 }
-
-                acc
             });
 
-        // Save type dependencies
-        fs::write(deps_path, serde_json::to_string(&deps)?)?;
+        // Copy the manifest
+        fs::copy(manifest_path, manifest_out_path)?;
 
         return Ok(());
     }
@@ -445,9 +444,6 @@ const NODE_MODULES: &str = "node_modules";
 
 /// Source directory
 const SRC_DIR: &str = "src";
-
-/// Type dependencies
-const DEPENDENCIES_FILE: &str = "dependencies.json";
 
 /// Get the path to the directory that stores the `webpack` build directory.
 fn get_build_path() -> PathBuf {

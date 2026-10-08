@@ -234,7 +234,7 @@ export class PgCommon {
    * @returns the return value of the callback or `undefined` on error
    */
   static tryCall<R>(
-    cb: (...args: unknown[]) => Exclude<R, undefined>
+    cb: (...args: any[]) => Exclude<R, undefined>
   ): R | undefined {
     try {
       return cb();

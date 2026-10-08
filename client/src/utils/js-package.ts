@@ -121,14 +121,14 @@ export class PgJsPackage {
    */
   static async getTypes(
     name: string
-  ): Promise<{ files: TupleFiles; dependencies: string[] }> {
+  ): Promise<{ manifest: Manifest; files: TupleFiles }> {
     return await Promise.all(
-      [this._PATHS.TYPES_FILE, this._PATHS.DEPENDENCIES_FILE]
+      [PgJsPackage._PATHS.MANIFEST_FILE, PgJsPackage._PATHS.TYPES_FILE]
         .map((path) => PgCommon.joinPaths(name, path))
         .map((path) => PgJsPackage._getInternalFile(path))
     )
       .then((all) => all.map((s) => JSON.parse(s)))
-      .then(([files, dependencies]) => ({ files, dependencies }));
+      .then(([manifest, files]) => ({ manifest, files }));
   }
 
   /**
@@ -163,8 +163,7 @@ export class PgJsPackage {
    *
    * @returns the combined dependencies.
    */
-  static getAllDependencies() {
-    const manifest = PgJsPackage.getParsedManifest();
+  static getAllDependencies(manifest = PgJsPackage.getParsedManifest()) {
     return PgJsPackage._dependencyKeys.reduce((acc, key) => {
       const deps = manifest[key];
       return deps ? { ...acc, ...deps } : acc;
@@ -192,7 +191,6 @@ export class PgJsPackage {
     LOCK_FILE: "yarn.lock",
     BUNDLE_FILE: "bundle.js",
     TYPES_FILE: "types.json",
-    DEPENDENCIES_FILE: "dependencies.json",
   };
 
   /** All manifest dependency key names */
