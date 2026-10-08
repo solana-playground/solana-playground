@@ -304,70 +304,52 @@ fn generate_package_types(name: &str, cache: &mut HashSet<String>) -> Result<()>
     // recursion when type generation fails for both circular dependencies.
     cache.insert(name.to_owned());
 
-    let build_path = get_build_path();
-    let out_path = build_path.join(name);
+    // Get manifest
+    let pkg_path = Path::new(PACKAGES_DIR).join(NODE_MODULES).join(name);
+    let manifest_path = pkg_path.join(MANIFEST_FILE);
+    let manifest = match fs::read(&manifest_path) {
+        Ok(b) => serde_json::from_slice::<Manifest>(&b)?,
+        Err(e) if e.kind() == io::ErrorKind::NotFound => return Err(anyhow!("No manifest")),
+        Err(e) => return Err(anyhow!("Unexpected fs error: {e}")),
+    };
+
+    // Get type declarations
+    let files = manifest
+        .types
+        .as_ref()
+        .or(manifest.typings.as_ref())
+        .ok_or_else(|| anyhow!("Failed to find type root"))
+        .map(Path::new)
+        .map(|type_root| pkg_path.join(type_root))
+        .map(|type_root| get_all_declaration_files(&type_root))?
+        .map_err(|e| anyhow!("Failed to get type paths: {e}"))
+        .map(convert_type_files)??;
+
+    // Get output paths
+    let out_path = get_build_path().join(name);
     let types_out_path = out_path.join(TYPES_FILE);
     let manifest_out_path = out_path.join(MANIFEST_FILE);
 
-    // Node built-ins are handled differently because each file is a different module and we don't
-    // need all of them
-    let node_modules = Path::new(PACKAGES_DIR).join(NODE_MODULES);
-    let types_dir = node_modules.join("@types");
-    let types_node_dir = types_dir.join("node");
-    let types_node_path = types_node_dir.join(name).with_extension("d.ts");
-    if fs::exists(&types_node_path)? {
-        let content = fs::read_to_string(&types_node_path)?;
-        let files = convert_type_files(vec![(types_node_path, content)])?;
-        fs::create_dir_all(out_path)?;
-        fs::write(types_out_path, serde_json::to_string(&files)?)?;
-        fs::copy(types_node_dir.join(MANIFEST_FILE), manifest_out_path)?;
-        return Ok(());
-    }
+    // Save type declarations
+    fs::create_dir_all(out_path)?;
+    fs::write(types_out_path, serde_json::to_string(&files)?)?;
 
-    let pkg_roots = [&node_modules, &types_dir];
-    for pkg_root in pkg_roots {
-        let pkg_path = pkg_root.join(name);
-        let manifest_path = pkg_path.join(MANIFEST_FILE);
-        let manifest = match fs::read(&manifest_path) {
-            Ok(b) => serde_json::from_slice::<Manifest>(&b)?,
-            Err(e) if e.kind() == std::io::ErrorKind::NotFound => continue,
-            Err(e) => return Err(anyhow!("Unexpected fs error: {e}")),
-        };
+    // Get transitive dependencies that are being referenced in type declarations
+    manifest
+        .get_all_dependencies()
+        .into_keys()
+        // TODO: Make this more robust (if necesssary)
+        .filter(|dep| files.iter().any(|(_, content)| content.contains(dep)))
+        .for_each(|dep| {
+            if let Err(e) = generate_package_types(&dep, cache) {
+                eprintln!("Failed to generate types for `{dep}`: {e}")
+            }
+        });
 
-        let files = manifest
-            .types
-            .as_ref()
-            .or(manifest.typings.as_ref())
-            .ok_or_else(|| anyhow!("Failed to find type root"))
-            .map(Path::new)
-            .map(|type_root| pkg_path.join(type_root))
-            .map(|type_root| get_all_declaration_files(&type_root))?
-            .map_err(|e| anyhow!("Failed to get type paths: {e}"))
-            .map(convert_type_files)??;
+    // Copy the manifest
+    fs::copy(manifest_path, manifest_out_path)?;
 
-        // Save type declarations
-        fs::create_dir_all(out_path)?;
-        fs::write(types_out_path, serde_json::to_string(&files)?)?;
-
-        // Get transitive dependencies that are being referenced in type declarations
-        manifest
-            .get_all_dependencies()
-            .into_keys()
-            // TODO: Make this more robust (if necesssary)
-            .filter(|dep| files.iter().any(|(_, content)| content.contains(dep)))
-            .for_each(|dep| {
-                if let Err(e) = generate_package_types(&dep, cache) {
-                    eprintln!("Failed to generate types for `{dep}`: {e}")
-                }
-            });
-
-        // Copy the manifest
-        fs::copy(manifest_path, manifest_out_path)?;
-
-        return Ok(());
-    }
-
-    Err(anyhow!("Could not find type declarations"))
+    Ok(())
 }
 
 /// Get all type declaration files recursively.
