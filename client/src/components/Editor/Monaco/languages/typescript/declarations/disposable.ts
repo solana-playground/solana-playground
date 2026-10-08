@@ -30,7 +30,6 @@ export const declareDisposableTypes = async () => {
     // TODO: Impl for `@solana/kit`
     // TODO: Share this with `js-runtime`
     const WEB3_JS_PKG = "@solana/web3.js";
-    // Impl below assumes alphabetically ordered packages (manifest too)
     const ANCHOR_PKGS = [
       "@anchor-lang/core",
       "@coral-xyz/anchor",
@@ -39,26 +38,15 @@ export const declareDisposableTypes = async () => {
 
     const deps = Object.keys(manifest.dependencies);
     const web3JsPkg = deps.find((dep) => dep === WEB3_JS_PKG);
-    if (web3JsPkg) {
-      try {
-        await PgJsPackage.getTypes(WEB3_JS_PKG);
-        disposables.push(declareNamespace(web3JsPkg, { as: "web3" }));
-      } catch {}
-    }
-
     const anchorPkg = deps.find((dep) => ANCHOR_PKGS.includes(dep));
-    if (anchorPkg) {
-      try {
-        await PgJsPackage.getTypes(anchorPkg);
-        disposables.push(declareNamespace(anchorPkg, { as: "anchor" }));
-      } catch {}
+    if (web3JsPkg || anchorPkg) {
+      addLib("default", require("./raw/pg.raw.d.ts"));
+      disposables.push(declareNamespace("solana-playground", { as: "pg" }));
     }
+  } else {
+    addLib("default", require("./raw/pg.raw.d.ts"));
+    disposables.push(declareNamespace("solana-playground", { as: "pg" }));
   }
-
-  // Default
-  addLib("default", require("./raw/pg.raw.d.ts"));
-  const pgNamespace = declareNamespace("solana-playground", { as: "pg" });
-  disposables.push(pgNamespace);
 
   // Program id
   const programIdChange = PgProgramInfo.onDidChangePk((programId) => {

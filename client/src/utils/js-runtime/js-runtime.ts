@@ -264,13 +264,8 @@ export class PgJsRuntime {
     } else {
       const manifest = PgJsPackage.getParsedManifest();
       const deps = Object.keys(manifest.dependencies ?? {});
-
       const web3JsPkg = deps.find((dep) => dep === WEB3_JS_PKG);
-      if (web3JsPkg) globals.push(["web3", await this._import(web3JsPkg)]);
-
       const anchorPkg = deps.find((dep) => ANCHOR_PKGS.includes(dep));
-      if (anchorPkg) globals.push(["anchor", await this._import(anchorPkg)]);
-
       if (web3JsPkg || anchorPkg) globals.push(["pg", this._getPg()]);
     }
 
@@ -523,6 +518,7 @@ export class PgJsRuntime {
       /** Current project's program public key */
       PROGRAM_ID?: PgWeb3.PublicKey;
       /** Anchor program instance of the current project */
+      // TODO: Make this `any` after supporting user's current version
       program?: import("@coral-xyz/anchor").Program;
     }
 
