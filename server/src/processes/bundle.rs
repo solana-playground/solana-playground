@@ -3,7 +3,7 @@ use std::{
     env,
     fs::{self, DirEntry},
     io,
-    path::{Path, PathBuf},
+    path::{Path, PathBuf, MAIN_SEPARATOR_STR},
     process::Command,
 };
 
@@ -302,8 +302,7 @@ fn generate_package_types(name: &str, cache: &mut HashSet<String>) -> Result<()>
     cache.insert(name.to_owned());
 
     let build_path = get_build_path();
-    // Flatten the `@types` into the out directory so that clients have a easier time importing
-    let out_path = build_path.join(name.replace("@types/", ""));
+    let out_path = build_path.join(name);
     let types_path = out_path.join(TYPES_FILE);
     let deps_path = out_path.join(DEPENDENCIES_FILE);
 
@@ -333,14 +332,14 @@ fn generate_package_types(name: &str, cache: &mut HashSet<String>) -> Result<()>
             Err(e) => return Err(anyhow!("Unexpected fs error: {e}")),
         };
 
-        let type_root = manifest
+        let files = manifest
             .types
             .as_ref()
             .or(manifest.typings.as_ref())
             .ok_or_else(|| anyhow!("Failed to find type root"))
             .map(Path::new)
-            .map(|type_root| pkg_path.join(type_root))?;
-        let files = get_all_declaration_files(&type_root)
+            .map(|type_root| pkg_path.join(type_root))
+            .map(|type_root| get_all_declaration_files(&type_root))?
             .map_err(|e| anyhow!("Failed to get type paths: {e}"))
             .map(convert_type_files)??;
 
@@ -357,10 +356,7 @@ fn generate_package_types(name: &str, cache: &mut HashSet<String>) -> Result<()>
             .fold(vec![], |mut acc, dep| {
                 match generate_package_types(&dep, cache) {
                     Ok(_) => acc.push(dep),
-                    Err(e1) => match generate_package_types(&format!("@types/{dep}"), cache) {
-                        Ok(_) => acc.push(dep),
-                        Err(e2) => eprintln!("Failed to generate types for `{dep}`: {e1}\n{e2}"),
-                    },
+                    Err(e) => eprintln!("Failed to generate types for `{dep}`: {e}"),
                 }
 
                 acc
@@ -431,7 +427,7 @@ fn convert_type_files(files: Vec<(PathBuf, String)>) -> Result<Files> {
                 return Err(anyhow!("Invalid path: {path:?}"));
             };
 
-            let after_node_modules_index = index + NODE_MODULES.len() + "/".len();
+            let after_node_modules_index = index + NODE_MODULES.len() + MAIN_SEPARATOR_STR.len();
             let path = path[after_node_modules_index..].to_owned();
             Ok((path, content))
         })

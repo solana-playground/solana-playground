@@ -105,7 +105,8 @@ export const declarePackage = async (
       declareModule(
         packageName,
         `export * from "${oldIndexPath
-          .replace("node_modules/", "")
+          // TODO: Remove
+          .replace(PgSettings.experimental.unstable ? "" : "node_modules/", "")
           .replace(".d.ts", "")}"`
       ),
     ]);
@@ -122,7 +123,12 @@ export const declarePackage = async (
   const disposables = files.map(([path, content]) => {
     // Declare module on `index.d.ts` if it's not declared
     if (files.length === 1 && !content.includes("declare module")) {
-      content = declareModule(packageName, content);
+      // Always declare `@types/<package>` as `<package>`. Otherwise the worker
+      // shows an error similar to:
+      // ```
+      // File 'file:///node_modules/@types/bn.js/index.d.ts' is not a module.
+      // ```
+      content = declareModule(packageName.replace("@types/", ""), content);
     }
 
     if (PgSettings.experimental.unstable) {
