@@ -319,6 +319,16 @@ impl<'a> Sandbox<'a> {
                     let download_quota = self.cfg.limits.download.unwrap_or(usize::MAX);
                     let upload_quota = self.cfg.limits.upload.unwrap_or(usize::MAX);
 
+                    // Logging (inside the proxy container)
+                    let (access_log, cache_log) = if enabled_debug!() {
+                        (
+                            "stdio:/var/log/squid/access.log",
+                            "stdio:/var/log/squid/cache.log",
+                        )
+                    } else {
+                        ("none", "none")
+                    };
+
                     // Create and start the proxy container
                     Command::new("docker")
                         .arg("run")
@@ -539,6 +549,9 @@ impl<'a> Sandbox<'a> {
                             # Create `squid` configuration
                             cat >/etc/squid/squid.conf <<\CONF
 
+                            # Enable verbose logging for `external_acl` and `helper`
+                            debug_options 82,9 84,9
+
                             # ICMP pinger logs redundant errors
                             pinger_enable off
 
@@ -577,10 +590,8 @@ impl<'a> Sandbox<'a> {
                             http_access deny all
 
                             cache deny all
-                            # access_log none
-                            # cache_log none
-                            access_log stdio:/var/log/squid/access.log
-                            cache_log stdio:/var/log/squid/cache.log
+                            access_log {access_log}
+                            cache_log {cache_log}
                             CONF
 
                             # Drop capabilities
