@@ -1,1 +1,0 @@
-export { processShare } from "./share";

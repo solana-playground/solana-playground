@@ -60,7 +60,6 @@ all_packages=(
     "spl-token-cli"
     "sugar-cli"
 )
-vscode_packages=(${all_packages[2]})
 
 # Get script directory (which is wasm/), and root directory (which is one level higher).
 # This allows the script to be run from any directory.
@@ -137,13 +136,3 @@ fi
 # Update client packages
 echo "Updating client packages: $client_package_names"
 cd $root_dir/client && yarn install --frozen-lockfile && yarn upgrade $client_package_names
-
-# Update vscode packages
-vscode_package_names=""
-
-for package in "${vscode_packages[@]}"; do
-    vscode_package_names="${vscode_package_names}@solana-playground/$package "
-done
-
-echo "Updating VSCode packages: $vscode_package_names"
-cd $root_dir/vscode && yarn install --frozen-lockfile && yarn upgrade $vscode_package_names
