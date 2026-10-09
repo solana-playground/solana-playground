@@ -14,8 +14,8 @@ const OUT_DIR: &str = "out";
 /// `package.json`
 pub const MANIFEST_FILE: &str = "package.json";
 
-/// Path to the lock file (currently only `yarn`)
-pub const LOCK_FILE: &str = "yarn.lock";
+/// Generic lock file name (for internal use)
+pub const LOCK_FILE: &str = "package.lock";
 
 /// Bundled files
 pub const BUNDLE_FILE: &str = "bundle.json";

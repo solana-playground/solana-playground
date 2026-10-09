@@ -1,51 +1,47 @@
 import { createArgs, createCmd, createOptions, createSubcmd } from "../create";
 import { createHandler } from "./common";
 
-export const yarn = createCmd({
-  name: "yarn",
-  description: "Yarn package manager (v1)",
+export const npm = createCmd({
+  name: "npm",
+  description: "Node Package Manager",
   subcommands: [
     // TODO: `init`
 
     createSubcmd({
       name: "install",
+      // TODO: Alias
       description: "Install packages",
-      handle: createHandler({ loading: "Installing", success: "Installation" }),
-    }),
-
-    createSubcmd({
-      name: "add",
-      description: "Add package(s)",
       args: createArgs([
         {
           name: "packages",
           description: "Package(s) to add",
+          optional: true,
           multiple: true,
         },
       ]),
       options: createOptions([
         {
-          name: "dev",
+          name: "save-dev",
           description: "Save package(s) to `devDependencies`",
           short: "D",
         },
         {
-          name: "peer",
+          name: "save-peer",
           description: "Save package(s) to `peerDependencies`",
-          short: "P",
         },
         {
-          name: "optional",
+          name: "save-optional",
           description: "Save package(s) to `optionalDependencies`",
           short: "O",
         },
       ]),
-      handle: createHandler({ loading: "Adding", success: "Addition" }),
+      handle: createHandler({ loading: "Installing", success: "Installation" }),
     }),
 
     createSubcmd({
-      name: "remove",
-      description: "Remove package(s)",
+      name: "uninstall",
+      // TODO: Alias
+      description: "Uninstall package(s)",
       args: createArgs([
         {
           name: "packages",
@@ -53,20 +49,21 @@ export const yarn = createCmd({
           multiple: true,
         },
       ]),
-      handle: createHandler({ loading: "Removing", success: "Removal" }),
+      handle: createHandler({ loading: "Uninstalling", success: "Uninstall" }),
     }),
 
     createSubcmd({
-      name: "upgrade",
-      description: "Upgrade package(s) (also works with downgrades)",
+      name: "update",
+      // TODO: Alias
+      description: "Update package(s)",
       args: createArgs([
         {
           name: "packages",
-          description: "Package(s) to upgrade",
+          description: "Package(s) to update",
           multiple: true,
         },
       ]),
-      handle: createHandler({ loading: "Upgrading", success: "Upgrade" }),
+      handle: createHandler({ loading: "Updating", success: "Update" }),
     }),
   ],
 });

@@ -17,7 +17,7 @@ use solpg_server::{
 // TODO: Make the process output a single compressed archive with all the files in it
 fn main() -> Result<()> {
     let args = Args::from_env()?;
-    let manifest = handle_package_manager_command(&args)?;
+    let manifest = run_package_manager_command(&args)?;
     generate_bundle(&manifest)?;
     generate_types(&manifest)?;
     Ok(())
@@ -75,21 +75,53 @@ impl Manifest {
 /// `package.json` dependencies map
 type Dependencies = HashMap<String, String>;
 
-/// Install packages.
-fn handle_package_manager_command(args: &Args) -> Result<Manifest> {
+/// Run the package manager command.
+fn run_package_manager_command(args: &Args) -> Result<Manifest> {
+    // TODO: Only match command name once (merge with the command runner path)
+    let lock_file_name = match args.command.get(0).map(|s| s.as_str()).unwrap_or("npm") {
+        "npm" => "package-lock.json",
+        "yarn" => "yarn.lock",
+        name => return Err(anyhow!("Unsupported package manager: `{name}`")),
+    };
+    let packages_path = Path::new(PACKAGES_DIR);
+    let lock_file_in_path = packages_path.join(LOCK_FILE);
+    let lock_file_real_path = packages_path.join(lock_file_name);
+    if fs::exists(&lock_file_in_path)? {
+        fs::rename(lock_file_in_path, &lock_file_real_path)?;
+    }
+
     match args.command.as_slice() {
         [name, args @ ..] => match name.as_str() {
+            "npm" => {
+                match args {
+                    [command, args @ ..] => match command.as_str() {
+                        "install" => run_npm(
+                            command,
+                            args,
+                            &[
+                                "--save-dev",
+                                "-D",
+                                "--save-peer", // `-P` is `--save-prod` which is useless
+                                "--save-optional",
+                                "-O",
+                            ],
+                        )?,
+                        "uninstall" | "update" => run_npm(command, args, &[])?,
+                        _ => return Err(anyhow!("Unsupported command: `{command}`")),
+                    },
+                    // Empty `npm` defaults to help output
+                    _ => return Err(anyhow!("Expected a command")),
+                }
+            }
             "yarn" => {
                 match args {
                     [command, args @ ..] => match command.as_str() {
-                        "add" | "install" | "remove" | "upgrade" => run_yarn(
+                        "add" => run_yarn(
                             command,
                             args,
-                            match command.as_str() {
-                                "add" => &["--dev", "-D", "--peer", "-P", "--optional", "-O"],
-                                _ => &[],
-                            },
+                            &["--dev", "-D", "--peer", "-P", "--optional", "-O"],
                         )?,
+                        "install" | "remove" | "upgrade" => run_yarn(command, args, &[])?,
                         _ => return Err(anyhow!("Unsupported command: `{command}`")),
                     },
                     // Empty `yarn` defaults to install
@@ -98,40 +130,52 @@ fn handle_package_manager_command(args: &Args) -> Result<Manifest> {
             }
             _ => return Err(anyhow!("Unsupported package manager: `{name}`")),
         },
-        // TODO: `npm` as a safer default?
-        _ => run_yarn("install", &[], &[])?,
+        // No `command` defaults to `npm install`
+        _ => run_npm("install", &[], &[])?,
     }
 
-    let packages_path = Path::new(PACKAGES_DIR);
     let out_path = get_out_path();
     fs::create_dir_all(&out_path)?;
 
     let manifest_path = packages_path.join(MANIFEST_FILE);
     fs::copy(&manifest_path, out_path.join(MANIFEST_FILE))?;
-
-    let lock_file_path = packages_path.join(LOCK_FILE);
-    fs::copy(lock_file_path, out_path.join(LOCK_FILE))?;
+    fs::copy(lock_file_real_path, out_path.join(LOCK_FILE))?;
 
     fs::read(manifest_path)
         .map(|b| serde_json::from_slice(&b))?
         .map_err(Into::into)
 }
 
-/// Run the `yarn` command using safe(r) defaults.
+/// Run the given `npm` command using safe(r) defaults.
 ///
 /// # Safety
 ///
-/// Only options specified in `allowed_options` are allowed to be passed in.
-///
-/// **Arguments are not sanitized!**
-fn run_yarn(command: &str, args: &[String], allowed_options: &[&'static str]) -> Result<()> {
-    if let Some(opt) = args
-        .iter()
-        .filter(|arg| arg.starts_with('-'))
-        .find(|arg| !allowed_options.iter().any(|opt| opt == arg))
-    {
-        return Err(anyhow!("Invalid option: `{opt}`"));
+/// Scripts are ignored and only `allowed_options` are accepted, but arguments are passed in to the
+/// command as-is without any additional sanitization.
+fn run_npm(command: &str, args: &[String], allowed_options: &[&'static str]) -> Result<()> {
+    check_allowed_options(args, allowed_options)?;
+
+    let status = Command::new("npm")
+        .current_dir(PACKAGES_DIR)
+        .arg("--ignore-scripts")
+        .arg(command)
+        .args(args)
+        .status()?;
+    if !status.success() {
+        return Err(anyhow!("Failed to {command}"));
     }
+
+    Ok(())
+}
+
+/// Run the given `yarn` command using safe(r) defaults.
+///
+/// # Safety
+///
+/// Scripts are ignored and only `allowed_options` are accepted, but arguments are passed in to the
+/// command as-is without any additional sanitization.
+fn run_yarn(command: &str, args: &[String], allowed_options: &[&'static str]) -> Result<()> {
+    check_allowed_options(args, allowed_options)?;
 
     let status = Command::new("yarn")
         .current_dir(PACKAGES_DIR)
@@ -142,6 +186,20 @@ fn run_yarn(command: &str, args: &[String], allowed_options: &[&'static str]) ->
         .status()?;
     if !status.success() {
         return Err(anyhow!("Failed to {command}"));
+    }
+
+    Ok(())
+}
+
+/// Check that only the options specified in `allowed_options` are allowed to be passed in.
+fn check_allowed_options(args: &[String], allowed_options: &[&'static str]) -> Result<()> {
+    if let Some(opt) = args
+        .iter()
+        .map(|arg| arg.trim())
+        .filter(|arg| arg.starts_with('-'))
+        .find(|arg| !allowed_options.iter().any(|opt| opt == arg))
+    {
+        return Err(anyhow!("Invalid option: `{opt}`"));
     }
 
     Ok(())

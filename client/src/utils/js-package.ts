@@ -24,7 +24,8 @@ export class PgJsPackage {
     const manifest = this._getManifest();
     if (!manifest) throw new Error("Manifest (`package.json`) not found");
 
-    const lock = this._getLock();
+    const lockFileName = this._getLockFileName(command);
+    const lock = PgExplorer.getFileContent(lockFileName);
     const result = await PgServer.bundle({ manifest, lock, command });
 
     // Remove the existing data for fresh installs each time
@@ -33,7 +34,7 @@ export class PgJsPackage {
     // Save manifest and lock files
     const packageFiles: TupleFiles = [
       [this._PATHS.MANIFEST_FILE, result.manifest],
-      [this._PATHS.LOCK_FILE, result.lock],
+      [lockFileName, result.lock],
     ];
     for (const file of packageFiles) await PgExplorer.saveItem(...file);
 
@@ -187,8 +188,6 @@ export class PgJsPackage {
       "js-packages"
     ),
     MANIFEST_FILE: "package.json",
-    // TODO: Support `npm` and `pnpm`
-    LOCK_FILE: "yarn.lock",
     BUNDLE_FILE: "bundle.js",
     TYPES_FILE: "types.json",
   };
@@ -263,10 +262,14 @@ export class PgJsPackage {
     return PgExplorer.getFileContent(this._PATHS.MANIFEST_FILE);
   }
 
-  /** Get the lock file content. */
-  // TODO: Make this throw if non-existent?
-  private static _getLock() {
-    return PgExplorer.getFileContent(this._PATHS.LOCK_FILE);
+  /** Get the lock file name based on the command. */
+  private static _getLockFileName(cmd?: string[]) {
+    switch (cmd?.at(0)) {
+      case "yarn":
+        return "yarn.lock";
+      default:
+        return "package-lock.json";
+    }
   }
 
   /**
