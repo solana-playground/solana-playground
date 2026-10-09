@@ -92,10 +92,7 @@ export const declarePackage = async (
   const types = await getTypes(packageName).catch((e) => {
     console.log("Failed to get types:", packageName, e);
   });
-  if (!types) {
-    cache.delete(packageName);
-    return;
-  }
+  if (!types) return;
 
   const { manifest, files } = types;
 
