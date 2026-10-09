@@ -682,7 +682,7 @@ impl<'a> Sandbox<'a> {
                                     .arg(&container)
                                     .arg("cp")
                                     .arg("--recursive")
-                                    .arg(temp_dst)
+                                    .arg(temp_dst.join("."))
                                     .arg(stripped_container_dst)
                                     .run()
                                     .await?;
