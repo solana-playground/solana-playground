@@ -81,18 +81,25 @@ export const declarePackage = async (
 ): Promise<Disposable | undefined> => {
   if (cache.has(packageName)) return;
 
+  // TODO: Remove (`PgSettings.experimental.unstable`)
   if (opts?.empty) {
     return monaco.languages.typescript.typescriptDefaults.addExtraLib(
       declareModule(packageName)
     );
   }
 
+  // Cache eagerly to limit concurrent requests to the same package
   cache.add(packageName);
 
-  const types = await getTypes(packageName).catch((e) => {
-    console.log("Failed to get types:", packageName, e);
-  });
-  if (!types) return;
+  // Catch errors but do not log them because this can produce hundreds of
+  // useless logs
+  const types = await getTypes(packageName).catch(() => {});
+  if (!types) {
+    // This may result in unnecessary runs, but not clearing the cache sometimes
+    // skips declarations when they are needed, e.g. after a new installation
+    cache.delete(packageName);
+    return;
+  }
 
   const { manifest, files } = types;
 
@@ -208,5 +215,6 @@ const getTypes = async (
   return await PgJsPackage.getTypes(packageName);
 };
 
+// TODO: Cache should also include version
 /** Declared package names cache */
 const cache = new Set<string>();
