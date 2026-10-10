@@ -87,6 +87,9 @@ impl<'a> Sandbox<'a> {
     ///
     /// [`Self::build_proxy_image`] must be called beforehand.
     #[must_use]
+    // TODO: Consider making this an action. Not sure if it would be useful, since it will generally
+    // be fundamentally unsecure to re-enable proxy after disabling it, but there might be some
+    // cases where this is appropriate, or even desired.
     pub fn proxy<I, S>(mut self, allowed_domains: I) -> Self
     where
         I: IntoIterator<Item = S>,
@@ -172,6 +175,24 @@ impl<'a> Sandbox<'a> {
         self
     }
 
+    /// Set the download limit (total quota in bytes).
+    ///
+    /// This only applies to [`Self::proxy`] and is a no-op when there is no networking.
+    #[must_use]
+    pub fn download_limit(mut self, download_limit: usize) -> Self {
+        self.cfg.limits.download.replace(download_limit);
+        self
+    }
+
+    /// Set the upload limit (total quota in bytes).
+    ///
+    /// This only applies to [`Self::proxy`] and is a no-op when there is no networking.
+    #[must_use]
+    pub fn upload_limit(mut self, upload_limit: usize) -> Self {
+        self.cfg.limits.upload.replace(upload_limit);
+        self
+    }
+
     /// Command to run in a sandboxed environment.
     #[must_use]
     pub fn command(mut self, cmd: &'a Command) -> Self {
@@ -196,6 +217,21 @@ impl<'a> Sandbox<'a> {
             src.as_ref().to_path_buf(),
             dst.as_ref().to_path_buf(),
         ));
+        self
+    }
+
+    /// Disable the proxy network.
+    ///
+    /// This action disables all networking, not only the proxy network. This is a one-way
+    /// operation; once it is disabled, it cannot be re-enabled again.
+    ///
+    /// # Note
+    ///
+    /// This is only available if [`Self::proxy`] has been enabled beforehand. Otherwise, it's a
+    /// no-op.
+    #[must_use]
+    pub fn disable_proxy(mut self) -> Self {
+        self.actions.push(Action::DisableProxy);
         self
     }
 
@@ -363,12 +399,12 @@ impl<'a> Sandbox<'a> {
                         .arg("--health-timeout=100ms")
                         .arg("--health-retries=10")
                         .arg("--cap-drop=ALL")
-                         // Allow `ipconfig` changes
+                        // Allow `ipconfig` changes
                         .arg("--cap-add=CAP_NET_ADMIN")
                         // Next 2 allow changing the user (`squid` does internally)
                         .arg("--cap-add=SETUID")
                         .arg("--cap-add=SETGID")
-                        // // Important: allow setting capabilities (to remove later)
+                        // Important: allow setting capabilities (to remove later)
                         .arg("--cap-add=SETPCAP")
                         .arg("--entrypoint=/bin/sh")
                         .arg(Self::proxy_image_name())
@@ -644,7 +680,30 @@ impl<'a> Sandbox<'a> {
             };
             for action in &self.actions {
                 match action {
+                    Action::Run(cmd) => {
+                        debug!("Running command: {cmd:?}");
+                        let cmd = cmd.as_std();
+                        let output = Command::new("docker")
+                            .arg("exec")
+                            .arg("--user")
+                            .arg(user)
+                            .arg(&container)
+                            .arg(cmd.get_program())
+                            .args(cmd.get_args())
+                            .env_clear()
+                            .envs(cmd.get_envs().filter_map(|(k, v)| v.map(|v| (k, v))))
+                            .output()
+                            .await?;
+                        all_output.status = output.status;
+                        all_output.stderr.extend_from_slice(&output.stderr);
+                        all_output.stdout.extend_from_slice(&output.stdout);
+                        if !all_output.status.success() {
+                            break;
+                        }
+                    }
                     Action::Copy(src, dst) => {
+                        debug!("Copying: src={src:?} dst={dst:?}");
+
                         // `docker cp` does not respect current workdir and assumes relative paths
                         // to be relative to `/`. As a workaround, get the current dir from the
                         // running container and make the path absolute.
@@ -709,25 +768,17 @@ impl<'a> Sandbox<'a> {
                             }
                         }
                     }
-                    Action::Run(cmd) => {
-                        let cmd = cmd.as_std();
-                        let output = Command::new("docker")
-                            .arg("exec")
-                            .arg("--user")
-                            .arg(user)
-                            .arg(&container)
-                            .arg(cmd.get_program())
-                            .args(cmd.get_args())
-                            .env_clear()
-                            .envs(cmd.get_envs().filter_map(|(k, v)| v.map(|v| (k, v))))
-                            .output()
-                            .await?;
-                        all_output.status = output.status;
-                        all_output.stderr.extend_from_slice(&output.stderr);
-                        all_output.stdout.extend_from_slice(&output.stdout);
-                        if !all_output.status.success() {
-                            break;
+                    Action::DisableProxy => {
+                        debug!("Disabling proxy: {cleanup_guard:?}");
+                        if cleanup_guard.resources.len() != 3 {
+                            return Err(anyhow!("Internal bug: unexpected number of resources"));
                         }
+
+                        // Removing the proxy container and network disables all networking.
+                        //
+                        // Must cleanup in order: the container first, the network last.
+                        cleanup_guard.resources.remove(1).cleanup().await?;
+                        cleanup_guard.resources.remove(0).cleanup().await?;
                     }
                 }
             }
@@ -892,6 +943,8 @@ enum Action<'a> {
     Run(&'a Command),
     /// Copy from or to the container
     Copy(PathBuf, PathBuf),
+    /// Disable the proxy
+    DisableProxy,
 }
 
 impl Action<'_> {
