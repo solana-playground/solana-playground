@@ -5,7 +5,7 @@ use std::process::{ExitStatus, Stdio};
 use anyhow::{anyhow, Result};
 use tokio::io::AsyncWriteExt;
 
-use crate::log::{debug, enabled_debug};
+use crate::log::{debug, enabled_debug, error};
 
 /// Async command helpers
 pub trait AsyncCommand {
@@ -33,11 +33,13 @@ impl AsyncCommand for tokio::process::Command {
             self.stdout(Stdio::null()).stderr(Stdio::null());
         }
 
+        debug!("Running command: {self:?}");
         let status = self.status().await?;
         handle_error(self.as_std(), status)
     }
 
     async fn output_stdout(&mut self) -> Result<String> {
+        debug!("Running command: {self:?}");
         let output = self.output().await?;
         if enabled_debug!() && !output.status.success() {
             let stdout = String::from_utf8_lossy(&output.stderr);
@@ -59,7 +61,10 @@ impl AsyncCommand for tokio::process::Command {
             self.stdout(Stdio::null()).stderr(Stdio::null());
         }
 
-        let mut child = self.stdin(Stdio::piped()).kill_on_drop(true).spawn()?;
+        self.stdin(Stdio::piped()).kill_on_drop(true);
+
+        debug!("Running command: {self:?}");
+        let mut child = self.spawn()?;
         let mut stdin = child
             .stdin
             .take()
@@ -77,11 +82,8 @@ impl AsyncCommand for tokio::process::Command {
 /// Return an error if command did not complete successfully.
 fn handle_error(cmd: &std::process::Command, status: ExitStatus) -> Result<()> {
     if !status.success() {
-        return Err(anyhow!(
-            "Failed to run {:?} {:?}",
-            cmd.get_program(),
-            cmd.get_args()
-        ));
+        error!("Command exited with {status} {cmd:?}");
+        return Err(anyhow!("Command failed: {:?}", cmd.get_program()));
     }
 
     Ok(())
