@@ -11,6 +11,7 @@ import { PgProgramInteraction } from "../program-interaction";
 import { PgSettings } from "../settings";
 import { PgTerminal } from "../terminal";
 import { Wallet, PgWallet } from "../wallet";
+import { Endpoint } from "../../constants";
 import type { MergeUnion } from "../types";
 import type { PgWeb3 } from "../web3";
 
@@ -437,7 +438,7 @@ export class PgJsRuntime {
         opts: PgWeb3.ConfirmOptions = pkg[providerName].defaultOptions()
       ) => {
         const connection = PgConnection.create({
-          endpoint: url ?? "http://localhost:8899",
+          endpoint: url ?? Endpoint.LOCALNET,
           commitment: opts.commitment,
         });
 
@@ -450,8 +451,12 @@ export class PgJsRuntime {
 
       // Add `AnchorProvider.env()`
       pkg[providerName].env = () => {
-        const provider = this._getPg().program?.provider;
+        const { wallet, program } = this._getPg();
+        if (!wallet) throw new Error("Wallet not connected");
+
+        const provider = program?.provider;
         if (!provider) throw new Error("Provider not ready");
+
         return setAnchorWallet(provider);
       };
 
