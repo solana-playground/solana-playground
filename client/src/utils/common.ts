@@ -796,11 +796,7 @@ export class PgCommon {
   /**
    * Convert the given string to camelCase.
    *
-   * NOTE: This uses the same implementation as Anchor(`camelcase` package) in
-   * order to derive the same names for IDL items such as enum variants and
-   * accounts. Rust identifiers are not always PascalCase, e.g. `ADD` or
-   * `ADD_ITEM` are valid enum variants and Anchor converts them to `add` and
-   * `addItem` respectively.
+   * NOTE: This uses the same implementation as Anchor.
    *
    * @returns camelCase converted version of the string input
    */
