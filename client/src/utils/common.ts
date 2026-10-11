@@ -1,5 +1,3 @@
-import camelcase from "camelcase";
-
 import type {
   AllPartial,
   Disposable,
