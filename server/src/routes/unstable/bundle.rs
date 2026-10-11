@@ -134,14 +134,19 @@ pub async fn bundle(
         let output = Sandbox::new()
             .image(Sandbox::get_image_name("bundle"))
             .user("solpg")
-            // TODO: Allow networking only during the installation step
-            .proxy(["registry.npmjs.org", "registry.yarnpkg.com", "github.com"])
             .limits(state.config.limits.sandbox)
+            .proxy(["registry.npmjs.org", "registry.yarnpkg.com", "github.com"])
             .copy(
                 format!("{}/.", temp_host_path.display()),
                 format!("container:{PACKAGES_DIR}"),
             )
-            .command(Command::new("bundle").args(payload.command.unwrap_or_default()))
+            .command(
+                Command::new("bundle")
+                    .arg("install")
+                    .args(payload.command.unwrap_or_default()),
+            )
+            .disable_proxy()
+            .command(Command::new("bundle").arg("build"))
             .copy(
                 format!("container:{}/.", container_path.display()),
                 &temp_host_path,

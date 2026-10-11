@@ -78,7 +78,7 @@ impl AsyncCommand for tokio::process::Command {
 fn handle_error(cmd: &std::process::Command, status: ExitStatus) -> Result<()> {
     if !status.success() {
         return Err(anyhow!(
-            "Failed to run `{:?} {:?}",
+            "Failed to run {:?} {:?}",
             cmd.get_program(),
             cmd.get_args()
         ));

@@ -17,14 +17,21 @@ use solpg_server::{
 // TODO: Make the process output a single compressed archive with all the files in it
 fn main() -> Result<()> {
     let args = Args::from_env()?;
-    let manifest = run_package_manager_command(&args)?;
-    generate_bundle(&manifest)?;
-    generate_types(&manifest)?;
-    Ok(())
+    match args {
+        Args::Install { command } => run_package_manager_command(command),
+        Args::Build => {
+            let manifest_path = Path::new(PACKAGES_DIR).join(MANIFEST_FILE);
+            let manifest = fs::read(manifest_path).map(|b| serde_json::from_slice(&b))??;
+            generate_bundle(&manifest)?;
+            generate_types(&manifest)?;
+            Ok(())
+        }
+    }
 }
 
-struct Args {
-    command: Vec<String>,
+enum Args {
+    Install { command: Vec<String> },
+    Build,
 }
 
 impl Args {
@@ -33,9 +40,18 @@ impl Args {
         if args.next().is_none() {
             return Err(anyhow!("Missing program"));
         };
+        let Some(step) = args.next() else {
+            return Err(anyhow!("Missing step"));
+        };
+        let args = match step.as_str() {
+            "install" => Self::Install {
+                command: args.collect(),
+            },
+            "build" => Self::Build,
+            _ => return Err(anyhow!("Invalid step: {step}")),
+        };
 
-        let command = args.collect();
-        Ok(Self { command })
+        Ok(args)
     }
 }
 
@@ -76,9 +92,9 @@ impl Manifest {
 type Dependencies = HashMap<String, String>;
 
 /// Run the package manager command.
-fn run_package_manager_command(args: &Args) -> Result<Manifest> {
+fn run_package_manager_command(command: Vec<String>) -> Result<()> {
     // TODO: Only match command name once (merge with the command runner path)
-    let lock_file_name = match args.command.get(0).map(|s| s.as_str()).unwrap_or("npm") {
+    let lock_file_name = match command.get(0).map(|s| s.as_str()).unwrap_or("npm") {
         "npm" => "package-lock.json",
         "yarn" => "yarn.lock",
         name => return Err(anyhow!("Unsupported package manager: `{name}`")),
@@ -90,7 +106,7 @@ fn run_package_manager_command(args: &Args) -> Result<Manifest> {
         fs::rename(lock_file_in_path, &lock_file_real_path)?;
     }
 
-    match args.command.as_slice() {
+    match command.as_slice() {
         [name, args @ ..] => match name.as_str() {
             "npm" => {
                 match args {
@@ -136,14 +152,13 @@ fn run_package_manager_command(args: &Args) -> Result<Manifest> {
 
     let out_path = get_out_path();
     fs::create_dir_all(&out_path)?;
-
-    let manifest_path = packages_path.join(MANIFEST_FILE);
-    fs::copy(&manifest_path, out_path.join(MANIFEST_FILE))?;
+    fs::copy(
+        packages_path.join(MANIFEST_FILE),
+        out_path.join(MANIFEST_FILE),
+    )?;
     fs::copy(lock_file_real_path, out_path.join(LOCK_FILE))?;
 
-    fs::read(manifest_path)
-        .map(|b| serde_json::from_slice(&b))?
-        .map_err(Into::into)
+    Ok(())
 }
 
 /// Run the given `npm` command using safe(r) defaults.
