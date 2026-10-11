@@ -828,13 +828,31 @@ export class PgCommon {
   }
 
   /**
+   * Convert the given string to camelCase.
+   *
+   * NOTE: This uses the same implementation as Anchor.
+   *
    * @returns camelCase converted version of the string input
    */
   static toCamelCase(str: string) {
-    return str.replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, (match, index) => {
-      if (+match === 0) return ""; // or if (/\s+/.test(match)) for white spaces
-      return index === 0 ? match.toLowerCase() : match.toUpperCase();
-    });
+    if (!str) return str;
+
+    const spaced = str
+      .replace(/[^A-Za-z0-9]+/g, " ")
+      .replace(/([a-z][\d]*)([A-Z])/g, "$1 $2")
+      .replace(/([A-Z][A-Z\d]*)([A-Z][a-z])/g, "$1 $2")
+      .trim();
+
+    if (!spaced) return "";
+
+    return spaced
+      .split(/\s+/)
+      .map((word, i) =>
+        i === 0
+          ? word.toLowerCase()
+          : word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+      )
+      .join("");
   }
 
   /**
