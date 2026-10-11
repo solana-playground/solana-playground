@@ -163,21 +163,32 @@ export const IDL: ${idlTypeName} = ${convertedIdl};`,
     );
 
     // Workspace
-    // TODO: `camelCase` program accessors on newer versions
-    const getWorkspace = (packageName: string) => {
+    const getWorkspace = (
+      packageName: string,
+      opts?: { camelCase?: boolean }
+    ) => {
+      const camelCase = opts?.camelCase
+        ? `${PgCommon.toCamelCase(idl.name)}: ${programType},`
+        : "";
       return `import { Program } from "${packageName}";
-      const workspace: { ${PgCommon.toPascalFromSnake(
+      const workspace: { ${camelCase} ${PgCommon.toPascalFromSnake(
         idl.name
       )}: ${programType} };`;
     };
     programDisposables.push(
       addLib(
         "@anchor-lang/core.workspace",
-        declareModule("@anchor-lang/core", getWorkspace("@anchor-lang/core"))
+        declareModule(
+          "@anchor-lang/core",
+          getWorkspace("@anchor-lang/core", { camelCase: true })
+        )
       ),
       addLib(
         "@coral-xyz/anchor.workspace",
-        declareModule("@coral-xyz/anchor", getWorkspace("@coral-xyz/anchor"))
+        declareModule(
+          "@coral-xyz/anchor",
+          getWorkspace("@coral-xyz/anchor", { camelCase: true })
+        )
       ),
       addLib(
         "@project-serum/anchor.workspace",
