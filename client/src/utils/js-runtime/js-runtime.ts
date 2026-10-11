@@ -475,7 +475,7 @@ export class PgJsRuntime {
         const snakeCaseName = PgProgramInfo.idl.name;
         const names = [
           PgCommon.toPascalFromSnake(snakeCaseName), // default before 0.29.0
-          PgCommon.toCamelFromSnake(snakeCaseName),
+          PgCommon.toCamelCase(snakeCaseName),
           PgCommon.toKebabFromSnake(snakeCaseName),
           snakeCaseName,
         ];

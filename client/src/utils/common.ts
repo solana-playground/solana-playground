@@ -842,7 +842,6 @@ export class PgCommon {
       .replace(/([a-z][\d]*)([A-Z])/g, "$1 $2")
       .replace(/([A-Z][A-Z\d]*)([A-Z][a-z])/g, "$1 $2")
       .trim();
-
     if (!spaced) return "";
 
     return spaced
@@ -853,20 +852,6 @@ export class PgCommon {
           : word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
       )
       .join("");
-  }
-
-  /**
-   * @returns camelCase converted version of the PascalCase string
-   */
-  static toCamelFromPascal(str: string) {
-    return str[0].toLowerCase() + str.slice(1);
-  }
-
-  /**
-   * @returns camelCase converted version of the snake_case string
-   */
-  static toCamelFromSnake(str: string) {
-    return PgCommon.toCamelFromPascal(PgCommon.toPascalFromSnake(str));
   }
 
   /**
@@ -898,7 +883,6 @@ export class PgCommon {
    */
   static toKebabFromCamel(str: string) {
     const kebab = [];
-
     for (const letter of str) {
       if (letter === letter.toUpperCase()) {
         kebab.push("-" + letter.toLowerCase());
