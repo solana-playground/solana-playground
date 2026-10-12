@@ -332,8 +332,12 @@ export class PgJsRuntime {
    * @returns the imported packages and the code without the import statements
    */
   private static async _getImports(code: string) {
+    // TODO: Consider transpiling first because it:
+    // - normalizes imports (always `require("<package>"")` when `target == ES5`)
+    // - handles comments and import styles
+    // - simpler
     const importRegex =
-      /import\s+(?:((\*\s+as\s+(\w+))|({[\s+\w+\s+,]*})|(\w+))\s+from\s+)?["|'](.+)["|']/gm;
+      /import\s+(?:type\s+)?(?:((\*\s+as\s+(\w+))|({[\s+\w+\s+,]*})|(\w+))\s+from\s+)?["|'](.+)["|']/gm;
     let importMatch: RegExpExecArray | null;
 
     const imports: [string, object][] = [];
