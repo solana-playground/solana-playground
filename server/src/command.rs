@@ -33,13 +33,13 @@ impl AsyncCommand for tokio::process::Command {
             self.stdout(Stdio::null()).stderr(Stdio::null());
         }
 
-        debug!("Running command: {self:?}");
+        debug!("Running: {self:?}");
         let status = self.status().await?;
         handle_error(self.as_std(), status)
     }
 
     async fn output_stdout(&mut self) -> Result<String> {
-        debug!("Running command: {self:?}");
+        debug!("Running: {self:?}");
         let output = self.output().await?;
         if enabled_debug!() && !output.status.success() {
             let stdout = String::from_utf8_lossy(&output.stderr);
@@ -63,7 +63,7 @@ impl AsyncCommand for tokio::process::Command {
 
         self.stdin(Stdio::piped()).kill_on_drop(true);
 
-        debug!("Running command: {self:?}");
+        debug!("Running: {self:?}");
         let mut child = self.spawn()?;
         let mut stdin = child
             .stdin

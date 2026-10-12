@@ -227,8 +227,10 @@ fn generate_bundle(manifest: &Manifest) -> Result<()> {
     let src_path = packages_path.join(SRC_DIR);
     let mut entries = vec![];
     for pkg in manifest.get_all_dependencies().keys() {
-        // Skip the `@types` organization
-        if pkg.starts_with("@types") {
+        // `typescript` is a massive dependency that takes up a lot of resources to bundle while
+        // having very little benefit. Do not skip all `devDependencies` because the goal is to keep
+        // the behavior as close as possible to the local behavior.
+        if pkg.starts_with("@types") || pkg == "typescript" {
             continue;
         }
 

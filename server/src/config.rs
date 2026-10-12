@@ -73,7 +73,7 @@ impl Config {
                 // TODO: Re-evaulate defaults before stabilization
                 limits: Limits {
                     route: RouteLimits {
-                        concurrency: get_env("UNSTABLE_BUNDLE_CONCURRENCY_LIMIT", 16usize),
+                        concurrency: get_env("UNSTABLE_BUNDLE_CONCURRENCY_LIMIT", 4usize),
                     },
                     sandbox: SandboxLimits {
                         timeout: Some(get_env("UNSTABLE_BUNDLE_TIMEOUT_LIMIT", 120u64)),

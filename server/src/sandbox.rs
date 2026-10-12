@@ -679,9 +679,9 @@ impl<'a> Sandbox<'a> {
                 stdout: Default::default(),
             };
             for action in &self.actions {
+                debug!("Running action {action:?}");
                 match action {
                     Action::Run(cmd) => {
-                        debug!("Running command: {cmd:?}");
                         let cmd = cmd.as_std();
                         let output = Command::new("docker")
                             .arg("exec")
@@ -702,8 +702,6 @@ impl<'a> Sandbox<'a> {
                         }
                     }
                     Action::Copy(src, dst) => {
-                        debug!("Copying: src={src:?} dst={dst:?}");
-
                         // `docker cp` does not respect current workdir and assumes relative paths
                         // to be relative to `/`. As a workaround, get the current dir from the
                         // running container and make the path absolute.
@@ -769,7 +767,6 @@ impl<'a> Sandbox<'a> {
                         }
                     }
                     Action::DisableProxy => {
-                        debug!("Disabling proxy: {cleanup_guard:?}");
                         if cleanup_guard.resources.len() != 3 {
                             return Err(anyhow!("Internal bug: unexpected number of resources"));
                         }
