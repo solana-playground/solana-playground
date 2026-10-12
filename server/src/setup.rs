@@ -1,6 +1,10 @@
 use anyhow::{anyhow, Result};
 use solpg_server::{
-    command::AsyncCommand, log::info, package, program, templates::get_all_templates, Sandbox,
+    command::AsyncCommand,
+    log::{debug, info, warn},
+    package, program,
+    templates::get_all_templates,
+    Sandbox,
 };
 use tokio::{fs, process::Command};
 
@@ -10,15 +14,37 @@ const IMAGES_DIR: &str = "images";
 /// Setup the server.
 pub async fn setup() -> Result<()> {
     info!("Setting up the server");
+    check_requirements().await?;
     remove_previous_artifacts().await?;
     build_images().await?;
     info!("Setup completed");
     Ok(())
 }
 
+/// Check server requirements.
+async fn check_requirements() -> Result<()> {
+    info!("Checking requirements");
+
+    debug!("Checking Rootless Docker");
+    let is_rootless = Command::new("docker")
+        .arg("info")
+        .arg("--format")
+        .arg("{{json .SecurityOptions}}")
+        .output_stdout()
+        .await?
+        .contains("rootless");
+    if !is_rootless {
+        warn!("Rootless Docker is not enabled but recommended");
+    }
+
+    Ok(())
+}
+
 /// Remove all artifacts leftover from previous runs.
 async fn remove_previous_artifacts() -> Result<()> {
-    info!("Removing program artifacts");
+    info!("Removing previous artifacts");
+
+    debug!("Removing program artifacts");
     let out_path = program::get_out_path();
     let exists = fs::try_exists(&out_path).await?;
     if exists {
@@ -27,7 +53,7 @@ async fn remove_previous_artifacts() -> Result<()> {
             .map_err(|e| anyhow!("Failed to remove program out directory: {e}"))?;
     }
 
-    info!("Removing package artifacts");
+    debug!("Removing package artifacts");
     let out_path = package::get_out_path();
     let exists = fs::try_exists(&out_path).await?;
     if exists {
@@ -36,7 +62,7 @@ async fn remove_previous_artifacts() -> Result<()> {
             .map_err(|e| anyhow!("Failed to remove package out directory: {e}"))?;
     }
 
-    info!("Removing sandbox artifacts");
+    debug!("Removing sandbox artifacts");
     Sandbox::cleanup().await?;
 
     Ok(())
@@ -59,22 +85,22 @@ async fn build_images() -> Result<()> {
                 "bundle" => {
                     info!("Building the proxy image");
                     Sandbox::build_proxy_image().await?;
-                    images.push((path, name, vec![]))
+                    images.push((name, path, vec![]))
                 }
                 "program" => {
                     for template in get_all_templates() {
                         let name = format!("{name}-{}", template.name());
                         let args = template.image_build_args();
-                        images.push((path.clone(), name, args));
+                        images.push((name, path.clone(), args));
                     }
                 }
-                _ => images.push((path, name, vec![])),
+                _ => images.push((name, path, vec![])),
             }
         }
         images
     };
 
-    for (path, name, args) in images {
+    for (name, path, args) in images {
         let name = Sandbox::get_image_name(&name);
         let mut cmd = Command::new("docker");
         cmd.arg("build")
@@ -86,7 +112,8 @@ async fn build_images() -> Result<()> {
             cmd.arg("--build-arg").arg(arg);
         }
 
-        info!(name, "Building image");
+        info!("Building image: {name}");
+        debug!("Image build command: {cmd:?}");
         cmd.arg(".").run().await?;
     }
 
