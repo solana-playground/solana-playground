@@ -30,8 +30,9 @@ impl Anchor1_2_1 {
     pub fn template() -> Template {
         Template {
             name: "anchor-1.2.1",
-            solana_version: "3.1.10",
             rust_version: "1.89.0",
+            solana_version: None,
+            cargo_build_sbf_version: Some("4.4.0"),
             installation_command: Some(get_anchor_installation_command!("1.2.1")),
             initial_build_command:
                 "anchor build --no-idl -- -- --locked && anchor idl build -- --locked",

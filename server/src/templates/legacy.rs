@@ -14,8 +14,9 @@ impl Legacy {
     pub fn template() -> Template {
         Template {
             name: "legacy",
-            solana_version: "1.17.25",
             rust_version: "1.68.0",
+            solana_version: Some("1.17.25"),
+            cargo_build_sbf_version: None,
             installation_command: Some(get_anchor_installation_command!("0.29.0")),
             initial_build_command: "cargo-build-sbf -- --locked",
             program_path: Path::new("programs/program"),

@@ -28,13 +28,15 @@ pub fn get_template(name: impl AsRef<str>) -> Option<&'static Template> {
 pub struct Template {
     /// Template name
     name: &'static str,
-    /// Solana version to use in the image
-    solana_version: &'static str,
     /// Rust version to use in the image
     rust_version: &'static str,
+    /// Solana version to use in the image
+    solana_version: Option<&'static str>,
+    /// `cargo-build-sbf` version (should be preferred over [`Self::solana_version`] when available)
+    cargo_build_sbf_version: Option<&'static str>,
     /// Command to run for custom tooling installation (always uses `stable` Rust)
     installation_command: Option<&'static str>,
-    /// Initial build command to run when there is network access to cache dependencies
+    /// Initial build command to run in order to cache dependencies (has network access)
     initial_build_command: &'static str,
     /// Program directory path
     program_path: &'static Path,
@@ -82,11 +84,16 @@ impl Template {
     pub fn image_build_args(&self) -> Vec<String> {
         let mut image_build_args = vec![
             format!("TEMPLATE={}", self.name),
-            format!("SOLANA_VERSION={}", self.solana_version),
             format!("RUST_VERSION={}", self.rust_version),
             format!("INITIAL_BUILD_COMMAND={}", self.initial_build_command),
             format!("BINARY_PATH={}", self.binary_path.display()),
         ];
+        if let Some(solana_version) = &self.solana_version {
+            image_build_args.push(format!("SOLANA_VERSION={solana_version}"));
+        };
+        if let Some(cargo_build_sbf_version) = &self.cargo_build_sbf_version {
+            image_build_args.push(format!("CARGO_BUILD_SBF_VERSION={cargo_build_sbf_version}"));
+        };
         if let Some(installation_command) = &self.installation_command {
             image_build_args.push(format!("INSTALLATION_COMMAND={installation_command}"));
         };

@@ -38,10 +38,18 @@ RUN cargo build --release --bin ${BIN} --features unstable
 
 FROM base AS final
 
-# Install Solana
+# Install Solana conditionally
 ARG SOLANA_VERSION
-RUN sh -c "$(curl -sSfL https://release.anza.xyz/v${SOLANA_VERSION}/install)"
-ENV PATH="${HOME}/.local/share/solana/install/active_release/bin:${PATH}"
+RUN if [ -n "$SOLANA_VERSION" ]; then \
+        sh -c "$(curl -sSfL https://release.anza.xyz/v${SOLANA_VERSION}/install)"; \
+    fi
+ENV PATH="${SOLANA_VERSION:+${HOME}/.local/share/solana/install/active_release/bin:}${PATH}"
+
+# Install `cargo-build-sbf` conditionally
+ARG CARGO_BUILD_SBF_VERSION
+RUN if [ -n "${CARGO_BUILD_SBF_VERSION}" ]; then \
+        cargo install cargo-build-sbf --version ${CARGO_BUILD_SBF_VERSION}; \
+    fi
 
 # Run the installation command
 ARG INSTALLATION_COMMAND
@@ -60,7 +68,7 @@ COPY --chown=${USER}:${USER} templates/${TEMPLATE}/ .
 ARG INITIAL_BUILD_COMMAND
 RUN sh -c "${INITIAL_BUILD_COMMAND}"
 
-# Remove the binary and IDL directories for clean start
+# Remove the binary and IDL directories for a clean start
 ARG BINARY_PATH
 ARG IDL_PATH
 RUN rm -rf ${BINARY_PATH} ${IDL_PATH}

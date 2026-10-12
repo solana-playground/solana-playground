@@ -113,7 +113,6 @@ async fn build_images() -> Result<()> {
         }
 
         info!("Building image: {name}");
-        debug!("Image build command: {cmd:?}");
         cmd.arg(".").run().await?;
     }
 
