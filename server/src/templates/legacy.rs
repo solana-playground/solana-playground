@@ -6,8 +6,7 @@ use std::{
 
 use anyhow::Result;
 
-use super::{Process, Template};
-use crate::get_anchor_installation_command;
+use super::{get_anchor_installation_command, Process, Template};
 
 pub struct Legacy;
 

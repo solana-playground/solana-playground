@@ -9,7 +9,7 @@ use legacy::*;
 
 /// All templates
 static ALL: LazyLock<Vec<Template>> =
-    LazyLock::new(|| vec![Legacy::template(), Anchor1_1_2::template()]);
+    LazyLock::new(|| vec![Legacy::template(), Anchor1_2_1::template()]);
 
 /// Get all templates.
 ///
