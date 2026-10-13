@@ -446,29 +446,31 @@ export class PgJsRuntime {
           commitment: opts.commitment,
         });
 
-        const wallet = this._getPg().wallet;
+        const { wallet } = this._getPg();
         if (!wallet) throw new Error("Wallet not connected");
 
         const provider = new pkg[providerName](connection, wallet, opts);
-        return setAnchorWallet(provider);
+        return addWalletToProvider(provider);
       };
 
       // Add `AnchorProvider.env()`
       pkg[providerName].env = () => {
-        const { wallet, program } = this._getPg();
+        const { connection, wallet } = this._getPg();
         if (!wallet) throw new Error("Wallet not connected");
 
-        const provider = program?.provider;
-        if (!provider) throw new Error("Provider not ready");
-
-        return setAnchorWallet(provider);
+        const provider = new pkg[providerName](
+          connection,
+          wallet,
+          pkg[providerName].defaultOptions()
+        );
+        return addWalletToProvider(provider);
       };
 
       /**
        * Override `provider.wallet` to have `payer` field with the wallet
        * keypair in order to have the same behavior as local.
        */
-      const setAnchorWallet = (provider: any) => {
+      const addWalletToProvider = (provider: any) => {
         if (provider.wallet.isPg) {
           provider.wallet = {
             ...provider.wallet,
@@ -481,28 +483,44 @@ export class PgJsRuntime {
 
       // Add `anchor.workspace`
       if (PgProgramInfo.idl) {
-        const snakeCaseName = PgProgramInfo.idl.name;
-        const names = [
+        // const snakeCaseName = PgProgramInfo.idl.name;
+        const snakeCaseName = PgProgramInfo.idl.metadata.name;
+        const programNames = [
           PgCommon.toPascalFromSnake(snakeCaseName), // default before 0.29.0
           PgCommon.toCamelCase(snakeCaseName),
           PgCommon.toKebabFromSnake(snakeCaseName),
           snakeCaseName,
         ];
 
+        // TODO: Get the exact version from the lock file
+        const versionReq = PgJsPackage.getParsedManifest().dependencies?.[name];
+        if (!versionReq) throw new Error(`Anchor version not found: ${name}`);
+
+        const versionStr =
+          /^(?:\^|~|=|>=|<=|>|<)?(\d+\.\d+\.\d+(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?)$/
+            .exec(versionReq)
+            ?.at(1);
+        if (!versionStr) {
+          throw new Error(`Invalid version requirement: ${versionReq}`);
+        }
+
+        const version = PgCommon.parseVersion(versionStr);
+        const idl = PgProgramInfo.idl;
+        const provider = pkg.getProvider();
+        const programArgs = [];
+        if (version.major === 0 && version.minor < 30) {
+          const programId = PgProgramInfo.pk;
+          if (!programId) throw new Error("Program ID not set");
+          programArgs.push(idl, programId, provider);
+        } else {
+          programArgs.push(idl, provider);
+        }
+        const program = new pkg.Program(...programArgs);
+
         pkg.workspace = {};
-        for (const name of names) {
+        for (const name of programNames) {
           if (pkg.workspace[name]) continue;
-          Object.defineProperty(pkg.workspace, name, {
-            get: () => {
-              let program = this._getPg().program;
-              if (program) {
-                const { idl, programId } = program;
-                // TODO: Remove `programId` arg if >=v0.30
-                program = new pkg.Program(idl, programId, pkg.getProvider());
-              }
-              return program;
-            },
-          });
+          Object.defineProperty(pkg.workspace, name, { get: () => program });
         }
       }
     }
@@ -527,7 +545,7 @@ export class PgJsRuntime {
       /** Current project's program public key */
       PROGRAM_ID?: PgWeb3.PublicKey;
       /** Anchor program instance of the current project */
-      // TODO: Make this `any` after supporting user's current version
+      // TODO: Remove `PgSettings.experimental.unstable`
       program?: import("@coral-xyz/anchor").Program;
     }
 
@@ -549,7 +567,8 @@ export class PgJsRuntime {
     if (PgProgramInfo.pk) pg.PROGRAM_ID = PgProgramInfo.pk;
 
     // Anchor Program
-    if (pg.wallet && PgProgramInfo.idl) {
+    // TODO: Remove
+    if (!PgSettings.experimental.unstable && pg.wallet && PgProgramInfo.idl) {
       // TODO: Use the current project's Anchor package
       pg.program = PgProgramInteraction.getAnchorProgram();
     }

@@ -963,6 +963,34 @@ export class PgCommon {
   }
 
   /**
+   * Parse as Semantic Version (SemVer).
+   *
+   * This does not accept version ranges.
+   *
+   * @param version version to parse
+   */
+  static parseVersion(version: string) {
+    const parts = version.split(".", 3);
+    if (parts.length !== 3) throw new Error(`Invalid version: ${version}`);
+
+    const [major, minor, last] = parts;
+    const [patch, pre] = last.split("-", 2);
+    if (pre === "") throw new Error("Pre-version cannot be empty");
+
+    const toInt = (s: string) => {
+      if (PgCommon.isInt(s)) return parseInt(s);
+      throw new Error(`Invalid value: ${s}`);
+    };
+
+    return {
+      major: toInt(major),
+      minor: toInt(minor),
+      patch: toInt(patch),
+      pre,
+    };
+  }
+
+  /**
    * Get send and receive event names
    *
    * @param eventName name of the custom event
