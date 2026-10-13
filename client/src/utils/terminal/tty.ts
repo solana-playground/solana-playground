@@ -438,6 +438,10 @@ export class PgTty {
     const ERROR_REGEX = /^\s*(\w*[^\S\n]+)?error(:|\[.*?:)/gim;
     const WARNING_REGEX = /(\d+\s)?warning(s|:)?/gim;
 
+    // TODO: Automatic highlight loggers (the starting part [...]):
+    // ```
+    // [2026-10-12T08:22:49.878704078Z WARN  cargo_build_sbf] Package 'program' has two crate types defined: cdylib and lib.
+    // ```
     return (
       text
         // Match for error
@@ -456,6 +460,7 @@ export class PgTty {
             /\(\w+:/.test(match) ||
             /^\s*\|/.test(match) ||
             /^\s?\d+/.test(match) ||
+            /^\s?\[+/.test(match) ||
             /\(/.test(match) ||
             match.includes("   ")
           ) {
