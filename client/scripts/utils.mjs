@@ -18,11 +18,11 @@ export const CLIENT_PATH = path.join(REPO_ROOT_PATH, "client");
  *
  * @param {string} dirPath directory path
  */
-export async function resetDir(dirPath) {
+export const resetDir = async (dirPath) => {
   const dirExists = await exists(dirPath);
   if (dirExists) await fs.rm(dirPath, { recursive: true });
   await fs.mkdir(dirPath);
-}
+};
 
 /**
  * Get whether the given path exists.
@@ -30,9 +30,9 @@ export async function resetDir(dirPath) {
  * @param {string} path item path
  * @returns whether the path exists
  */
-export async function exists(path) {
+export const exists = async (path) => {
   return !!(await fs.stat(path).catch(() => false));
-}
+};
 
 /**
  * Read file and parse it as JSON.
@@ -40,9 +40,32 @@ export async function exists(path) {
  * @param {string} filePath file path
  * @returns the parsed JSON
  */
-export async function readJSON(filePath) {
+export const readJSON = async (filePath) => {
   return JSON.parse(await fs.readFile(filePath));
-}
+};
+
+/**
+ * Recursively get all file paths under the given directory.
+ *
+ * @param {string} dirPath directory to start from
+ * @param {string | undefined} initialDirPath initial directory; omit it
+ * @returns {Promise<string[]>} the file paths
+ */
+export const findFilePaths = async (dirPath, initialDirPath = dirPath) => {
+  const files = [];
+  const dir = await fs.readdir(dirPath);
+  for (const name of dir) {
+    const itemPath = path.join(dirPath, name);
+    const stat = await fs.lstat(itemPath);
+    if (stat.isFile()) {
+      files.push(itemPath.replace(initialDirPath + path.sep, ""));
+    } else if (stat.isDirectory()) {
+      files.push(...(await findFilePaths(itemPath, initialDirPath)));
+    }
+  }
+
+  return files;
+};
 
 /** Utility class to handle markdown table related operations */
 export class MarkdownTable {
