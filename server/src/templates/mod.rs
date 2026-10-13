@@ -39,54 +39,54 @@ pub struct Template {
     /// Initial build command to run in order to cache dependencies (has network access)
     initial_build_command: &'static str,
     /// Program directory path
-    program_path: &'static Path,
+    program_dir: &'static Path,
     // TODO: Maybe use `&'static str` for the following 2 paths as well because target images use
     // Linux, and Rust's default path normalization may cause unexpected paths to be passed in on
     // Windows.
     /// Program binary directory path (build output)
-    binary_path: &'static Path,
+    binary_dir: &'static Path,
     /// Program IDL directory path (build output)
-    idl_path: Option<&'static Path>,
-    /// Program build processor
-    processor: Processor,
+    idl_dir: Option<&'static Path>,
+    /// Build the program.
+    ///
+    /// This method should **not** return an error for compiler errors. Everything else, such as,
+    /// `fs` errors, are classified as unexpected errors, and therefore should return an error.
+    build: Build,
 }
 
-/// Program build processor
-type Processor = Box<dyn Process + Sync + Send>;
-
 impl Template {
-    /// Template name.
+    /// Get the template name.
     pub fn name(&self) -> &str {
         self.name
     }
 
-    /// Program directory path
-    pub fn program_path(&self) -> &Path {
-        self.program_path
+    /// Get program directory path.
+    pub fn program_dir(&self) -> &Path {
+        self.program_dir
     }
 
-    /// Program binary directory path (build output)
-    pub fn binary_path(&self) -> &Path {
-        self.binary_path
+    /// Get program binary directory path (build output).
+    pub fn binary_dir(&self) -> &Path {
+        self.binary_dir
     }
 
-    /// Program IDL directory path (build output)
-    pub fn idl_path(&self) -> Option<&Path> {
-        self.idl_path
+    /// Get the program IDL directory path (build output).
+    pub fn idl_dir(&self) -> Option<&Path> {
+        self.idl_dir
     }
 
-    /// Program build processor
-    pub fn processor(&self) -> &Processor {
-        &self.processor
+    /// Get the program build processor.
+    pub fn build(&self) -> Build {
+        self.build
     }
 
-    /// Build args to pass to the program build image.
+    /// Get the build args to pass to the program build image.
     pub fn image_build_args(&self) -> Vec<String> {
         let mut image_build_args = vec![
             format!("TEMPLATE={}", self.name),
             format!("RUST_VERSION={}", self.rust_version),
             format!("INITIAL_BUILD_COMMAND={}", self.initial_build_command),
-            format!("BINARY_PATH={}", self.binary_path.display()),
+            format!("BINARY_DIR={}", self.binary_dir.display()),
         ];
         if let Some(solana_version) = &self.solana_version {
             image_build_args.push(format!("SOLANA_VERSION={solana_version}"));
@@ -97,8 +97,8 @@ impl Template {
         if let Some(installation_command) = &self.installation_command {
             image_build_args.push(format!("INSTALLATION_COMMAND={installation_command}"));
         };
-        if let Some(idl_path) = self.idl_path {
-            image_build_args.push(format!("IDL_PATH={}", idl_path.display()));
+        if let Some(idl_dir) = self.idl_dir {
+            image_build_args.push(format!("IDL_DIR={}", idl_dir.display()));
         };
 
         image_build_args
@@ -108,7 +108,7 @@ impl Template {
     pub fn matches(&self, manifest: &str, lock: &str) -> Result<bool> {
         // TODO: Cache
         let template_dir = Path::new("templates").join(self.name);
-        let manifest_path = template_dir.join(self.program_path).join("Cargo.toml");
+        let manifest_path = template_dir.join(self.program_dir).join("Cargo.toml");
         let actual_manifest = fs::read_to_string(manifest_path)?;
 
         let lock_path = template_dir.join("Cargo.lock");
@@ -128,11 +128,5 @@ impl Default for &Template {
     }
 }
 
-/// Program build process
-pub trait Process {
-    /// Build the program.
-    ///
-    /// This method should **not** return an error for compiler errors. Everything else, such as,
-    /// `fs` errors, are classified as unexpected errors, and therefore should return an error.
-    fn build(&self, args: &[String]) -> Result<ExitStatus>;
-}
+/// Program build processor
+type Build = fn(args: &[String]) -> Result<ExitStatus>;

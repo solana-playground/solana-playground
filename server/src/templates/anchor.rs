@@ -6,7 +6,7 @@ use std::{
 
 use anyhow::Result;
 
-use super::{Process, Template};
+use super::Template;
 
 macro_rules! get_anchor_installation_command {
     ($ver:literal) => {
@@ -25,11 +25,11 @@ macro_rules! get_anchor_installation_command {
 }
 pub(super) use get_anchor_installation_command;
 
+const BINARY_DIR: &str = "target/deploy";
+
 pub struct Anchor1_2_1;
 
 impl Anchor1_2_1 {
-    const BINARY_PATH: &str = "target/deploy";
-
     pub fn template() -> Template {
         Template {
             name: "anchor-1.2.1",
@@ -39,24 +39,22 @@ impl Anchor1_2_1 {
             installation_command: Some(get_anchor_installation_command!("1.2.1")),
             initial_build_command:
                 "anchor build --no-idl -- -- --locked && anchor idl build -- --locked",
-            program_path: Path::new("programs/program"),
-            binary_path: Path::new(Self::BINARY_PATH),
-            idl_path: Some(Path::new("target/idl")),
-            processor: Box::new(Self),
+            program_dir: Path::new("programs/program"),
+            binary_dir: Path::new(BINARY_DIR),
+            idl_dir: Some(Path::new("target/idl")),
+            build,
         }
     }
 }
 
-impl Process for Anchor1_2_1 {
-    fn build(&self, args: &[String]) -> Result<ExitStatus> {
-        // Disable auto `keys sync` on the first build:
-        // https://github.com/otter-sec/anchor/blob/2e78e39d20fab02bc0529cbffab765eddafdfc43/cli/src/config.rs#L706-L711
-        fs::create_dir_all(Self::BINARY_PATH)?;
-        Command::new("anchor")
-            .arg("build")
-            .arg("--ignore-keys")
-            .args(args)
-            .status()
-            .map_err(Into::into)
-    }
+fn build(args: &[String]) -> Result<ExitStatus> {
+    // Disable auto `keys sync` on the first build:
+    // https://github.com/otter-sec/anchor/blob/2e78e39d20fab02bc0529cbffab765eddafdfc43/cli/src/config.rs#L706-L711
+    fs::create_dir_all(BINARY_DIR)?;
+    Command::new("anchor")
+        .arg("build")
+        .arg("--ignore-keys")
+        .args(args)
+        .status()
+        .map_err(Into::into)
 }
