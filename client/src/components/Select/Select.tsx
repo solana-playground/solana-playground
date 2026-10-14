@@ -2,7 +2,7 @@ import ReactSelect, { GroupBase, Props } from "react-select";
 import styled, { css, useTheme } from "styled-components";
 
 import { Emoji } from "../../constants";
-import { PgTheme } from "../../utils";
+import { PgTheme, PgView } from "../../utils";
 
 const Select = <
   Option,
@@ -17,12 +17,17 @@ const Select = <
   return (
     // @ts-ignore
     <StyledReactSelect
+      menuPortalTarget={document.getElementById(PgView.ids.PORTAL_ABOVE)}
       styles={{
         control: (base) => ({
           ...base,
           ...mapTheme(select.control),
           ":hover": mapTheme(select.control.hover),
           ":focus-within": mapTheme(select.control.focusWithin),
+        }),
+        menuList: (base) => ({
+          ...base,
+          ...PgTheme.getScrollbar({ width: "0.25rem" }),
         }),
         menu: (base) => ({
           ...base,

@@ -331,13 +331,13 @@ export class PgTheme {
   }
 
   /**
-   * Create CSS for scrollbar.
+   * Create CSS for the scrollbar.
    *
-   * @param opts -
+   * @param opts - options
    * `allChildren`: Whether to add the scrollbar changes to all children components
    * @returns the scrollbar CSS
    */
-  static getScrollbarCss(
+  static getScrollbar(
     opts?: {
       allChildren?: boolean;
     } & Pick<StandardProperties, "width" | "height" | "borderRadius">
@@ -355,34 +355,33 @@ export class PgTheme {
       }
     );
     const prefix = allChildren ? "& " : "&";
+    const webkitScrollbar = `${prefix}::-webkit-scrollbar`;
 
-    return `
-    /* Scrollbar */
-    /* Chromium */
-    ${prefix}::-webkit-scrollbar {
-      width: ${width};
-      height: ${height};
-    }
+    return {
+      // Chromium
+      [webkitScrollbar]: { width, height },
+      [`${webkitScrollbar}-track`]: { backgroundColor: "transparent" },
+      [`${webkitScrollbar}-thumb`]: {
+        border: "0.25rem solid transparent",
+        borderRadius,
+        backgroundColor: scrollbar.thumb.color,
+      },
+      [`${webkitScrollbar}-thumb:hover`]: {
+        backgroundColor: scrollbar.thumb.hoverColor,
+      },
 
-    ${prefix}::-webkit-scrollbar-track {
-      background-color: transparent;
-    }
+      // Firefox
+      [`${prefix} *`]: { scrollbarColor: scrollbar.thumb.color },
+    };
+  }
 
-    ${prefix}::-webkit-scrollbar-thumb {
-      border: 0.25rem solid transparent;
-      border-radius: ${borderRadius};
-      background-color: ${scrollbar.thumb.color};
-    }
-
-    ${prefix}::-webkit-scrollbar-thumb:hover {
-      background-color: ${scrollbar.thumb.hoverColor};
-    }
-
-    /* Firefox */
-    ${prefix} * {
-      scrollbar-color: ${scrollbar.thumb.color};
-    }
-`;
+  /**
+   * Create CSS string for scrollbar.
+   *
+   * {@link PgTheme.getScrollbar}
+   */
+  static getScrollbarCss(...args: Parameters<typeof PgTheme["getScrollbar"]>) {
+    return PgTheme.toCss(PgTheme.getScrollbar(...args));
   }
 
   /**
