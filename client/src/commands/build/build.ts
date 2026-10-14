@@ -170,7 +170,13 @@ const getBuildFiles = () => {
     buildFiles.push([buildPath, content]);
   }
 
-  // TODO: Add `cargo` files
+  // Add `cargo` files
+  if (PgSettings.experimental.unstable) {
+    const manifest = PgExplorer.getFileContent("Cargo.toml");
+    if (manifest) buildFiles.push(["Cargo.toml", manifest]);
+    const lockFile = PgExplorer.getFileContent("Cargo.lock");
+    if (lockFile) buildFiles.push(["Cargo.lock", lockFile]);
+  }
 
   return buildFiles;
 };
