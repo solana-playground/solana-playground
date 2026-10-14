@@ -3,7 +3,7 @@ import styled, { css } from "styled-components";
 
 import Checkbox from "../../../../components/Checkbox";
 import Foldable from "../../../../components/Foldable";
-import Select from "../../../../components/Select";
+import Select, { findSelectOption } from "../../../../components/Select";
 import Tooltip from "../../../../components/Tooltip";
 import { useRenderOnChange } from "../../../../hooks";
 import {
@@ -166,7 +166,7 @@ const SettingSetterSelect: FC<SettingSetterSelectProps> = (setting) => {
   return (
     <Select
       options={options}
-      value={findOption(options, setting.getValue()) ?? options.at(-1)}
+      value={findSelectOption(options, setting.getValue())}
       onChange={(o) => {
         if (o?.value) {
           setting.setValue(o.value);
@@ -194,26 +194,6 @@ const convertValue = (v: any) => {
   }
 
   return { label: PgCommon.toTitleFromKebab(v), value: v };
-};
-
-/**
- * Recursively try to find the option based on the value set.
- *
- * @param opts options
- * @param v value
- * @returns the option if found
- */
-const findOption = (opts: any[], v: any): any => {
-  for (const opt of opts) {
-    // Single options
-    if (opt.value === v) return opt;
-
-    // Groupped options
-    if (opt.options) {
-      const res = findOption(opt.options, v);
-      if (res) return res;
-    }
-  }
 };
 
 type SettingSetterCheckBoxProps = Omit<SettingSetterProps, "values">;

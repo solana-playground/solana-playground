@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import styled from "styled-components";
 
 import Button from "../../../../components/Button";
-import Select from "../../../../components/Select";
+import Select, { findSelectOption } from "../../../../components/Select";
 import Text from "../../../../components/Text";
 import {
   CreateWorkspace,
@@ -113,14 +113,7 @@ const WorkspaceSelect = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [explorer.allWorkspaceNames!.length]);
 
-  const value = useMemo(() => {
-    for (const option of options) {
-      const val = option.options.find(
-        (option) => option.value === explorer.currentWorkspaceName
-      );
-      if (val) return val;
-    }
-  }, [explorer.currentWorkspaceName, options]);
+  const value = findSelectOption(options, explorer.currentWorkspaceName);
 
   return (
     <SelectWrapper>
