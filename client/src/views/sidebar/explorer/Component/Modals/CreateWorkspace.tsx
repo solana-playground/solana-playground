@@ -34,10 +34,16 @@ export const CreateWorkspace = () => {
       .map((ver, i) => ({ label: i ? ver : `${ver} (latest)`, value: ver }));
   }, [frameworkName]);
 
-  // Always default the version to the first option (latest)
-  useEffect(() => {
-    if (!version && versionOpts.length) setVersion(versionOpts[0].value);
-  }, [version, versionOpts]);
+  const versionOpt = useMemo(
+    () => findSelectOption(versionOpts, version),
+    [versionOpts, version]
+  );
+
+  // Sync `version` and `versionOpt`
+  useEffect(
+    () => setVersion(versionOpt?.value ? versionOpt.value : null),
+    [versionOpt]
+  );
 
   const createWorkspace = async () => {
     const framework = PgFramework.get(frameworkName!);
@@ -107,7 +113,7 @@ export const CreateWorkspace = () => {
             <MainText>Version</MainText>
             <Select
               options={versionOpts}
-              value={findSelectOption(versionOpts, version)}
+              value={versionOpt}
               onChange={(opt) => setVersion(opt.value)}
             />
           </Row>
