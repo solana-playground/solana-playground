@@ -13,13 +13,15 @@ export const createFramework = <N extends string>(
   const dirPath = `./${kebabName}/`;
   framework.icon ??= `/frameworks/${kebabName}/icon.png`;
 
-  // TODO: Include the `legacy` template. It is named differently and supports
-  // multiple frameworks at the same time.
   framework.versions ??= TEMPLATES.filter((t) => t.startsWith(kebabName)).map(
     (t) => t.replace(kebabName + "-", "")
   );
+
+  // The `legacy` template is named differently and supports multiple frameworks
+  // at the same time. If a framework has its `legacy` field set, assume it's
+  // a real version and prepend it to the existing versions.
   if (framework.legacy) {
-    framework.versions.push(framework.legacy.version);
+    framework.versions.unshift(framework.legacy.version);
     framework.legacy.getFiles ??= () => import(dirPath + "files");
   }
 

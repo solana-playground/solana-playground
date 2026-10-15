@@ -35,5 +35,5 @@ pub struct Initialize<'info> {
 
 #[account]
 pub struct MyAccount {
-    data: u64,
+    pubdata: u64,
 }
