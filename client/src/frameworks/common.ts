@@ -222,30 +222,50 @@ export const selectProgram = async (programNames: string[]) => {
 export const convertToPlaygroundCommon = (files: TupleFiles) => {
   const pgFiles: TupleFiles = [];
   for (const [path, content] of files) {
-    // */programs/*/src/**/*.rs -> src/**/*.rs
-    const programPathResult = /(src)(?!.*src\/).*\.rs$/.exec(path);
+    // */programs/*/(**/*) */ -> (**/*)
+    const programPathResult = /programs\/(?!.*programs\/)[^\/]*\/(.*)$/.exec(
+      path
+    );
     if (programPathResult) {
-      const programFilePath = programPathResult[0];
+      const programFilePath = programPathResult[1];
       pgFiles.push([programFilePath, content]);
       continue;
     }
 
-    // */client/**/*.ts -> client/**/*.ts
-    const clientPathResult = /(client)(?!.*client\/).*\.(js|ts)$/.exec(path);
+    // **/Cargo.lock -> Cargo.lock
+    const rustLockResult = /Cargo.lock$/.exec(path);
+    if (rustLockResult) {
+      const rustLockPath = rustLockResult[0];
+      pgFiles.push([rustLockPath, content]);
+      continue;
+    }
+
+    // **/client/**/*.ts -> client/**/*.ts
+    const clientPathResult = /client\/(?!.*client\/).*\.(js|ts)$/.exec(path);
     if (clientPathResult) {
       const clientFilePath = clientPathResult[0];
       pgFiles.push([clientFilePath, content]);
       continue;
     }
 
-    // */tests/**/*.ts -> tests/**/*.test.ts
-    const testPathResult = /(tests)(?!.*tests\/).*\.(js|ts)$/.exec(path);
+    // **/tests/**/*.ts -> tests/**/*.test.ts
+    const testPathResult = /tests\/(?!.*tests\/).*\.(js|ts)$/.exec(path);
     if (testPathResult) {
       const testPath = testPathResult[0].replace(
         /(\.test)?\.(js|ts)$/,
         ".test.ts"
       );
       pgFiles.push([testPath, content]);
+      continue;
+    }
+
+    // **/<js_package_file> -> <js_package_file>
+    const jsPackageResult = /(package.json|package-lock.json|yarn.lock)$/.exec(
+      path
+    );
+    if (jsPackageResult) {
+      const jsPackagePath = jsPackageResult[0];
+      pgFiles.push([jsPackagePath, content]);
       continue;
     }
   }
