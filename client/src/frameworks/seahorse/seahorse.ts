@@ -12,6 +12,7 @@ export const seahorse = createFramework({
     name: "Transfer SOL",
     url: "https://github.com/solana-developers/program-examples/tree/main/basics/transfer-sol/seahorse",
   },
+  legacy: { version: "0.2.0" },
   getIsCurrent: (files) => {
     for (const [path, content] of files) {
       if (!path.endsWith(".py")) continue;

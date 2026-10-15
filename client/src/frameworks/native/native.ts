@@ -20,6 +20,7 @@ export const native = createFramework({
     // url: "https://github.com/solana-developers/program-examples/tree/main/basics/hello-solana/native",
     url: "https://github.com/solana-developers/program-examples/tree/main/basics/hello-solana/native/program",
   },
+  legacy: { version: "1.16.24" },
   getIsCurrent: (files) => {
     for (const [path, content] of files) {
       if (!path.endsWith(".rs")) continue;

@@ -39,9 +39,9 @@ export type UnionToTuple<U> = MergeUnion<
 
 /** Merge union */
 export type MergeUnion<U> = (
-  U extends never ? never : (union: U) => never
-) extends (ret: infer R) => never
-  ? R
+  U extends unknown ? (arg: U) => void : never
+) extends (arg: infer I) => void
+  ? I
   : never;
 
 /** An object that can be disposed */
@@ -54,9 +54,24 @@ export type Disposable = {
 export type SetState<T> = T | ((cur: T) => T);
 
 /** Make the given keys required */
-export type RequiredKey<T, R extends keyof T> = Omit<T, R> & {
-  [K in R]-?: NonNullable<T[K]>;
-};
+export type RequiredKey<T, P extends string> = [P] extends [never]
+  ? T
+  : MergeUnion<P extends unknown ? RequiredKeyInner<T, P> : never>;
+
+/** Recursively get the inner keys (paths) */
+type RequiredKeyInner<T, P extends string> = T extends unknown
+  ? P extends `${infer K}.${infer Rest}`
+    ? K extends keyof T
+      ? Omit<T, K> & {
+          [P in K]-?: RequiredKeyInner<NonNullable<T[K]>, Rest>;
+        }
+      : T
+    : P extends keyof T
+    ? Omit<T, P> & {
+        [K in P]-?: NonNullable<T[K]>;
+      }
+    : T
+  : never;
 
 /** Make properties required for depth 1 and 2 */
 export type NestedRequired<T> = {

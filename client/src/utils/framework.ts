@@ -42,23 +42,33 @@ export type FrameworkParam<N extends string> = {
   defaultOpenFile?: string;
 
   /**
+   * Legacy version information.
+   *
+   * This only applies to frameworks that can be built using the `legacy`
+   * template; newer frameworks can safely omit this field.
+   */
+  legacy?: {
+    /**
+     * Legacy version (used in the `legacy` template).
+     *
+     * This is the program crate version (or equivalent), not the tooling
+     * version (e.g. CLI).
+     */
+    version: string;
+    /** Lazy load the legacy framework files, defaults to `./files` */
+    getFiles?: () => Promise<{
+      /** Default framework files to create on a new project */
+      files: TupleFiles;
+    }>;
+  };
+
+  /**
    * Get whether the given files have this framework's layout.
    *
    * @param files files with either playground's layout or framework's layout
    * @returns whether the given files belong to this framework
    */
   getIsCurrent: (files: TupleFiles) => SyncOrAsync<boolean>;
-
-  // TODO: Remove `PgSettings.experimental.unstable`
-  /**
-   * Lazy load default framework files, defaults to `./files`.
-   *
-   * @deprecated
-   */
-  getDefaultFiles?: () => Promise<{
-    /** Default framework files to create on a new project */
-    files: TupleFiles;
-  }>;
 
   /** Available versions */
   versions?: string[];
@@ -104,10 +114,10 @@ export type FrameworkParam<N extends string> = {
 export type Framework<N extends string = string> = RequiredKey<
   FrameworkParam<N>,
   | "icon"
-  | "getDefaultFiles"
+  | "getIsCurrent"
+  | "legacy.getFiles"
   | "versions"
   | "getTemplateFiles"
-  | "getIsCurrent"
   | "import"
   | "export"
 >;

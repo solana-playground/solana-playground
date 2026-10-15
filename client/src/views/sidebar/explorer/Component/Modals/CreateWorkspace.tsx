@@ -49,7 +49,13 @@ export const CreateWorkspace = () => {
       const { convertToPlayground } = await framework.import();
       files = await convertToPlayground(templateFiles);
     } else {
-      files = (await framework.getDefaultFiles()).files;
+      if (!framework.legacy) {
+        throw new Error(
+          "New frameworks require enabling the `experimental.unstable` setting"
+        );
+      }
+
+      files = (await framework.legacy.getFiles()).files;
     }
 
     await PgExplorer.createWorkspace(name, {

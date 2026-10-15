@@ -12,6 +12,7 @@ export const anchor = createFramework({
     name: "Create Account",
     url: "https://github.com/solana-developers/program-examples/tree/main/basics/create-account/anchor",
   },
+  legacy: { version: "0.29.0" },
   getIsCurrent: (files) => {
     // Return false if there is a Python file(Seahorse) otherwise this will
     // return a false positive because every Seahorse workspace is a valid
