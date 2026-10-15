@@ -1,4 +1,4 @@
-import * as anchor from "@anchor-lang/core";
+import * as anchor from "@coral-xyz/anchor";
 import { assert } from "chai";
 import type { MyProgram } from "../target/types/my_program";
 
@@ -17,9 +17,9 @@ describe("My Program", () => {
     const txHash = await program.methods
       .initialize(data)
       .accounts({
-        myAccount: myAccountKp.publicKey,
         // Omit the `signer` account; it's always the current wallet in tests
-        // Omit the `systemProgram` account; all programs are resolved automatically
+        myAccount: myAccountKp.publicKey,
+        systemProgram: anchor.web3.SystemProgram.programId,
       })
       .signers([myAccountKp])
       .rpc();
