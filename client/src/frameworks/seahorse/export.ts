@@ -17,12 +17,13 @@ export const convertFromPlayground = async (files: TupleFiles) => {
   // differences. Mimic what Seahorse generates by adding a dummy Anchor program
   // with the expected program name as the program module name so that we can
   // convert the files to Anchor to avoid duplicating file generation logic.
-  files.push([
-    PgCommon.joinPaths(PgExplorer.PATHS.SRC_DIRNAME, "lib.rs"),
-    `use anchor_lang::prelude::*;\n#[program] mod ${programName} {}`,
+  const anchorFiles = await convertToAnchor([
+    ...files,
+    [
+      PgCommon.joinPaths(PgExplorer.PATHS.SRC_DIRNAME, "lib.rs"),
+      `use anchor_lang::prelude::*;\n#[program] mod ${programName} {}`,
+    ],
   ]);
-
-  const anchorFiles = await convertToAnchor(files);
   const frameworkFiles = anchorFiles.map((file) => {
     // programs/<program-name>/src/**/*.py -> programs_py/<program-name>.py
     file[0] = file[0].replace(/programs\/.*\/src\/(.*\.py)/, (_, name) => {
