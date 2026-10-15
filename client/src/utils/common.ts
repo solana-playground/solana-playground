@@ -251,7 +251,7 @@ export class PgCommon {
    */
   static async fetchText(url: string) {
     const response = await fetch(url);
-    return await response.text();
+    return (await response.text()) as string;
   }
 
   /**
@@ -260,9 +260,9 @@ export class PgCommon {
    * @param url URL
    * @returns the JSON response
    */
-  static async fetchJson(url: string) {
+  static async fetchJson<T = any>(url: string) {
     const response = await fetch(url);
-    return await response.json();
+    return (await response.json()) as T;
   }
 
   /**
@@ -970,16 +970,17 @@ export class PgCommon {
    * @param version version to parse
    */
   static parseVersion(version: string) {
-    const parts = version.split(".", 3);
-    if (parts.length !== 3) throw new Error(`Invalid version: ${version}`);
+    // `version.split(".", 3)` truncates potential `.`s inside the `pre` part
+    const parts = /^(\d+)\.(\d+)\.(\d+)(?:-(.*))?$/.exec(version);
+    if (!parts) throw new Error(`Invalid version: ${version}`);
 
-    const [major, minor, last] = parts;
-    const [patch, pre] = last.split("-", 2);
+    const [, major, minor, patch] = parts;
+    const pre = parts.at(-1); // to make it type optional
     if (pre === "") throw new Error("Pre-version cannot be empty");
 
     const toInt = (s: string) => {
       if (PgCommon.isInt(s)) return parseInt(s);
-      throw new Error(`Invalid value: ${s}`);
+      throw new Error(`Invalid value: ${s} (version: ${version})`);
     };
 
     return {
@@ -988,6 +989,28 @@ export class PgCommon {
       patch: toInt(patch),
       pre,
     };
+  }
+
+  /**
+   * Compare two SemVer strings.
+   *
+   * This function can be used with {@link Array.sort} to sort versions from
+   * lowest (oldest) to the highest (newest).
+   *
+   * @param a first version
+   * @param b second version
+   * @throws if any of the given versions are invalid
+   * @returns the comparison result
+   */
+  static compareVersion(a: string, b: string) {
+    const x = PgCommon.parseVersion(a);
+    const y = PgCommon.parseVersion(b);
+    return (
+      x.major - y.major ||
+      x.minor - y.minor ||
+      x.patch - y.patch ||
+      (x.pre && y.pre ? x.pre.localeCompare(y.pre) : x.pre ? -1 : y.pre ? 1 : 0)
+    );
   }
 
   /**

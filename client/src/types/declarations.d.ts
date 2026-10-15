@@ -7,12 +7,9 @@ import { ROUTES } from "../routes";
 import { MAIN_SECONDARY, SIDEBAR } from "../views";
 import { SETTINGS } from "../settings";
 import {
-  Arrayable,
-  Disposable,
   JsRuntimePackageName,
   OrString,
   Settings,
-  SyncOrAsync,
   Theme,
   TutorialDataParam,
 } from "../utils";
@@ -52,6 +49,9 @@ global {
   const CUSTOM_TUTORIALS: {
     [tutorialName: string]: { pageCount: number; thumbnail: string };
   };
+
+  /** Project template names */
+  const TEMPLATES: string[];
 }
 
 // Framework name

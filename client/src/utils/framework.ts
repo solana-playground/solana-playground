@@ -49,11 +49,30 @@ export type FrameworkParam<N extends string> = {
    */
   getIsCurrent: (files: TupleFiles) => SyncOrAsync<boolean>;
 
-  /** Lazy load default framework files, defaults to `./files` */
+  // TODO: Remove `PgSettings.experimental.unstable`
+  /**
+   * Lazy load default framework files, defaults to `./files`.
+   *
+   * @deprecated
+   */
   getDefaultFiles?: () => Promise<{
     /** Default framework files to create on a new project */
     files: TupleFiles;
   }>;
+
+  /** Available versions */
+  versions?: string[];
+
+  /**
+   * Get the template files of the project.
+   *
+   * The files are expected to be in the original non-playground layout. They
+   * will get converted using `convertToPlayground` implementation as needed.
+   *
+   * @param version version to get the templates for (must exist in `versions`)
+   * @returns the template files (in the original layout)
+   */
+  getTemplateFiles?: (version: string) => Promise<TupleFiles>;
 
   /** Lazy load the **to** playground conversion module, defaults to `./import` */
   import?: () => Promise<{
@@ -84,7 +103,13 @@ export type FrameworkParam<N extends string> = {
 /** Created framework */
 export type Framework<N extends string = string> = RequiredKey<
   FrameworkParam<N>,
-  "icon" | "getIsCurrent" | "getDefaultFiles" | "import" | "export"
+  | "icon"
+  | "getDefaultFiles"
+  | "versions"
+  | "getTemplateFiles"
+  | "getIsCurrent"
+  | "import"
+  | "export"
 >;
 
 export class PgFramework {

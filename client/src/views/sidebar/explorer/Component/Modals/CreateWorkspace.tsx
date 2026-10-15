@@ -1,25 +1,61 @@
-import { FC, useState } from "react";
+import { FC, useEffect, useMemo, useState } from "react";
 import styled, { css } from "styled-components";
 
 import Img from "../../../../../components/Img";
 import Input from "../../../../../components/Input";
 import Modal from "../../../../../components/Modal";
+import Select, { findSelectOption } from "../../../../../components/Select";
 import {
   Fn,
   Framework as FrameworkType,
+  PgCommon,
   PgExplorer,
   PgFramework,
+  PgSettings,
 } from "../../../../../utils";
+import { useRenderOnChange } from "../../../../../hooks";
 
 export const CreateWorkspace = () => {
+  const experimentalUnstable = useRenderOnChange(
+    PgSettings.onDidChangeExperimentalUnstable
+  );
+
   const [name, setName] = useState("");
   const [error, setError] = useState("");
-  const [selected, setSelected] = useState<FrameworkName | null>(null);
+  const [frameworkName, setFrameworkName] = useState<FrameworkName | null>(
+    null
+  );
+  const [version, setVersion] = useState<string | null>(null);
+
+  const versionOpts = useMemo(() => {
+    if (!PgSettings.experimental.unstable || !frameworkName) return [];
+    return [...PgFramework.get(frameworkName).versions]
+      .sort((a, b) => PgCommon.compareVersion(b, a))
+      .map((ver, i) => ({ label: i ? ver : `${ver} (latest)`, value: ver }));
+  }, [frameworkName]);
+
+  // Always default the version to the first option (latest)
+  useEffect(() => {
+    if (!version && versionOpts.length) setVersion(versionOpts[0].value);
+  }, [version, versionOpts]);
 
   const createWorkspace = async () => {
-    const { getDefaultFiles, defaultOpenFile } = PgFramework.get(selected!);
-    const { files } = await getDefaultFiles();
-    await PgExplorer.createWorkspace(name, { files, defaultOpenFile });
+    const framework = PgFramework.get(frameworkName!);
+    let files;
+    if (PgSettings.experimental.unstable) {
+      if (!version) throw new Error("Version not specified");
+
+      const templateFiles = await framework.getTemplateFiles(version);
+      const { convertToPlayground } = await framework.import();
+      files = await convertToPlayground(templateFiles);
+    } else {
+      files = (await framework.getDefaultFiles()).files;
+    }
+
+    await PgExplorer.createWorkspace(name, {
+      files,
+      defaultOpenFile: framework.defaultOpenFile,
+    });
   };
 
   return (
@@ -27,11 +63,11 @@ export const CreateWorkspace = () => {
       buttonProps={{
         text: "Create",
         onSubmit: createWorkspace,
-        disabled: !!error || !selected,
+        disabled: !!error || !frameworkName,
       }}
     >
       <Content>
-        <WorkspaceNameWrapper>
+        <Row>
           <MainText>Project name</MainText>
           <Input
             autoFocus
@@ -42,23 +78,34 @@ export const CreateWorkspace = () => {
             setError={setError}
             placeholder="my project..."
           />
-        </WorkspaceNameWrapper>
+        </Row>
 
-        <FrameworkSectionWrapper>
+        <Row>
           <MainText>Choose a framework</MainText>
           <FrameworksWrapper>
             {PgFramework.all.map((f) => (
               <Framework
                 key={f.name}
-                isSelected={selected === f.name}
-                select={() =>
-                  setSelected((s) => (s === f.name ? null : f.name))
-                }
+                isSelected={frameworkName === f.name}
+                select={() => {
+                  setFrameworkName((s) => (s === f.name ? null : f.name));
+                }}
                 {...f}
               />
             ))}
           </FrameworksWrapper>
-        </FrameworkSectionWrapper>
+        </Row>
+
+        {experimentalUnstable && versionOpts.length !== 0 && (
+          <Row>
+            <MainText>Version</MainText>
+            <Select
+              options={versionOpts}
+              value={findSelectOption(versionOpts, version)}
+              onChange={(opt) => setVersion(opt.value)}
+            />
+          </Row>
+        )}
       </Content>
     </Modal>
   );
@@ -68,18 +115,15 @@ const Content = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
+  gap: 1rem;
 `;
 
-const WorkspaceNameWrapper = styled.div``;
+const Row = styled.div``;
 
 const MainText = styled.div`
   margin-bottom: 0.5rem;
   font-weight: bold;
   font-size: ${({ theme }) => theme.font.code.size.large};
-`;
-
-const FrameworkSectionWrapper = styled.div`
-  margin: 1rem 0 0.5rem 0;
 `;
 
 const FrameworksWrapper = styled.div`
@@ -105,7 +149,7 @@ const Framework: FC<FrameworkProps> = ({
       <Img src={icon} alt={name} />
     </FrameworkImageWrapper>
     <FrameworkName>
-      {name}({language})
+      {name} ({language})
     </FrameworkName>
   </FrameworkWrapper>
 );
@@ -119,6 +163,7 @@ const FrameworkWrapper = styled.div<{ isSelected?: boolean }>`
     transition: all ${theme.default.transition.duration.medium}
       ${theme.default.transition.type};
     border-color: ${isSelected && theme.colors.default.primary};
+
     & div:nth-child(2) {
       color: ${isSelected && theme.colors.default.textPrimary};
     }
