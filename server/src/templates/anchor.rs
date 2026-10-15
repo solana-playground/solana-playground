@@ -1,6 +1,5 @@
 use std::{
     fs,
-    path::Path,
     process::{Command, ExitStatus},
 };
 
@@ -8,7 +7,7 @@ use anyhow::Result;
 
 use super::Template;
 
-macro_rules! get_anchor_installation_command {
+macro_rules! anchor_installation_command {
     ($ver:literal) => {
         // `avm` bug: tries to install unspecified `cargo-build-sbf` when invoking `anchor`.
         // Override the proxy binary with the actual `anchor` CLI to avoid automatic resolution.
@@ -23,48 +22,40 @@ macro_rules! get_anchor_installation_command {
         )
     };
 }
-pub(super) use get_anchor_installation_command;
+pub(super) use anchor_installation_command;
 
 const PROGRAM_DIR: &str = "programs/program";
 const BINARY_DIR: &str = "target/deploy";
 const IDL_DIR: &str = "target/idl";
 
-pub struct Anchor0_29_0;
-
-impl Anchor0_29_0 {
-    pub fn template() -> Template {
-        Template {
-            name: "anchor-0.29.0",
-            rust_version: "1.68.0",
-            solana_version: Some("1.17.25"),
-            cargo_build_sbf_version: None,
-            installation_command: Some(get_anchor_installation_command!("0.29.0")),
-            initial_build_command: "anchor build -- -- --locked",
-            program_dir: Path::new(PROGRAM_DIR),
-            binary_dir: Path::new(BINARY_DIR),
-            idl_dir: Some(Path::new(IDL_DIR)),
-            build,
-        }
+pub const fn anchor_0_29_0() -> Template {
+    Template {
+        name: "anchor-0.29.0",
+        rust_version: "1.68.0",
+        solana_version: Some("1.17.25"),
+        cargo_build_sbf_version: None,
+        installation_command: Some(anchor_installation_command!("0.29.0")),
+        initial_build_command: "anchor build -- -- --locked",
+        program_dir: PROGRAM_DIR,
+        binary_dir: BINARY_DIR,
+        idl_dir: Some(IDL_DIR),
+        build,
     }
 }
 
-pub struct Anchor1_2_1;
-
-impl Anchor1_2_1 {
-    pub fn template() -> Template {
-        Template {
-            name: "anchor-1.2.1",
-            rust_version: "1.89.0",
-            solana_version: None,
-            cargo_build_sbf_version: Some("4.4.0"),
-            installation_command: Some(get_anchor_installation_command!("1.2.1")),
-            initial_build_command:
-                "anchor build --no-idl -- -- --locked && anchor idl build -- --locked",
-            program_dir: Path::new(PROGRAM_DIR),
-            binary_dir: Path::new(BINARY_DIR),
-            idl_dir: Some(Path::new(IDL_DIR)),
-            build,
-        }
+pub const fn anchor_1_2_1() -> Template {
+    Template {
+        name: "anchor-1.2.1",
+        rust_version: "1.89.0",
+        solana_version: None,
+        cargo_build_sbf_version: Some("4.4.0"),
+        installation_command: Some(anchor_installation_command!("1.2.1")),
+        initial_build_command:
+            "anchor build --no-idl -- -- --locked && anchor idl build -- --locked",
+        program_dir: PROGRAM_DIR,
+        binary_dir: BINARY_DIR,
+        idl_dir: Some(IDL_DIR),
+        build,
     }
 }
 

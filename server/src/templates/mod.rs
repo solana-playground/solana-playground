@@ -1,26 +1,24 @@
 mod anchor;
 mod legacy;
 
-use std::{fs, path::Path, process::ExitStatus, sync::LazyLock};
+use std::{fs, path::Path, process::ExitStatus};
 
 use anchor::*;
 use anyhow::Result;
-use legacy::*;
+use legacy::legacy;
 
+// TODO: Decide whether this is a good idea: templates being `const fn`s means we should be able to
+// allow templates to self-describe themselves with a file (within the template files), allowing us
+// to remove all related server code.
 /// All templates
-static ALL: LazyLock<Vec<Template>> = LazyLock::new(|| {
-    vec![
-        Legacy::template(),
-        Anchor0_29_0::template(),
-        Anchor1_2_1::template(),
-    ]
-});
+static ALL: &[Template] = &[legacy(), anchor_0_29_0(), anchor_1_2_1()];
 
 /// Get all templates.
 ///
-/// The templates are initialized lazily only once and referenced for all subsequent calls.
+/// NOTE: This function exists to keep the API stable; previous impl used `LazyLock` to initialize
+/// once and cache the `Vec<Template>` value.
 pub fn get_all_templates() -> &'static [Template] {
-    &ALL
+    ALL
 }
 
 /// Get the template from its name.
@@ -44,14 +42,11 @@ pub struct Template {
     /// Initial build command to run in order to cache dependencies (has network access)
     initial_build_command: &'static str,
     /// Program directory path
-    program_dir: &'static Path,
-    // TODO: Maybe use `&'static str` for the following 2 paths as well because target images use
-    // Linux, and Rust's default path normalization may cause unexpected paths to be passed in on
-    // Windows.
+    program_dir: &'static str,
     /// Program binary directory path (build output)
-    binary_dir: &'static Path,
+    binary_dir: &'static str,
     /// Program IDL directory path (build output)
-    idl_dir: Option<&'static Path>,
+    idl_dir: Option<&'static str>,
     /// Build the program.
     ///
     /// This method should **not** return an error for compiler errors. Everything else, such as,
@@ -67,17 +62,17 @@ impl Template {
 
     /// Get program directory path.
     pub fn program_dir(&self) -> &Path {
-        self.program_dir
+        Path::new(self.program_dir)
     }
 
     /// Get program binary directory path (build output).
     pub fn binary_dir(&self) -> &Path {
-        self.binary_dir
+        Path::new(self.binary_dir)
     }
 
     /// Get the program IDL directory path (build output).
     pub fn idl_dir(&self) -> Option<&Path> {
-        self.idl_dir
+        self.idl_dir.map(Path::new)
     }
 
     /// Get the program build processor.
@@ -91,19 +86,19 @@ impl Template {
             format!("TEMPLATE={}", self.name),
             format!("RUST_VERSION={}", self.rust_version),
             format!("INITIAL_BUILD_COMMAND={}", self.initial_build_command),
-            format!("BINARY_DIR={}", self.binary_dir.display()),
+            format!("BINARY_DIR={}", self.binary_dir),
         ];
-        if let Some(solana_version) = &self.solana_version {
+        if let Some(solana_version) = self.solana_version {
             image_build_args.push(format!("SOLANA_VERSION={solana_version}"));
         };
-        if let Some(cargo_build_sbf_version) = &self.cargo_build_sbf_version {
+        if let Some(cargo_build_sbf_version) = self.cargo_build_sbf_version {
             image_build_args.push(format!("CARGO_BUILD_SBF_VERSION={cargo_build_sbf_version}"));
         };
-        if let Some(installation_command) = &self.installation_command {
+        if let Some(installation_command) = self.installation_command {
             image_build_args.push(format!("INSTALLATION_COMMAND={installation_command}"));
         };
         if let Some(idl_dir) = self.idl_dir {
-            image_build_args.push(format!("IDL_DIR={}", idl_dir.display()));
+            image_build_args.push(format!("IDL_DIR={idl_dir}"));
         };
 
         image_build_args
@@ -125,7 +120,7 @@ impl Template {
 
 impl Default for &Template {
     fn default() -> Self {
-        let legacy = Legacy::template();
+        let legacy = legacy();
         get_all_templates()
             .iter()
             .find(|t| t.name == legacy.name)

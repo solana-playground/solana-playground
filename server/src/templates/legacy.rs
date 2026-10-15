@@ -6,24 +6,20 @@ use std::{
 
 use anyhow::Result;
 
-use super::{get_anchor_installation_command, Template};
+use super::{anchor_installation_command, Template};
 
-pub struct Legacy;
-
-impl Legacy {
-    pub fn template() -> Template {
-        Template {
-            name: "legacy",
-            rust_version: "1.68.0",
-            solana_version: Some("1.17.25"),
-            cargo_build_sbf_version: None,
-            installation_command: Some(get_anchor_installation_command!("0.29.0")),
-            initial_build_command: "cargo-build-sbf -- --locked",
-            program_dir: Path::new("programs/program"),
-            binary_dir: Path::new("target/deploy"),
-            idl_dir: Some(Path::new("target/idl")),
-            build,
-        }
+pub const fn legacy() -> Template {
+    Template {
+        name: "legacy",
+        rust_version: "1.68.0",
+        solana_version: Some("1.17.25"),
+        cargo_build_sbf_version: None,
+        installation_command: Some(anchor_installation_command!("0.29.0")),
+        initial_build_command: "cargo-build-sbf -- --locked",
+        program_dir: "programs/program",
+        binary_dir: "target/deploy",
+        idl_dir: Some("target/idl"),
+        build,
     }
 }
 
