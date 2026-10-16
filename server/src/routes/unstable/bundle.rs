@@ -135,7 +135,12 @@ pub async fn bundle(
             .image(Sandbox::get_image_name("bundle"))
             .user("solpg")
             .limits(state.config.limits.sandbox)
-            .proxy(["registry.npmjs.org", "registry.yarnpkg.com", "github.com"])
+            .proxy([
+                "registry.npmjs.org",
+                "registry.yarnpkg.com",
+                "github.com",
+                "codeload.github.com",
+            ])
             .copy(
                 format!("{}/.", temp_host_path.display()),
                 format!("container:{PACKAGES_DIR}"),
