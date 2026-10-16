@@ -81,7 +81,7 @@ impl Config {
                         cpu: Some(get_env("UNSTABLE_BUNDLE_CPU_LIMIT", 4usize)),
                         memory: Some(get_env(
                             "UNSTABLE_BUNDLE_MEMORY_LIMIT",
-                            6usize * 1024 * 1024 * 1024, // 6 GiB (also affects speed)
+                            4usize * 1024 * 1024 * 1024, // 4 GiB (also affects speed)
                         )),
                         swap: get_env_raw("UNSTABLE_BUNDLE_SWAP_LIMIT")
                             .map(|v| v.parse())
