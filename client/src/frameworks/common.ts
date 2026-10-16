@@ -222,40 +222,44 @@ export const selectProgram = async (programNames: string[]) => {
 export const convertToPlaygroundCommon = (files: TupleFiles) => {
   const pgFiles: TupleFiles = [];
   for (const [path, content] of files) {
-    // */programs/*/(**/*) */ -> (**/*)
-    const programPathResult = /programs\/(?!.*programs\/)[^\/]*\/(.*)$/.exec(
+    // **/programs/*/src/** -> src/**
+    const programSrcResult = /programs\/(?!.*programs\/)[^/]*\/(src\/.*)$/.exec(
       path
     );
-    if (programPathResult) {
-      const programFilePath = programPathResult[1];
-      pgFiles.push([programFilePath, content]);
+    if (programSrcResult) {
+      pgFiles.push([programSrcResult[1], content]);
       continue;
     }
 
+    // **/programs/*/Cargo.(toml|lock) -> Cargo.(toml|lock)
+    const programCargoFiles =
+      /programs\/(?!.*programs\/)[^/]*\/(Cargo.(toml|lock))$/.exec(path);
+    if (programCargoFiles) {
+      pgFiles.push([programCargoFiles[1], content]);
+      continue;
+    }
+
+    // TODO: After Rust test support: **/programs/*/tests/** -> tests/**
+
     // **/Cargo.lock -> Cargo.lock
-    const rustLockResult = /Cargo.lock$/.exec(path);
-    if (rustLockResult) {
-      const rustLockPath = rustLockResult[0];
-      pgFiles.push([rustLockPath, content]);
+    const cargoLockResult = /Cargo.lock$/.exec(path);
+    if (cargoLockResult) {
+      pgFiles.push([cargoLockResult[0], content]);
       continue;
     }
 
     // **/client/**/*.ts -> client/**/*.ts
-    const clientPathResult = /client\/(?!.*client\/).*\.(js|ts)$/.exec(path);
-    if (clientPathResult) {
-      const clientFilePath = clientPathResult[0];
-      pgFiles.push([clientFilePath, content]);
+    const clientResult = /client\/(?!.*client\/).*\.(js|ts)$/.exec(path);
+    if (clientResult) {
+      pgFiles.push([clientResult[0], content]);
       continue;
     }
 
     // **/tests/**/*.ts -> tests/**/*.test.ts
-    const testPathResult = /tests\/(?!.*tests\/).*\.(js|ts)$/.exec(path);
-    if (testPathResult) {
-      const testPath = testPathResult[0].replace(
-        /(\.test)?\.(js|ts)$/,
-        ".test.ts"
-      );
-      pgFiles.push([testPath, content]);
+    const testsResult = /tests\/(?!.*tests\/).*\.(js|ts)$/.exec(path);
+    if (testsResult) {
+      const path = testsResult[0].replace(/(\.test)?\.(js|ts)$/, ".test.ts");
+      pgFiles.push([path, content]);
       continue;
     }
 
@@ -264,8 +268,7 @@ export const convertToPlaygroundCommon = (files: TupleFiles) => {
       path
     );
     if (jsPackageResult) {
-      const jsPackagePath = jsPackageResult[0];
-      pgFiles.push([jsPackagePath, content]);
+      pgFiles.push([jsPackageResult[0], content]);
       continue;
     }
   }
