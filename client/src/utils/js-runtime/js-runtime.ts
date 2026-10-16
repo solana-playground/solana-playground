@@ -483,15 +483,6 @@ export class PgJsRuntime {
 
       // Add `anchor.workspace`
       if (PgProgramInfo.idl) {
-        // const snakeCaseName = PgProgramInfo.idl.name;
-        const snakeCaseName = PgProgramInfo.idl.metadata.name;
-        const programNames = [
-          PgCommon.toPascalFromSnake(snakeCaseName), // default before 0.29.0
-          PgCommon.toCamelCase(snakeCaseName),
-          PgCommon.toKebabFromSnake(snakeCaseName),
-          snakeCaseName,
-        ];
-
         // TODO: Get the exact version from the lock file
         const versionReq = PgJsPackage.getParsedManifest().dependencies?.[name];
         if (!versionReq) throw new Error(`Anchor version not found: ${name}`);
@@ -505,10 +496,21 @@ export class PgJsRuntime {
         }
 
         const version = PgCommon.parseVersion(versionStr);
+        const isLegacy = version.major === 0 && version.minor < 30;
+        const snakeCaseName = isLegacy
+          ? PgProgramInfo.idl.name
+          : PgProgramInfo.idl.metadata.name;
+        const programNames = [
+          PgCommon.toPascalFromSnake(snakeCaseName), // default before 0.29.0
+          PgCommon.toCamelCase(snakeCaseName),
+          PgCommon.toKebabFromSnake(snakeCaseName),
+          snakeCaseName,
+        ];
+
         const idl = PgProgramInfo.idl;
         const provider = pkg.getProvider();
         const programArgs = [];
-        if (version.major === 0 && version.minor < 30) {
+        if (isLegacy) {
           const programId = PgProgramInfo.pk;
           if (!programId) throw new Error("Program ID not set");
           programArgs.push(idl, programId, provider);
