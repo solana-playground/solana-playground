@@ -648,7 +648,7 @@ pub struct SignerFromPathConfig {
 /// [qs]: https://en.wikipedia.org/wiki/Query_string
 /// [dp]: https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki
 /// [URI]: https://en.wikipedia.org/wiki/Uniform_Resource_Identifier
-/// ["hardened"]: https://wiki.trezor.io/Hardened_and_non-hardened_derivation
+/// ["hardened"]: https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki
 ///
 /// # Examples
 ///
