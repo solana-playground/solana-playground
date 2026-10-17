@@ -36,6 +36,8 @@ export const ThemeProvider: FC = ({ children }) => {
 // Set default theme values
 const Wrapper = styled.div`
   ${({ theme }) => css`
+    min-width: 100vw;
+    min-height: 100vh;
     background: ${theme.colors.default.bgPrimary};
     color: ${theme.colors.default.textPrimary};
     font-family: ${theme.font.code.family};
