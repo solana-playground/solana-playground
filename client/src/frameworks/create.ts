@@ -47,7 +47,9 @@ export const createFramework = <N extends string>(
   framework.import ??= () => import(dirPath + "import");
   framework.export ??= async () => {
     const { convertFromPlayground } = await import(dirPath + "export");
-    const { default: readme } = await import(dirPath + "export.md");
+    const readme = await import(dirPath + "export.md")
+      .then((mod) => mod.default)
+      .catch(() => {});
     return { convertFromPlayground, readme };
   };
 

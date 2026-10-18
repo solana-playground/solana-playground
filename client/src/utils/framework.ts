@@ -106,7 +106,7 @@ export type FrameworkParam<N extends string> = {
      */
     convertFromPlayground: (files: TupleFiles) => SyncOrAsync<TupleFiles>;
     /** Markdown text to show after conversion */
-    readme: string;
+    readme?: string;
   }>;
 };
 
@@ -200,7 +200,8 @@ export class PgFramework {
     await recursivelyGetItems(workspacePath);
 
     // Convert from playground layout to framework layout
-    let readme: string | undefined;
+    type Readme = Awaited<ReturnType<Framework["export"]>>["readme"];
+    let readme: Readme;
     if (opts?.convert) {
       const framework = await this.getFromFiles(files);
       if (!framework) throw new Error("Could not identify framework");
@@ -214,6 +215,6 @@ export class PgFramework {
     const blob = await PgCompression.createZip(files);
     PgCommon.export(PgExplorer.currentWorkspaceName + ".zip", blob);
 
-    return { readme } as { readme: C extends true ? string : undefined };
+    return { readme } as { readme: C extends true ? Readme : undefined };
   }
 }

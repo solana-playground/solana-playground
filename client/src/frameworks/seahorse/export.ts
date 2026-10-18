@@ -2,9 +2,6 @@ import { PgCommon, PgExplorer, TupleFiles } from "../../utils";
 import { convertFromPlayground as convertToAnchor } from "../anchor/export";
 import { addAfter } from "../common";
 
-/**
- * {@link Framework.importFromPlayground}
- */
 export const convertFromPlayground = async (files: TupleFiles) => {
   // Seahorse program name comes from the file name
   const programName = files

@@ -1,6 +1,7 @@
 import {
   MergeUnion,
   PgCommon,
+  PgExplorer,
   PgLanguage,
   PgView,
   TupleFiles,
@@ -213,8 +214,43 @@ export const selectProgram = async (programNames: string[]) => {
   return programName;
 };
 
+export const getProgramNames = async (files: TupleFiles) => {
+  // Get Cargo workspace if it exists
+  const workspaceManifest = files
+    .filter(([path, content]) => {
+      return path.endsWith("Cargo.toml") && content.includes("[workspace]");
+    })
+    .map((file) => [...file, file[0].split("/").length] as const)
+    .sort((a, b) => a[2] - b[2])
+    .at(0);
+
+  // Cargo workspace
+  const programNames = [];
+  if (workspaceManifest) {
+    const membersResult = /\[workspace\]members\s+=\s+(\[.*?\])/.exec(
+      workspaceManifest[1].replaceAll("\n", "")
+    );
+    if (membersResult) {
+      // TODO: Account for glob paths e.g. `programs/*`
+      const members: string[] = JSON.parse(membersResult[1].replace(",]", "]"));
+
+      // Get only the program members and exclude the rest, e.g. examples, macros, tests...
+      const programMembers = members.filter((member) => {
+        return files
+          .filter(([path]) => path.includes(member))
+          .some(([_, content]) => content.includes("entrypoint!"));
+      });
+      programNames.push(...programMembers);
+    }
+  }
+
+  return programNames;
+};
+
 /**
  * Convert the given `files` to playground layout.
+ *
+ * There must only be one program directory.
  *
  * @param files files with the framework layout
  * @returns the files with playground layout
@@ -222,20 +258,30 @@ export const selectProgram = async (programNames: string[]) => {
 export const convertToPlaygroundCommon = (files: TupleFiles) => {
   const pgFiles: TupleFiles = [];
   for (const [path, content] of files) {
-    // **/programs/*/src/** -> src/**
-    const programSrcResult = /programs\/(?!.*programs\/)[^/]*\/(src\/.*)$/.exec(
-      path
-    );
+    // **/src/**/*.rs -> src/**/*.rs
+    const programSrcResult = /src\/(?!.*src\/).*\.rs$/.exec(path);
     if (programSrcResult) {
-      pgFiles.push([programSrcResult[1], content]);
+      pgFiles.push([programSrcResult[0], content]);
       continue;
     }
 
-    // **/programs/*/Cargo.(toml|lock) -> Cargo.(toml|lock)
-    const programCargoFiles =
-      /programs\/(?!.*programs\/)[^/]*\/(Cargo.(toml|lock))$/.exec(path);
-    if (programCargoFiles) {
-      pgFiles.push([programCargoFiles[1], content]);
+    // **/Cargo.toml -> Cargo.toml (only if there is an `src` dir next to it)
+    const cargoTomlResult = /.*Cargo\.toml$/.exec(path);
+    if (cargoTomlResult) {
+      const cargoTomlPath = cargoTomlResult[0];
+      const srcPath = cargoTomlPath.includes("/")
+        ? PgCommon.joinPaths(
+            PgExplorer.getParentPathFromPath(cargoTomlPath),
+            PgExplorer.PATHS.SRC_DIRNAME
+          )
+        : PgExplorer.PATHS.SRC_DIRNAME;
+      const hasSrc = files.some(([path]) => path.startsWith(srcPath));
+      if (!hasSrc) continue;
+
+      const strippedCargoTomlResult = /Cargo.toml$/.exec(path);
+      if (!strippedCargoTomlResult) continue;
+
+      pgFiles.push([strippedCargoTomlResult[0], content]);
       continue;
     }
 

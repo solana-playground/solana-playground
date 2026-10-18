@@ -13,9 +13,6 @@ import {
   IMPORT_STATEMENT_REGEX,
 } from "../common";
 
-/**
- * {@link Framework.importFromPlayground}
- */
 export const convertFromPlayground = async (files: TupleFiles) => {
   const PROGRAM_PATH = "program";
 
@@ -28,12 +25,12 @@ export const convertFromPlayground = async (files: TupleFiles) => {
 
     // client -> client
     else if (path.startsWith(PgExplorer.PATHS.CLIENT_DIRNAME)) {
-      content = convertJS(content);
+      content = convertJs(content);
     }
 
     // tests/**/*.test.ts -> tests/**/*.test.ts
     else if (path.startsWith(PgExplorer.PATHS.TESTS_DIRNAME)) {
-      content = convertJS(content);
+      content = convertJs(content);
     }
 
     // Don't include other files
@@ -126,7 +123,7 @@ ${await getJSDependencies(frameworkFiles)}
  * @param content JS/TS code
  * @returns the converted content
  */
-const convertJS = (content: string) => {
+const convertJs = (content: string) => {
   // Handle imports
   content = addImports(content);
 

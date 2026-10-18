@@ -13,6 +13,8 @@ export const anchor = createFramework({
     url: "https://github.com/solana-developers/program-examples/tree/main/basics/create-account/anchor",
   },
   getIsCurrent: (files) => {
+    // TODO: Check `Cargo.toml`
+
     // Return false if there is a Python file(Seahorse) otherwise this will
     // return a false positive because every Seahorse workspace is a valid
     // Anchor workspace.

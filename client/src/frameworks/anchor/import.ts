@@ -1,10 +1,8 @@
 import { PgCommon, TupleFiles } from "../../utils";
 import { convertToPlaygroundCommon, selectProgram } from "../common";
 
-/**
- * {@link Framework.importToPlayground}
- */
 export const convertToPlayground = async (files: TupleFiles) => {
+  // TODO: Get using `getProgramNames` once it supports glob imports
   // Get program name(s)
   const programNames = PgCommon.toUniqueArray(
     files

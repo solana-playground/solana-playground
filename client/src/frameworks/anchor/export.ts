@@ -7,9 +7,6 @@ import {
   IMPORT_STATEMENT_REGEX,
 } from "../common";
 
-/**
- * {@link Framework.importFromPlayground}
- */
 export const convertFromPlayground = async (files: TupleFiles) => {
   // Program manifest's lib name must match the `#[program]` module name and
   // Anchor.toml programs definition
@@ -31,13 +28,13 @@ export const convertFromPlayground = async (files: TupleFiles) => {
 
     // client -> client
     else if (path.startsWith(PgExplorer.PATHS.CLIENT_DIRNAME)) {
-      content = convertJS(content, programName);
+      content = convertJs(content, programName);
     }
 
     // tests/**/*.test.ts -> tests/**/*.ts
     else if (path.startsWith(PgExplorer.PATHS.TESTS_DIRNAME)) {
       path = path.replace(".test.ts", ".ts");
-      content = convertJS(content, programName, { isTest: true });
+      content = convertJs(content, programName, { isTest: true });
     }
 
     // Don't include other files
@@ -224,7 +221,7 @@ ${await getJSDependencies(frameworkFiles)}
  * - `isTest`: whether the given file is a test file
  * @returns the converted content
  */
-const convertJS = (
+const convertJs = (
   content: string,
   programName: string,
   opts?: { isTest?: boolean }

@@ -1,17 +1,24 @@
 mod anchor;
 mod legacy;
+mod pinocchio;
 
-use std::{fs, path::Path, process::ExitStatus};
+use std::{fs, io::ErrorKind, path::Path, process::ExitStatus};
 
 use anchor::*;
 use anyhow::Result;
 use legacy::legacy;
+use pinocchio::*;
 
 // TODO: Decide whether this is a good idea: templates being `const fn`s means we should be able to
 // allow templates to self-describe themselves with a file (within the template files), allowing us
 // to remove all related server code.
 /// All templates
-static ALL: &[Template] = &[legacy(), anchor_0_29_0(), anchor_1_2_1()];
+static ALL: &[Template] = &[
+    legacy(),
+    anchor_0_29_0(),
+    anchor_1_2_1(),
+    pinocchio_0_11_2(),
+];
 
 /// Get all templates.
 ///
@@ -108,11 +115,17 @@ impl Template {
     pub fn matches(&self, manifest: &str, lock: &str) -> Result<bool> {
         // TODO: Cache
         let template_dir = Path::new("templates").join(self.name);
-        let manifest_path = template_dir.join(self.program_dir).join("Cargo.toml");
+        let template_program_dir = template_dir.join(self.program_dir);
+        let manifest_path = template_program_dir.join("Cargo.toml");
         let actual_manifest = fs::read_to_string(manifest_path)?;
 
-        let lock_path = template_dir.join("Cargo.lock");
-        let actual_lock = fs::read_to_string(lock_path)?;
+        let actual_lock = match fs::read_to_string(template_dir.join("Cargo.lock")) {
+            Ok(lock) => lock,
+            Err(e) if e.kind() == ErrorKind::NotFound => {
+                fs::read_to_string(template_program_dir.join("Cargo.lock"))?
+            }
+            Err(e) => return Err(Into::into(e)),
+        };
 
         Ok(manifest == actual_manifest && lock == actual_lock)
     }

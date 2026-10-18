@@ -18,7 +18,7 @@ const Default: FC<DefaultProps> = ({ setPage }) => {
   const convertAndExport = async () => {
     try {
       const { readme } = await PgFramework.exportWorkspace({ convert: true });
-      setPage({ Component: Readme, props: { readme } });
+      if (readme) setPage({ Component: Readme, props: { readme } });
     } catch (e) {
       console.log("Convert and export error:", e);
       await exportWithoutChanges();

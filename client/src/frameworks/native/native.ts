@@ -1,3 +1,4 @@
+import { PgLanguage } from "../../utils";
 import { createFramework } from "../create";
 
 export const native = createFramework({
@@ -22,12 +23,18 @@ export const native = createFramework({
   },
   legacy: { version: "1.16.24" },
   getIsCurrent: (files) => {
-    for (const [path, content] of files) {
-      if (!path.endsWith(".rs")) continue;
-      const hasEntryPointMacro = content.includes("entrypoint!");
-      if (hasEntryPointMacro) return true;
-    }
+    // TODO: Check `Cargo.toml`
+    const rustContents = files
+      .filter(([path]) => PgLanguage.getFromPath(path)?.name === "Rust")
+      .map(([_, content]) => content);
+    const hasSolanaProgram = rustContents.some((content) =>
+      content.includes("solana_program")
+    );
+    if (!hasSolanaProgram) return false;
 
-    return false;
+    const hasEntrypointMacro = rustContents.some((content) =>
+      content.includes("entrypoint!")
+    );
+    return hasEntrypointMacro;
   },
 });
