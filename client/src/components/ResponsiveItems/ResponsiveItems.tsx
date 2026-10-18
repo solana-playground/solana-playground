@@ -10,7 +10,7 @@ interface ResponsiveItemsProps {
 }
 
 const ResponsiveItems: FC<ResponsiveItemsProps> = (props) => {
-  const [itemCount, setItemCount] = useState(0);
+  const [itemCount, setItemCount] = useState(props.maxItems);
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const el = ref.current;
