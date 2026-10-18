@@ -1091,6 +1091,7 @@ export class PgTheme {
     select.menu.bg ??= input.bg;
     select.menu.color ??= input.color;
     select.menu.borderRadius ??= input.borderRadius;
+    select.menu.overflow ??= "hidden";
 
     // Option
     select.option ??= {};
