@@ -316,31 +316,7 @@ export class PgTerm {
   /** Focus terminal and scroll to cursor. */
   focus() {
     this._xterm.focus();
-    this.scrollToCursor();
-  }
-
-  /** Scroll terminal to wherever the cursor currently is. */
-  scrollToCursor() {
-    const scrollableEl = document
-      .getElementsByClassName("xterm-viewport")
-      .item(0);
-    if (!scrollableEl) throw new Error("XTerm viewport not found");
-
-    // Find how much to scroll because of our cursor
-    const rect = scrollableEl.getBoundingClientRect();
-    const cursorOffsetY =
-      (this._tty.buffer.cursorY / this._tty.size.rows) * rect.height;
-
-    let scrollX = rect.left;
-    let scrollY = rect.top + cursorOffsetY + 10;
-    if (scrollX < 0) {
-      scrollX = 0;
-    }
-    if (scrollY > document.body.scrollHeight) {
-      scrollY = document.body.scrollHeight;
-    }
-
-    scrollableEl.scrollTo(scrollX, scrollY);
+    this.scrollToBottom();
   }
 
   /** Print a message. */
@@ -437,11 +413,7 @@ export class PgTerm {
         : O["choice"]["items"][number]
       : string
   > {
-    // Avoid `this.focus()` here because it calls `scrollToCursor`, which may
-    // desync the DOM scroll from `xterm`'s state and leave the next render at
-    // the wrong position.
-    this._xterm.focus();
-    this.scrollToBottom();
+    this.focus();
 
     let convertedMsg = msg;
     const disposables = [];
