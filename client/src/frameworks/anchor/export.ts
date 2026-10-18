@@ -1,8 +1,14 @@
-import { PgCommon, PgExplorer, PgProgramInfo, TupleFiles } from "../../utils";
+import {
+  PgCommon,
+  PgExplorer,
+  PgJsPackage,
+  PgProgramInfo,
+  TupleFiles,
+} from "../../utils";
 import {
   addAfter,
   addImports,
-  getJSDependencies,
+  getJsDependencies,
   getRustDependencies,
   IMPORT_STATEMENT_REGEX,
 } from "../common";
@@ -21,9 +27,18 @@ export const convertFromPlayground = async (files: TupleFiles) => {
 
   const frameworkFiles: TupleFiles = [];
   for (let [path, content] of files) {
-    // src -> programs/<program-name>/src
+    // src -> programs/<program_name>/src
     if (path.startsWith(PgExplorer.PATHS.SRC_DIRNAME)) {
       path = PgCommon.joinPaths(programPath, path);
+    }
+
+    // Cargo.toml -> programs/<program_name>/Cargo.toml
+    else if (path === "Cargo.toml") {
+      path = PgCommon.joinPaths(programPath, path);
+    }
+
+    // Cargo.lock -> Cargo.lock
+    else if (path === "Cargo.lock") {
     }
 
     // client -> client
@@ -37,37 +52,24 @@ export const convertFromPlayground = async (files: TupleFiles) => {
       content = convertJs(content, programName, { isTest: true });
     }
 
+    // JS manifest and lock do not need conversion
+    else if (
+      path === "package.json" ||
+      path === "package-lock.json" ||
+      path === "yarn.lock"
+    ) {
+    }
+
     // Don't include other files
     else continue;
 
     frameworkFiles.push([path, content]);
   }
 
-  // Add the files that don't exist in Playground
-  frameworkFiles.push(
-    // App
-    ["app", ""],
-
-    // Migrations
-    [
-      PgCommon.joinPaths("migrations", "deploy.ts"),
-      `// Migrations are an early feature. Currently, they're nothing more than this
-// single deploy script that's invoked from the CLI, injecting a provider
-// configured from the workspace's Anchor.toml.
-
-const anchor = require("@coral-xyz/anchor");
-
-module.exports = async function (provider) {
-  // Configure client to use the provider.
-  anchor.setProvider(provider);
-
-  // Add your deploy script here.
-};
-`,
-    ],
-
-    // Program Cargo.toml
-    [
+  // Program Cargo.toml
+  const hasRustManifest = files.some(([path]) => path === "Cargo.toml");
+  if (!hasRustManifest) {
+    frameworkFiles.push([
       PgCommon.joinPaths(programPath, "Cargo.toml"),
       `[package]
 name = "${packageName}"
@@ -88,9 +90,74 @@ default = []
 
 ${await getRustDependencies(frameworkFiles)}
 `,
+    ]);
+  }
+
+  // JS files
+  const hasJsManifest = files.some(([path]) => path === "package.json");
+  if (!hasJsManifest) {
+    frameworkFiles.push(
+      [
+        "package.json",
+        `{
+  "scripts": {
+    "lint:fix": "prettier */*.js \\"*/**/*{.js,.ts}\\" -w",
+    "lint": "prettier */*.js \\"*/**/*{.js,.ts}\\" --check"
+  },
+${await getJsDependencies(frameworkFiles)}
+}
+`,
+      ],
+
+      [
+        ".prettierignore",
+        `.anchor
+.DS_Store
+target
+node_modules
+dist
+build
+test-ledger
+`,
+      ]
+    );
+  }
+
+  const manifest = PgCommon.tryCall(PgJsPackage.getParsedManifest);
+  let anchorPkg;
+  if (manifest?.dependencies) {
+    const ANCHOR_PKGS = [
+      "@anchor-lang/core",
+      "@coral-xyz/anchor",
+      "@project-serum/anchor",
+    ];
+    anchorPkg = Object.keys(manifest.dependencies).find((dep) =>
+      ANCHOR_PKGS.includes(dep)
+    );
+  }
+  anchorPkg ??= "@coral-xyz/anchor";
+
+  // Add the files that don't exist in Playground
+  frameworkFiles.push(
+    ["app", ""],
+
+    [
+      PgCommon.joinPaths("migrations", "deploy.ts"),
+      `// Migrations are an early feature. Currently, they're nothing more than this
+// single deploy script that's invoked from the CLI, injecting a provider
+// configured from the workspace's Anchor.toml.
+
+const anchor = require("${anchorPkg}");
+
+module.exports = async function (provider) {
+  // Configure client to use the provider.
+  anchor.setProvider(provider);
+
+  // Add your deploy script here.
+};
+`,
     ],
 
-    // Program Xargo.toml
     [
       PgCommon.joinPaths(programPath, "Xargo.toml"),
       `[target.bpfel-unknown-unknown.dependencies.std]
@@ -98,7 +165,6 @@ features = []
 `,
     ],
 
-    // .gitignore
     [
       ".gitignore",
       `.anchor
@@ -111,35 +177,14 @@ test-ledger
 `,
     ],
 
-    // .prettierignore
-    [
-      ".prettierignore",
-      `.anchor
-.DS_Store
-target
-node_modules
-dist
-build
-test-ledger
-`,
-    ],
-
-    // Anchor.toml
     [
       "Anchor.toml",
-      `[features]
-seeds = false
-skip-lint = false
-
-${
-  PgProgramInfo.pk
-    ? `[programs.localnet]
+      `${
+        PgProgramInfo.pk
+          ? `[programs.localnet]
 ${programName} = "${PgProgramInfo.pk.toBase58()}"`
-    : ""
-}
-
-[registry]
-url = "https://api.apr.dev"
+          : ""
+      }
 
 [provider]
 cluster = "Localnet"
@@ -170,29 +215,14 @@ codegen-units = 1
 `,
     ],
 
-    // package.json
-    [
-      "package.json",
-      `{
-  "scripts": {
-    "lint:fix": "prettier */*.js \\"*/**/*{.js,.ts}\\" -w",
-    "lint": "prettier */*.js \\"*/**/*{.js,.ts}\\" --check"
-  },
-${await getJSDependencies(frameworkFiles)}
-}
-`,
-    ],
-
-    // tsconfig.json
     [
       "tsconfig.json",
       `{
   "compilerOptions": {
     "types": ["mocha", "chai"],
-    "typeRoots": ["./node_modules/@types"],
-    "lib": ["es2015"],
-    "module": "commonjs",
-    "target": "es6",
+    "lib": ["es2020"],
+    "module": "esnext",
+    "target": "es2020",
     "esModuleInterop": true
   }
 }
@@ -226,46 +256,47 @@ const convertJs = (
   programName: string,
   opts?: { isTest?: boolean }
 ) => {
-  // Handle imports
-  content = addImports(content);
-  if (!content.includes("anchor")) {
-    content = `import * as anchor from "@coral-xyz/anchor";\n` + content;
-  }
+  const manifest = PgCommon.tryCall(PgJsPackage.getParsedManifest);
+  if (!manifest) {
+    // Handle imports
+    content = addImports(content);
+    if (!content.includes("anchor")) {
+      content = `import * as anchor from "@coral-xyz/anchor";\n` + content;
+    }
 
-  // Add program
-  const pascalCaseProgramName = PgCommon.toPascalFromSnake(programName);
-  content = addAfter(
-    content,
-    IMPORT_STATEMENT_REGEX,
-    `import type { ${pascalCaseProgramName} } from "../target/types/${programName}";`
-  );
+    // Add program
+    const pascalCaseProgramName = PgCommon.toPascalFromSnake(programName);
+    content = addAfter(
+      content,
+      IMPORT_STATEMENT_REGEX,
+      `import type { ${pascalCaseProgramName} } from "../target/types/${programName}";`
+    );
 
-  content = opts?.isTest
-    ? addAfter(
-        content,
-        /describe\(.*/,
-        `  // Configure the client to use the local cluster
+    content = opts?.isTest
+      ? addAfter(
+          content,
+          /describe\(.*/,
+          `  // Configure the client to use the local cluster
   anchor.setProvider(anchor.AnchorProvider.env());\n
   const program = anchor.workspace.${pascalCaseProgramName} as anchor.Program<${pascalCaseProgramName}>;
   `,
-        { firstOccurance: true }
-      )
-    : addAfter(
-        content,
-        IMPORT_STATEMENT_REGEX,
-        `\n// Configure the client to use the local cluster
+          { firstOccurance: true }
+        )
+      : addAfter(
+          content,
+          IMPORT_STATEMENT_REGEX,
+          `\n// Configure the client to use the local cluster
 anchor.setProvider(anchor.AnchorProvider.env());\n
 const program = anchor.workspace.${pascalCaseProgramName} as anchor.Program<${pascalCaseProgramName}>;
 `
-      );
+        );
+  }
 
-  // Handle pg namespace
-  content = content
+  // Handle the `pg` namespace
+  return content
     .replaceAll("pg.program", "program")
     .replaceAll("pg.PROGRAM_ID", "program.programId")
     .replaceAll("pg.connection", "program.provider.connection")
     .replaceAll("pg.wallet.publicKey", "program.provider.publicKey")
     .replaceAll("pg.wallet.keypair", "program.provider.wallet.payer");
-
-  return content;
 };

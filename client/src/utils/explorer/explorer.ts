@@ -1420,7 +1420,7 @@ export class PgExplorer {
    */
   static getParentPathFromPath(path: string) {
     const pad =
-      this.getItemTypeFromPath(path).folder && path.endsWith("/") ? 2 : 1;
+      PgExplorer.getItemTypeFromPath(path).folder && path.endsWith("/") ? 2 : 1;
 
     const names = path.split("/");
     const parentPath = names

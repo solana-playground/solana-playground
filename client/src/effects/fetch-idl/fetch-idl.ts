@@ -19,7 +19,7 @@ export const fetchIdl = () => {
 
     // TODO: Remove once `PgProgramInfo.fetchIdl` is framework-agnostic
     // (Seahorse programs are Anchor-compatible and also have Anchor IDLs)
-    const framework = await PgFramework.getFromFiles();
+    const framework = PgFramework.getFromFiles();
     if (framework?.name !== "Anchor" && framework?.name !== "Seahorse") return;
 
     try {

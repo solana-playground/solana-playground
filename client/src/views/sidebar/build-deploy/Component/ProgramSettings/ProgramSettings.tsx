@@ -1,4 +1,4 @@
-import { FC, ReactNode, useState } from "react";
+import { FC, ReactNode, useEffect, useState } from "react";
 import styled, { css } from "styled-components";
 
 import Foldable from "../../../../../components/Foldable";
@@ -6,7 +6,6 @@ import BuildFlags from "./BuildFlags";
 import IDL from "./IDL";
 import ProgramBinary from "./ProgramBinary";
 import ProgramID from "./ProgramID";
-import { useAsyncEffect } from "../../../../../hooks";
 import { PgFramework, PgSettings } from "../../../../../utils";
 
 /** All program settings */
@@ -28,8 +27,8 @@ const DEFAULT_PROGRAM_SETTINGS: ProgramSettingProps[] = [
 const ProgramSettings = () => {
   const [settings, setSettings] = useState<ProgramSettingProps[]>();
 
-  useAsyncEffect(async () => {
-    const framework = await PgFramework.getFromFiles();
+  useEffect(() => {
+    const framework = PgFramework.getFromFiles();
     switch (framework?.name) {
       case "Anchor":
       case "Seahorse": {

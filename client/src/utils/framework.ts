@@ -68,7 +68,7 @@ export type FrameworkParam<N extends string> = {
    * @param files files with either playground's layout or framework's layout
    * @returns whether the given files belong to this framework
    */
-  getIsCurrent: (files: TupleFiles) => SyncOrAsync<boolean>;
+  getIsCurrent: (files: TupleFiles) => boolean;
 
   /** Available versions */
   versions?: string[];
@@ -142,9 +142,9 @@ export class PgFramework {
    * @param files files to check, defaults to current project files
    * @returns the framework
    */
-  static async getFromFiles(files: TupleFiles = PgExplorer.getAllFiles()) {
+  static getFromFiles(files: TupleFiles = PgExplorer.getAllFiles()) {
     for (const framework of this.all) {
-      const isCurrent = await framework.getIsCurrent(files);
+      const isCurrent = framework.getIsCurrent(files);
       if (isCurrent) return framework;
     }
   }
@@ -156,7 +156,7 @@ export class PgFramework {
    * @returns the playground layout converted files
    */
   static async toPlaygroundLayout(files: TupleFiles) {
-    const framework = await this.getFromFiles(files);
+    const framework = this.getFromFiles(files);
     if (!framework) throw new Error("Could not identify framework");
 
     const { convertToPlayground } = await framework.import();
@@ -203,7 +203,7 @@ export class PgFramework {
     type Readme = Awaited<ReturnType<Framework["export"]>>["readme"];
     let readme: Readme;
     if (opts?.convert) {
-      const framework = await this.getFromFiles(files);
+      const framework = this.getFromFiles(files);
       if (!framework) throw new Error("Could not identify framework");
 
       const frameworkFrom = await framework.export();
