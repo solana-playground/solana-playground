@@ -4,6 +4,7 @@ import styled, { css } from "styled-components";
 import Img from "../../../../../components/Img";
 import Input from "../../../../../components/Input";
 import Modal from "../../../../../components/Modal";
+import ResponsiveItems from "../../../../../components/ResponsiveItems";
 import Select, { findSelectOption } from "../../../../../components/Select";
 import {
   Fn,
@@ -93,8 +94,8 @@ export const CreateWorkspace = () => {
         </Row>
 
         <Row>
-          <MainText>Choose a framework</MainText>
-          <FrameworksWrapper>
+          <MainText>Framework</MainText>
+          <ResponsiveItems minItemWidth="6.5rem" gap="1rem" maxItems={5}>
             {PgFramework.all.map((f) => (
               <Framework
                 key={f.name}
@@ -105,10 +106,10 @@ export const CreateWorkspace = () => {
                 {...f}
               />
             ))}
-          </FrameworksWrapper>
+          </ResponsiveItems>
         </Row>
 
-        {experimentalUnstable && versionOpts.length !== 0 && (
+        {experimentalUnstable && (
           <Row>
             <MainText>Version</MainText>
             <Select
@@ -138,11 +139,6 @@ const MainText = styled.div`
   font-size: ${({ theme }) => theme.font.code.size.large};
 `;
 
-const FrameworksWrapper = styled.div`
-  display: flex;
-  gap: 2rem;
-`;
-
 interface FrameworkProps extends FrameworkType {
   isSelected: boolean;
   select: Fn;
@@ -168,7 +164,10 @@ const Framework: FC<FrameworkProps> = ({
 
 const FrameworkWrapper = styled.div<{ isSelected?: boolean }>`
   ${({ theme, isSelected }) => css`
-    width: fit-content;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
     padding: 1rem;
     border: 1px solid ${theme.colors.default.border};
     border-radius: ${theme.default.borderRadius};
@@ -193,8 +192,8 @@ const FrameworkWrapper = styled.div<{ isSelected?: boolean }>`
 
 const FrameworkImageWrapper = styled.div<{ circle?: boolean }>`
   ${({ circle }) => css`
-    width: 8rem;
-    height: 8rem;
+    width: 3rem;
+    height: 3rem;
     display: flex;
     align-items: center;
 
