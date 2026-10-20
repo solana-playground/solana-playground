@@ -34,7 +34,7 @@ export const build = createCmd({
         uuid: result.uuid ?? undefined,
         lastBuildFailed: failed,
       });
-      PgTerminal.println(improveOutput(result.stderr));
+      PgTerminal.println(improveOutput(result));
     } finally {
       PgGlobal.update({ buildLoading: false });
     }
@@ -254,13 +254,15 @@ const SUGGESTIONS = [
 ];
 
 /**
- * Improve build output that is returned from the build request.
+ * Improve the output that is returned from the build request.
  *
- * @param output build output(stderr)
+ * @param output build output
  * @returns the improved output
  */
-const improveOutput = (output: string) => {
-  output = output
+const improveOutput = (output: { stdout: string; stderr: string }) => {
+  let { stdout, stderr } = output;
+
+  stderr = stderr
     // Blocking "waiting for file lock on package cache"
     .replaceAll("Blocking waiting for file lock on package cache\n", "")
 
@@ -269,11 +271,14 @@ const improveOutput = (output: string) => {
     .replace(/\s\(\/home.+?(?=\s)/gm, "")
     .replace(/(\/home\/\w+)\//gm, (match, home) => match.replace(home, "~"))
 
-    // Remove compiling output
-    .replace(/\s+Compiling\s.*/, "")
-
     // Replace `solpg` name with the current workspace name
     .replaceAll("solpg", PgExplorer.currentWorkspaceName ?? "solpg")
+
+    // Remove compiling output
+    .replace(/\s+Compiling\s.*/gm, "")
+
+    // Remove (run `cargo fix --lib -p program` to apply 1 suggestion)
+    .replace(/\(run `cargo fix --lib[^)]*\)/gm, "")
 
     // Remove stack size error
     .replace(/^\s*Error:\sFunction.*\n/gm, "")
@@ -289,39 +294,45 @@ const improveOutput = (output: string) => {
 
   // Remove uuid from folders
   const uuid = PgProgramInfo.uuid;
-  if (uuid) output = output.replace(new RegExp(`${uuid}\\/?`, "gm"), "");
+  if (uuid) stderr = stderr.replace(new RegExp(`${uuid}\\/?`, "gm"), "");
 
   // Remove `rustc` error line
-  let startIndex = output.indexOf("For more");
+  let startIndex = stderr.indexOf("For more");
   if (startIndex !== -1) {
-    const endIndex = output.indexOf("\n", startIndex);
-    output = output.substring(0, startIndex) + output.substring(endIndex + 1);
+    const endIndex = stderr.indexOf("\n", startIndex);
+    stderr = stderr.substring(0, startIndex) + stderr.substring(endIndex + 1);
   }
 
-  // Remove whitespace before `rustc` finished text
-  startIndex = output.indexOf("Finished release");
-  if (startIndex !== -1) {
-    const whiteSpaceStartIndex = startIndex - 7; // 7 is the most amount of whitespace
-    output =
-      output.substring(0, whiteSpaceStartIndex) + // Until whitespace start
-      output.substring(whiteSpaceStartIndex, startIndex).replaceAll(" ", "") +
-      PgTerminal.success("Build successful. ") +
-      "Completed" +
-      output.substring(output.indexOf(" in", startIndex)).replace("\n", ".\n"); // Time passed
+  // TODO: Remove
+  if (!PgSettings.experimental.unstable) {
+    // Remove the whitespace before `rustc` finished text
+    startIndex = stderr.indexOf("Finished `release`");
+    if (startIndex !== -1) {
+      const whiteSpaceStartIndex = startIndex - 7; // 7 is the most amount of whitespace
+      stderr =
+        stderr.substring(0, whiteSpaceStartIndex) + // until whitespace start
+        stderr.substring(whiteSpaceStartIndex, startIndex).replaceAll(" ", "") +
+        PgTerminal.success("Build successful. ") +
+        "Completed" +
+        stderr
+          .substring(stderr.indexOf(" in", startIndex))
+          .replace("\n", ".\n"); // Time passed
+    }
   }
 
-  output = output.substring(0, output.length - 1);
+  // Trim the last newline
+  if (stderr) stderr = stderr.substring(0, stderr.length - 1);
 
   // Improve errors
   if (PgSettings.build.improveErrors) {
     const MAX_ERROR_AMOUNT = 3;
 
-    const errorIndices = PgCommon.matchAll(output, /error[:[]/)
+    const errorIndices = PgCommon.matchAll(stderr, /error[:[]/)
       .map((match) => match.index)
       .filter(PgCommon.isNonNullish);
     if (errorIndices.length) {
       const errors = errorIndices
-        .map((errorIndex, i) => output.slice(errorIndex, errorIndices[i + 1]))
+        .map((errorIndex, i) => stderr.slice(errorIndex, errorIndices[i + 1]))
         .filter((err) => !err.includes("could not compile"));
 
       // Hide common useless errors i.e. some errors such as:
@@ -366,7 +377,7 @@ const improveOutput = (output: string) => {
       // being non-zero
       if (displayErrors.length) {
         const shownErrors = displayErrors.slice(0, MAX_ERROR_AMOUNT);
-        output = shownErrors.reduce((acc, cur) => acc + cur, "");
+        stderr = shownErrors.reduce((acc, cur) => acc + cur, "");
 
         // Suggest solutions for common errors. Only the shown errors are
         // checked because suggesting a solution for an error that is not in
@@ -375,11 +386,11 @@ const improveOutput = (output: string) => {
           return shownErrors.some((err) => s.pattern.test(err));
         });
         for (const { suggestion } of suggestions) {
-          output += `Suggestion: ${suggestion}\n`;
+          stderr += `Suggestion: ${suggestion}\n`;
         }
 
         if (displayErrors.length > MAX_ERROR_AMOUNT) {
-          output += [
+          stderr += [
             "Note: This is a shorter version of the error logs to make it easier to debug.",
             `Currently ${PgTerminal.bold(
               MAX_ERROR_AMOUNT.toString()
@@ -393,5 +404,6 @@ const improveOutput = (output: string) => {
     }
   }
 
-  return output;
+  // TODO: Always show both (`PgSettings.experimental.unstable`)
+  return stdout ? stderr + stdout : stderr;
 };
