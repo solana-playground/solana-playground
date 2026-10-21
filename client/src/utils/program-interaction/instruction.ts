@@ -1,5 +1,6 @@
 import { getPrograms } from "./generators";
 import { getIdlType, Idl, IdlAccount, IdlInstruction } from "./idl-types";
+import { PgCommon } from "../common";
 import { PgWeb3 } from "../web3";
 import type {
   GeneratableInstruction,
@@ -98,6 +99,9 @@ const createAccountGenerator = (acc: IdlAccount): InstructionValueGenerator => {
     return {
       type: "From seed",
       seeds: acc.pda.seeds.map((seed) => {
+        // Seed paths are snake_case, e.g. `my_account.field`, but account and
+        // argument names are camelCase in the IDL
+        const name = seed.path?.split(".").map(PgCommon.toCamelCase).join(".");
         switch (seed.kind) {
           case "const":
             return {
@@ -108,13 +112,13 @@ const createAccountGenerator = (acc: IdlAccount): InstructionValueGenerator => {
           case "arg":
             return {
               type: seed.type,
-              generator: { type: "Arguments", name: seed.path },
+              generator: { type: "Arguments", name },
             };
 
           case "account":
             return {
               type: seed.type,
-              generator: { type: "Accounts", name: seed.path },
+              generator: { type: "Accounts", name },
             };
 
           default:
