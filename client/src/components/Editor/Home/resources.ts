@@ -17,13 +17,6 @@ export const RESOURCES: ResourceProps[] = [
     icon: "https://solanacookbook.com/solana_cookbook_darkmode.svg",
   },
   {
-    name: "SolDev",
-    description:
-      "Solana content aggregator with easy discoverability for all your development needs.",
-    url: "https://soldev.app/",
-    icon: ROOT_DIR + "soldev.png",
-  },
-  {
     name: "Metaplex Docs",
     description:
       "Documentation for understanding how to work with NFTs on Solana using the Metaplex Standards.",
