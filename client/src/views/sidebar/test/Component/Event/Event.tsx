@@ -17,14 +17,14 @@ const Event: FC<EventProps> = ({ index, eventName }) => {
   const wallet = useWallet();
   const { idl } = useIdl();
 
-  const [events, setReceivedEvents] = useState<object[]>([]);
+  const [events, setEvents] = useState<object[]>([]);
   useEffect(() => {
     if (!(idl && connection && wallet)) return;
 
     const { dispose } = PgProgramInteraction.addEventListener(
       eventName,
       (ev) => {
-        setReceivedEvents((...events) => [...events, ev]);
+        setEvents((...events) => [...events, ev]);
       }
     );
 
@@ -37,7 +37,7 @@ const Event: FC<EventProps> = ({ index, eventName }) => {
   return (
     <Interaction name={`${eventName} (${events.length})`} index={index}>
       <CodeResult index={index}>
-        {events.map((ev) => PgCommon.toPrettyJson(ev)).join("\n")}
+        {events.map(PgCommon.toPrettyJson).join("\n")}
       </CodeResult>
     </Interaction>
   );

@@ -7,7 +7,7 @@ import type { KeyOf } from "../types";
  *
  * @param eventName program event name
  * @param cb callback to run once the event fires
- * @returns a disposable
+ * @returns an async disposable
  */
 export const addEventListener = <E extends KeyOf<IdlEvents<Idl>>>(
   eventName: E,
