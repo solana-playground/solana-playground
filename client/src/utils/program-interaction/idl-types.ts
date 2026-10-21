@@ -11,8 +11,8 @@ import { PgCommon } from "../common";
 import { PgWeb3 } from "../web3";
 import type { MergeUnion, OrString } from "../types";
 
+export type { Idl, IdlEvents } from "@coral-xyz/anchor";
 export type {
-  Idl,
   IdlAccount,
   IdlInstruction,
   IdlType,

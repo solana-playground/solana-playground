@@ -1,4 +1,5 @@
 import { fetchAccount, fetchAllAccounts } from "./account";
+import { addEventListener } from "./event";
 import {
   GeneratableInstruction,
   createGenerator,
@@ -103,7 +104,11 @@ export class PgProgramInteraction {
   /** {@link getPrograms} */
   static getPrograms = getPrograms;
 
-  /** {@link getAnchorProgram} */
+  /**
+   * @deprecated
+   *
+   * {@link getAnchorProgram}
+   */
   static getAnchorProgram = getAnchorProgram;
 
   /** {@link fetchAccount} */
@@ -111,6 +116,9 @@ export class PgProgramInteraction {
 
   /** {@link fetchAllAccounts} */
   static fetchAllAccounts = fetchAllAccounts;
+
+  /** {@link addEventListener} */
+  static addEventListener = addEventListener;
 
   /** {@link getTokenAccounts} */
   static getTokenAccounts = getTokenAccounts;

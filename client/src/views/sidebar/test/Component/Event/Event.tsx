@@ -17,25 +17,27 @@ const Event: FC<EventProps> = ({ index, eventName }) => {
   const wallet = useWallet();
   const { idl } = useIdl();
 
-  const [receivedEvents, setReceivedEvents] = useState<object[]>([]);
-
+  const [events, setReceivedEvents] = useState<object[]>([]);
   useEffect(() => {
     if (!(idl && connection && wallet)) return;
 
-    const program = PgProgramInteraction.getAnchorProgram();
-    const listener = program.addEventListener(eventName, (emittedEvent) => {
-      setReceivedEvents((eventsSoFar) => [...eventsSoFar, emittedEvent]);
-    });
+    const { dispose } = PgProgramInteraction.addEventListener(
+      eventName,
+      (ev) => {
+        setReceivedEvents((...events) => [...events, ev]);
+      }
+    );
 
+    // Create an anonymous function because `dispose` returns a `Promise`
     return () => {
-      program.removeEventListener(listener);
+      dispose().catch(console.log);
     };
   }, [eventName, idl, connection, wallet]);
 
   return (
-    <Interaction name={`${eventName} (${receivedEvents.length})`} index={index}>
+    <Interaction name={`${eventName} (${events.length})`} index={index}>
       <CodeResult index={index}>
-        {receivedEvents.map((ev) => PgCommon.toPrettyJson(ev)).join("\n")}
+        {events.map((ev) => PgCommon.toPrettyJson(ev)).join("\n")}
       </CodeResult>
     </Interaction>
   );
