@@ -4,23 +4,23 @@ export type KeyOf<T> = Extract<keyof T, string>;
 /** Get value of the given object */
 export type ValueOf<T extends object> = T[keyof T];
 
-/** Methods of the given object */
-export type Methods<T> = {
-  [U in keyof T]?: T[U] extends (...args: any[]) => any ? Parameters<T[U]> : [];
+/** Method parameters of the given object */
+export type MethodParameters<T> = {
+  [K in keyof T]?: T[K] extends (...args: any[]) => any ? Parameters<T[K]> : [];
 };
 
 /** Convert the return types of the methods of the object to `Promise` */
-export type AsyncMethods<T> = {
+export type ToAsyncMethods<T> = {
   [K in keyof T]: T[K] extends (...args: any[]) => infer R
     ? (...args: Parameters<T[K]>) => Promise<Awaited<R>>
     : never;
 };
 
 /** Return type of the methods of an object */
-export type ClassReturnType<T, U> = U extends keyof T
-  ? T[U] extends (...args: any[]) => any
-    ? Awaited<ReturnType<T[U]>>
-    : T[U]
+export type ClassReturnType<T, K> = K extends keyof T
+  ? T[K] extends (...args: any[]) => any
+    ? Awaited<ReturnType<T[K]>>
+    : T[K]
   : never;
 
 /** Create tuples with the same element type */
@@ -89,40 +89,15 @@ export type ChildRequired<
   };
 };
 
-/** Makes every prop required until `U` */
-export type RequiredUntil<T, U> = T extends U
-  ? { [K in keyof T]: T[K] }
-  : {
-      [K in keyof T]-?: RequiredUntil<T[K], U>;
-    };
-
 /** Make all properties required recursively */
 export type AllRequired<T> = {
   [K in keyof T]-?: AllRequired<T[K]>;
-};
-
-/** Make all properties readonly recursively */
-export type AllReadonly<T> = {
-  readonly [K in keyof T]: T[K] extends object ? AllReadonly<T[K]> : T[K];
 };
 
 /** Make all properties partial recursively */
 export type AllPartial<T> = {
   [K in keyof T]?: T[K] extends object ? AllPartial<T[K]> : T[K];
 };
-
-/** Get object with only optional key-values */
-export type OnlyOptional<T> = {
-  [K in OptionalKeys<T>]?: OnlyOptional<NonNullable<T[K]>>;
-};
-
-/** Get optional property keys */
-type OptionalKeys<T> = Exclude<
-  {
-    [K in keyof T]: T extends Record<K, T[K]> ? never : K;
-  }[keyof T],
-  undefined
->;
 
 /** Noop function type */
 export type Fn = () => void;

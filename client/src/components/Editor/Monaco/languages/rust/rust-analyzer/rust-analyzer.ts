@@ -4,7 +4,7 @@ import type { WorldState } from "@solana-playground/rust-analyzer";
 
 import { importTypes } from "../../common";
 import {
-  AsyncMethods,
+  ToAsyncMethods,
   Disposable,
   PgCommon,
   PgExplorer,
@@ -23,7 +23,7 @@ const LANGUAGE_ID = "rust";
 const cachedNames: Map<string, "full" | "empty"> = new Map();
 
 /** Rust Analyzer world state */
-let state: AsyncMethods<WorldState>;
+let state: ToAsyncMethods<WorldState>;
 
 /**
  * Initialize Rust Analyzer WASM.

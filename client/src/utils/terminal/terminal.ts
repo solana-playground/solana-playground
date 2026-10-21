@@ -8,7 +8,7 @@ import { PgShell } from "./shell";
 import { PgTty } from "./tty";
 import { PgCommon } from "../common";
 import type { CommandManager, Prefixes, PrintOptions } from "./types";
-import type { Methods, ClassReturnType, SyncOrAsync } from "../types";
+import type { ClassReturnType, MethodParameters, SyncOrAsync } from "../types";
 
 export class PgTerminal {
   /** All terminal event names */
@@ -118,7 +118,7 @@ export class PgTerminal {
    */
   static async run<
     R extends ClassReturnType<PgTerm, keyof M>,
-    M extends Methods<PgTerm>
+    M extends MethodParameters<PgTerm>
   >(data: M) {
     return await PgCommon.sendAndReceiveCustomEvent<R, M>(
       PgCommon.getStaticEventNames(PgTerminal.events.STATIC).run,

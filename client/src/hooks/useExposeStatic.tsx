@@ -2,7 +2,7 @@ import { useCallback, useMemo } from "react";
 
 import { useSendAndReceiveCustomEvent } from "./useSendAndReceiveCustomEvent";
 import { PgCommon } from "../utils/common";
-import type { Methods } from "../utils";
+import type { MethodParameters } from "../utils";
 
 /**
  * Expose the given class object inside a component to outside, allowing it to
@@ -54,6 +54,8 @@ const useExposeMethodsAsStatic = <T,>(
   );
 
   useSendAndReceiveCustomEvent<
-    Methods<T> extends { [key: string]: any } ? Methods<T> : never
+    MethodParameters<T> extends { [key: string]: any }
+      ? MethodParameters<T>
+      : never
   >(eventName, cb);
 };
