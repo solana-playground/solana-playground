@@ -8,5 +8,5 @@ members = [
     "sugar-cli",
     "utils/*",
 ]
-exclude = ["playnet", "rust-analyzer"]
+exclude = ["anchor-idl-convert", "playnet", "rust-analyzer"]
 resolver = "2"

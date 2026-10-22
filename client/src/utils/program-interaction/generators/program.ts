@@ -1,8 +1,3 @@
-import {
-  ASSOCIATED_PROGRAM_ID,
-  TOKEN_PROGRAM_ID,
-} from "@coral-xyz/anchor/dist/cjs/utils/token";
-
 import { PgCommon } from "../../common";
 import { PgProgramInfo } from "../../program-info";
 import { PgWeb3 } from "../../web3";
@@ -26,7 +21,7 @@ const PROGRAMS: Readonly<Program[]> = [
   },
   {
     name: "Token",
-    programId: TOKEN_PROGRAM_ID.toBase58(),
+    programId: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
   },
   {
     name: "Token 2022",
@@ -34,15 +29,15 @@ const PROGRAMS: Readonly<Program[]> = [
   },
   {
     name: "Associated Token",
-    programId: ASSOCIATED_PROGRAM_ID.toBase58(),
+    programId: "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
   },
   {
     name: "Token Metadata",
     programId: "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s",
   },
 ].map((program) => {
-  const nameCamel = PgCommon.toCamelCase(program.name);
-  const alias = [nameCamel, nameCamel + "Program"];
+  const nameSnake = PgCommon.toSnakeCase(program.name);
+  const alias = [nameSnake, nameSnake + "_program"];
   return { ...program, alias };
 });
 
@@ -52,9 +47,9 @@ const PROGRAMS: Readonly<Program[]> = [
  * @returns the programs
  */
 export const getPrograms = () => {
-  if (PgProgramInfo.idl && PgProgramInfo.pk) {
+  if (PgProgramInfo.latestIdl && PgProgramInfo.pk) {
     const currentProgram: Readonly<Program> = {
-      name: PgCommon.toTitleFromSnake(PgProgramInfo.idl.name),
+      name: PgCommon.toTitleFromSnake(PgProgramInfo.latestIdl.metadata.name),
       programId: PgProgramInfo.getPkStr()!,
     };
     return [currentProgram].concat(PROGRAMS);

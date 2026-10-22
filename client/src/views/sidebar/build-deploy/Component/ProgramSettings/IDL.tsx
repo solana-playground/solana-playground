@@ -55,6 +55,7 @@ enum InitOrUpgradeState {
   HIDDEN,
   HAS_ERROR,
   INCORRECT_AUTHORITY,
+  NO_AUTHORITY,
   IS_FETCHING,
   IS_INITIALIZING,
   IS_UPGRADING,
@@ -80,7 +81,6 @@ const InitOrUpgrade = () => {
       case InitOrUpgradeState.CAN_INIT:
         return "Initialize";
       case InitOrUpgradeState.CAN_UPGRADE:
-      case InitOrUpgradeState.INCORRECT_AUTHORITY:
         return "Upgrade";
     }
   }, [state]);
@@ -92,6 +92,7 @@ const InitOrUpgrade = () => {
       case InitOrUpgradeState.IS_UPGRADING:
         return [true, true];
       case InitOrUpgradeState.INCORRECT_AUTHORITY:
+      case InitOrUpgradeState.NO_AUTHORITY:
         return [false, true];
       default:
         return [false, false];
@@ -112,12 +113,17 @@ const InitOrUpgrade = () => {
         return;
       }
 
-      if (idlResult.authority.equals(PgWallet.current.publicKey)) {
-        setState(InitOrUpgradeState.CAN_UPGRADE);
+      if (idlResult.authority === null) {
+        setState(InitOrUpgradeState.NO_AUTHORITY);
         return;
       }
 
-      setState(InitOrUpgradeState.INCORRECT_AUTHORITY);
+      if (!idlResult.authority.equals(PgWallet.current.publicKey)) {
+        setState(InitOrUpgradeState.INCORRECT_AUTHORITY);
+        return;
+      }
+
+      setState(InitOrUpgradeState.CAN_UPGRADE);
     } catch (e: any) {
       console.log("Couldn't get IDL:", e.message);
       setState(InitOrUpgradeState.HAS_ERROR);

@@ -1,5 +1,6 @@
 import * as monaco from "monaco-editor";
-import type { Idl } from "@coral-xyz/anchor";
+// TODO: Remove dependence
+import { convertIdlToCamelCase } from "@anchor-lang/core";
 
 import { declareModule, declareNamespace } from "./helper";
 import {
@@ -128,6 +129,8 @@ export const declareDisposableTypes = async () => {
   disposables.push(accountsChange);
 
   // Anchor program
+  // FIXME: There is an issue related to caching; types persist after workspace
+  // switch, which can break type annotations when Anchor versions are different
   let programDisposables: monaco.IDisposable[] = [];
   const idlChange = PgProgramInfo.onDidChangeIdl((idl) => {
     if (!idl) {
@@ -139,10 +142,14 @@ export const declareDisposableTypes = async () => {
       return;
     }
 
-    const convertedIdl = JSON.stringify(convertIdl(idl));
+    // @ts-expect-error
+    const programName = idl.metadata?.name ?? idl.name;
+    // TODO: Use `anchor idl type`?
+    // @ts-expect-error
+    const camelCasedIdl = JSON.stringify(convertIdlToCamelCase(idl));
 
     // Program
-    const programType = `Program<${convertedIdl}>`;
+    const programType = `Program<${camelCasedIdl}>`;
     programDisposables.push(
       addLib(
         "program",
@@ -152,13 +159,13 @@ const program: anchor.${programType};`
     );
 
     // target/types
-    const idlTypeName = PgCommon.toPascalFromSnake(idl.name);
+    const idlTypeName = PgCommon.toPascalFromSnake(programName);
     programDisposables.push(
       addModel(
         "target/types",
-        `export type ${idlTypeName} = ${convertedIdl};
-export const IDL: ${idlTypeName} = ${convertedIdl};`,
-        PgExplorer.toAbsolutePath(`target/types/${idl.name}.ts`)
+        `export type ${idlTypeName} = ${camelCasedIdl};
+export const IDL: ${idlTypeName} = ${camelCasedIdl};`,
+        PgExplorer.toAbsolutePath(`target/types/${programName}.ts`)
       )
     );
 
@@ -168,11 +175,11 @@ export const IDL: ${idlTypeName} = ${convertedIdl};`,
       opts?: { camelCase?: boolean }
     ) => {
       const camelCase = opts?.camelCase
-        ? `${PgCommon.toCamelCase(idl.name)}: ${programType},`
+        ? `${PgCommon.toCamelCase(programName)}: ${programType},`
         : "";
       return `import { Program } from "${packageName}";
       const workspace: { ${camelCase} ${PgCommon.toPascalFromSnake(
-        idl.name
+        programName
       )}: ${programType} };`;
     };
     programDisposables.push(
@@ -260,27 +267,6 @@ const addModel = (
     monaco.Uri.parse(filePath)
   );
   return disposableCache[disposableType]!;
-};
-
-/**
- * Convert Anchor IDL's account names into camelCase to be used accuretely for types.
- *
- * @param idl Anchor IDL
- * @returns converted Anchor IDL
- */
-const convertIdl = (idl: Idl) => {
-  if (!idl.accounts) return idl;
-
-  let newIdl: Idl = { ...idl, accounts: [] };
-
-  for (const account of idl.accounts) {
-    newIdl.accounts!.push({
-      ...account,
-      name: account.name[0].toLowerCase() + account.name.substring(1),
-    });
-  }
-
-  return newIdl;
 };
 
 /**

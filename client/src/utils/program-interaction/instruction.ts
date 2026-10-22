@@ -1,5 +1,10 @@
 import { getPrograms } from "./generators";
-import { getIdlType, Idl, IdlAccount, IdlInstruction } from "./idl-types";
+import {
+  getIdlType,
+  IdlInstruction,
+  IdlInstructionAccount,
+  LatestIdl,
+} from "./idl-types";
 import { PgWeb3 } from "../web3";
 import type {
   GeneratableInstruction,
@@ -21,9 +26,9 @@ export const createGeneratableInstruction = (
     values: {
       programId: { generator: { type: "Current program" } },
       // TODO: Handle composite accounts?
-      accounts: (idlIx.accounts as IdlAccount[]).map((acc) => ({
+      accounts: (idlIx.accounts as IdlInstructionAccount[]).map((acc) => ({
         ...acc,
-        generator: createAccountGenerator(acc),
+        generator: createAccountGenerator(acc, idlIx),
       })),
       args: idlIx.args.map((arg) => ({
         ...arg,
@@ -43,7 +48,7 @@ export const createGeneratableInstruction = (
  */
 export const fillRandom = (
   ix: GeneratableInstruction,
-  idl: Idl
+  idl: LatestIdl
 ): GeneratableInstruction => ({
   ...ix,
   values: {
@@ -90,10 +95,14 @@ export const fillRandom = (
  * @param acc IDL account
  * @returns the account generator
  */
-const createAccountGenerator = (acc: IdlAccount): InstructionValueGenerator => {
-  // Handle `seeds` feature
-  // TODO: Re-evaluate this once Anchor package has proper types for PDA seeds
-  // https://github.com/coral-xyz/anchor/issues/2750
+const createAccountGenerator = (
+  acc: IdlInstructionAccount,
+  idlIx: IdlInstruction
+): InstructionValueGenerator => {
+  // Handle `address` resolution
+  if (acc.address) return { type: "Custom", value: acc.address };
+
+  // Handle `pda` resolution
   if (acc.pda) {
     return {
       type: "From seed",
@@ -101,23 +110,30 @@ const createAccountGenerator = (acc: IdlAccount): InstructionValueGenerator => {
         switch (seed.kind) {
           case "const":
             return {
-              type: seed.type,
-              generator: { type: "Custom", value: seed.value },
+              type: "bytes",
+              generator: { type: "Custom", value: JSON.stringify(seed.value) },
             };
 
-          case "arg":
+          case "arg": {
+            // TODO: Nested fields
+            const arg = idlIx.args.find((arg) => arg.name === seed.path);
+            if (!arg) throw new Error(`Failed to find arg: \`${seed.path}\``);
+
             return {
-              type: seed.type,
+              type: arg.type,
               generator: { type: "Arguments", name: seed.path },
             };
+          }
 
+          // TODO: Support account fields
           case "account":
             return {
-              type: seed.type,
+              type: "pubkey",
               generator: { type: "Accounts", name: seed.path },
             };
 
           default:
+            // @ts-expect-error
             throw new Error(`Unknown seed kind: \`${seed.kind}\``);
         }
       }),
@@ -128,7 +144,7 @@ const createAccountGenerator = (acc: IdlAccount): InstructionValueGenerator => {
 
   // Set common wallet account names to current wallet
   const COMMON_WALLET_ACCOUNT_NAMES = ["authority", "owner", "payer", "signer"];
-  if (acc.isSigner && COMMON_WALLET_ACCOUNT_NAMES.includes(acc.name)) {
+  if (acc.signer && COMMON_WALLET_ACCOUNT_NAMES.includes(acc.name)) {
     return { type: "Current wallet" };
   }
 

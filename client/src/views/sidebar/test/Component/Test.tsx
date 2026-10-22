@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 import styled, { css } from "styled-components";
-import BN from "bn.js";
 
 import Account from "./Account";
 import Event from "./Event";
@@ -10,6 +9,7 @@ import Text from "../../../../components/Text";
 import { PgCommand, PgProgramInfo } from "../../../../utils";
 import { PgProgramInteraction } from "../../../../utils/program-interaction";
 import {
+  useAsyncEffect,
   useExplorer,
   useProgramInfo,
   useRenderOnChange,
@@ -53,7 +53,7 @@ const Test = () => {
     );
   }
 
-  const { idl } = programInfo;
+  const idl = programInfo.latestIdl;
   if (!idl) {
     return (
       <InitialWrapper>
@@ -97,7 +97,7 @@ const Test = () => {
       <Wrapper>
         <ProgramNameWrapper>
           Program:
-          <ProgramName>{idl.name}</ProgramName>
+          <ProgramName>{idl.metadata.name}</ProgramName>
         </ProgramNameWrapper>
 
         <ProgramInteractionWrapper>
@@ -183,23 +183,22 @@ const ProgramInteractionHeader = styled.div`
  * human-readable output rather than hex values.
  */
 const useBigNumberJson = () => {
-  useEffect(() => {
-    const oldBNPrototypeToJSON = BN.prototype.toJSON;
-    BN.prototype.toJSON = function (this: BN) {
+  useAsyncEffect(async () => {
+    const { BN } = await import("@anchor-lang/core");
+    const original = BN.prototype.toJSON;
+    BN.prototype.toJSON = function (this) {
       return this.toString();
     };
 
-    // Change the toJSON prototype back on unmount
-    return () => {
-      BN.prototype.toJSON = oldBNPrototypeToJSON;
-    };
+    // Change the `toJSON` prototype back on unmount
+    return () => (BN.prototype.toJSON = original);
   }, []);
 };
 
 /** Sync the instruction storage. */
 const useSyncInstructionStorage = () => {
   useEffect(() => {
-    const { dispose } = PgProgramInfo.onDidChangeIdl((idl) => {
+    const { dispose } = PgProgramInfo.onDidChangeLatestIdl((idl) => {
       if (idl) PgProgramInteraction.syncAllInstructions(idl.instructions);
     });
     return dispose;

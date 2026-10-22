@@ -58,11 +58,14 @@ export class PgProgramInteraction {
     });
 
     const accounts = ix.values.accounts.reduce((acc, cur) => {
-      acc[cur.name] = generateValue(cur.generator, ix.values);
+      acc[PgCommon.toCamelCase(cur.name)] = generateValue(
+        cur.generator,
+        ix.values
+      );
       return acc;
     }, {} as Record<string, string>);
 
-    const signerAccounts = ix.values.accounts.filter((acc) => acc.isSigner);
+    const signerAccounts = ix.values.accounts.filter((acc) => acc.signer);
     const keypairSigners = signerAccounts
       .map((acc) => {
         if (acc.generator.type !== "Random") return null;
@@ -82,7 +85,7 @@ export class PgProgramInteraction {
       })
       .filter(PgCommon.isNonNullish);
 
-    const pIx = await program.methods[ix.name](...args)
+    const pIx = await program.methods[PgCommon.toCamelCase(ix.name)](...args)
       .accounts(accounts)
       .instruction();
     const txHash = await PgTx.send(pIx, { keypairSigners, walletSigners });
@@ -103,13 +106,6 @@ export class PgProgramInteraction {
 
   /** {@link getPrograms} */
   static getPrograms = getPrograms;
-
-  /**
-   * @deprecated
-   *
-   * {@link getAnchorProgram}
-   */
-  static getAnchorProgram = getAnchorProgram;
 
   /** {@link fetchAccount} */
   static fetchAccount = fetchAccount;

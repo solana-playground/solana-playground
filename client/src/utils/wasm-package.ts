@@ -5,6 +5,7 @@ import { GITHUB_URL } from "../constants";
 /** Mapped import results */
 interface ImportResult {
   "anchor-cli": typeof import("@solana-playground/anchor-cli");
+  "anchor-idl-convert": typeof import("@solana-playground/anchor-idl-convert");
   playnet: typeof import("@solana-playground/playnet");
   rustfmt: typeof import("@solana-playground/rustfmt");
   "seahorse-compile": typeof import("@solana-playground/seahorse-compile");
@@ -56,6 +57,8 @@ If the problem continues, consider filing a bug report in ${PgTerminal.underline
     switch (name) {
       case "anchor-cli":
         return await import("@solana-playground/anchor-cli");
+      case "anchor-idl-convert":
+        return await import("@solana-playground/anchor-idl-convert");
       case "playnet":
         return await import("@solana-playground/playnet");
       case "rustfmt":

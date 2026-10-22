@@ -54,6 +54,7 @@ fi
 # All package names
 all_packages=(
     "anchor-cli"
+    "anchor-idl-convert"
     "rust-analyzer"
     "seahorse-compile"
     "solana-cli"

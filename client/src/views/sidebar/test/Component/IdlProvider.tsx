@@ -1,9 +1,9 @@
 import { FC, createContext, useContext } from "react";
 
-import type { Idl } from "../../../../utils/program-interaction";
+import type { LatestIdl } from "../../../../utils/program-interaction";
 
 interface IdlProviderProps {
-  idl: Idl;
+  idl: LatestIdl;
 }
 
 const IdlContext = createContext<IdlProviderProps | null>(null);

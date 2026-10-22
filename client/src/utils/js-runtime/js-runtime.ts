@@ -7,7 +7,6 @@ import { PgCommon } from "../common";
 import { PgConnection } from "../connection";
 import { PgJsPackage } from "../js-package";
 import { PgProgramInfo } from "../program-info";
-import { PgProgramInteraction } from "../program-interaction";
 import { PgSettings } from "../settings";
 import { PgTerminal } from "../terminal";
 import { Wallet, PgWallet } from "../wallet";
@@ -240,7 +239,7 @@ export class PgJsRuntime {
     // TODO: Remove
     if (!PgSettings.experimental.unstable) {
       // Playground global
-      globals.push(["pg", this._getPg()]);
+      globals.push(["pg", await this._getPg()]);
 
       // Pre-defined globals
       await Promise.all(
@@ -267,7 +266,7 @@ export class PgJsRuntime {
       const deps = Object.keys(manifest.dependencies ?? {});
       const web3JsPkg = deps.find((dep) => dep === WEB3_JS_PKG);
       const anchorPkg = deps.find((dep) => ANCHOR_PKGS.includes(dep));
-      if (web3JsPkg || anchorPkg) globals.push(["pg", this._getPg()]);
+      if (web3JsPkg || anchorPkg) globals.push(["pg", await this._getPg()]);
     }
 
     let endCode: string;
@@ -446,7 +445,7 @@ export class PgJsRuntime {
           commitment: opts.commitment,
         });
 
-        const { wallet } = this._getPg();
+        const wallet = PgWallet.current;
         if (!wallet) throw new Error("Wallet not connected");
 
         const provider = new pkg[providerName](connection, wallet, opts);
@@ -455,7 +454,8 @@ export class PgJsRuntime {
 
       // Add `AnchorProvider.env()`
       pkg[providerName].env = () => {
-        const { connection, wallet } = this._getPg();
+        const connection = PgConnection.current;
+        const wallet = PgWallet.current;
         if (!wallet) throw new Error("Wallet not connected");
 
         const provider = new pkg[providerName](
@@ -495,11 +495,14 @@ export class PgJsRuntime {
           throw new Error(`Invalid version requirement: ${versionReq}`);
         }
 
+        const idl = PgProgramInfo.idl;
         const version = PgCommon.parseVersion(versionStr);
         const isLegacy = version.major === 0 && version.minor < 30;
         const snakeCaseName = isLegacy
-          ? PgProgramInfo.idl.name
-          : PgProgramInfo.idl.metadata.name;
+          ? // TODO: Add helper for type safety?
+            // @ts-expect-error
+            idl.name
+          : idl.metadata.name;
         const programNames = [
           PgCommon.toPascalFromSnake(snakeCaseName), // default before 0.29.0
           PgCommon.toCamelCase(snakeCaseName),
@@ -507,7 +510,6 @@ export class PgJsRuntime {
           snakeCaseName,
         ];
 
-        const idl = PgProgramInfo.idl;
         const provider = pkg.getProvider();
         const programArgs = [];
         if (isLegacy) {
@@ -535,7 +537,7 @@ export class PgJsRuntime {
    *
    * @returns the `pg` global object
    */
-  private static _getPg() {
+  private static async _getPg() {
     /** Utilities to be available under the `pg` namespace */
     interface Pg {
       /** Playground connection instance */
@@ -547,7 +549,6 @@ export class PgJsRuntime {
       /** Current project's program public key */
       PROGRAM_ID?: PgWeb3.PublicKey;
       /** Anchor program instance of the current project */
-      // TODO: Remove `PgSettings.experimental.unstable`
       program?: import("@coral-xyz/anchor").Program;
     }
 
@@ -569,10 +570,28 @@ export class PgJsRuntime {
     if (PgProgramInfo.pk) pg.PROGRAM_ID = PgProgramInfo.pk;
 
     // Anchor Program
-    // TODO: Remove
-    if (!PgSettings.experimental.unstable && pg.wallet && PgProgramInfo.idl) {
-      // TODO: Use the current project's Anchor package
-      pg.program = PgProgramInteraction.getAnchorProgram();
+    // TODO: Only ever set this if the project is a legacy one (created before
+    // the multi-version support)
+    if (
+      !PgSettings.experimental.unstable &&
+      pg.wallet &&
+      PgProgramInfo.idl &&
+      pg.PROGRAM_ID
+    ) {
+      // `pg.program` is deprecated and always uses v0.29.0
+      const { AnchorProvider, Program } = await import("@coral-xyz/anchor");
+      const provider = new AnchorProvider(
+        pg.connection,
+        pg.wallet,
+        AnchorProvider.defaultOptions()
+      );
+      pg.program = new Program(
+        // TODO: Parse to make sure this is actually a legacy IDL as the user is
+        // able to provide custom IDLs
+        PgProgramInfo.idl as import("@coral-xyz/anchor").Idl,
+        pg.PROGRAM_ID,
+        provider
+      );
     }
 
     return pg;

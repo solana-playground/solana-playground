@@ -11,9 +11,9 @@ import SearchBar, {
 import { PgCommon, PgWallet, PgWeb3 } from "../../../../../utils";
 import {
   GeneratableInstruction,
-  Idl,
   IdlType,
   InstructionValueGenerator,
+  LatestIdl,
   PgProgramInteraction,
 } from "../../../../../utils/program-interaction";
 import { useInstruction } from "./InstructionProvider";
@@ -223,9 +223,9 @@ const getSearchBarProps = (
   name: string,
   type: IdlType,
   generator: InstructionValueGenerator & { name?: string; value?: string },
-  accountProps: Partial<Pick<InstructionInputAccount, "isMut" | "isSigner">>,
+  accountProps: Partial<Pick<InstructionInputAccount, "writable" | "signer">>,
   instruction: GeneratableInstruction,
-  idl: Idl
+  idl: LatestIdl
 ) => {
   const customizable = PgProgramInteraction.getIdlType(type, idl);
   const searchBarProps: Omit<SearchBarProps, "value"> & {
@@ -274,8 +274,8 @@ const getSearchBarProps = (
   if (customizable.name === "bool") {
     searchBarProps.items.push("false", "true");
     searchBarProps.noCustomOption = true;
-  } else if (customizable.name === "publicKey") {
-    // Handle "Random" for "publicKey" differently in order to be able to
+  } else if (customizable.name === "pubkey") {
+    // Handle "Random" for "pubkey" differently in order to be able to
     // sign the transaction later with the generated key
     searchBarProps.items[0] = {
       label: "Random",
@@ -307,7 +307,7 @@ const getSearchBarProps = (
       closeButton: true,
     });
 
-    if (PgWallet.current && !accountProps.isSigner) {
+    if (PgWallet.current && !accountProps.signer) {
       searchBarProps.items.push(
         {
           label: "Token accounts",
@@ -336,7 +336,7 @@ const getSearchBarProps = (
     }
 
     // Programs
-    if (!(accountProps.isMut || accountProps.isSigner)) {
+    if (!(accountProps.writable || accountProps.signer)) {
       pushGeneratorItem({
         type: "All programs",
         names: PgProgramInteraction.getPrograms().map((p) => p.name),
@@ -344,7 +344,7 @@ const getSearchBarProps = (
     }
 
     // Pyth
-    if (!(accountProps.isMut || accountProps.isSigner)) {
+    if (!(accountProps.writable || accountProps.signer)) {
       searchBarProps.items.push({
         label: "Pyth",
         items: async () => {
@@ -414,7 +414,7 @@ const getSearchBarProps = (
   pushGeneratorItem({
     type: "Accounts",
     names: instruction.values.accounts
-      .filter((acc) => acc.name !== name && type === "publicKey")
+      .filter((acc) => acc.name !== name && type === "pubkey")
       .map((acc) => acc.name),
   });
 

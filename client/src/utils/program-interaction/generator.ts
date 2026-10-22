@@ -26,9 +26,9 @@ export interface GeneratableInstruction {
         /** Account name */
         name: string;
         /** Whether the account is mutable */
-        isMut: boolean;
+        writable?: boolean;
         /** Whether the account is a signer */
-        isSigner: boolean;
+        signer?: boolean;
       } & WithGenerator<AccountGenerator>
     >;
     /** Generatable instruction arguments */
@@ -38,7 +38,7 @@ export interface GeneratableInstruction {
         name: string;
         /** Argument IDL type */
         type: IdlType;
-      } & WithGenerator<ArgsGenerator>
+      } & WithGenerator<ArgGenerator>
     >;
   };
 }
@@ -53,7 +53,7 @@ type WithGenerator<T extends { type: string }> = {
 export type InstructionValueGenerator =
   | ProgramIdGenerator
   | AccountGenerator
-  | ArgsGenerator;
+  | ArgGenerator;
 
 /** Generators for the program id */
 type ProgramIdGenerator = CustomGenerator | RefGenerator | ProgramGenerator;
@@ -67,7 +67,7 @@ type AccountGenerator =
   | ProgramGenerator;
 
 /** Generators for the arguments */
-type ArgsGenerator =
+type ArgGenerator =
   | CustomGenerator
   | RandomGenerator
   | RefGenerator

@@ -6,6 +6,7 @@
   "license": "GPL-3.0",
   "private": true,
   "dependencies": {
+    "@anchor-lang/core": "^1.2.1",
     "@clockwork-xyz/sdk": "^0.3.1",
     "@coral-xyz/anchor": "^0.29.0",
     "@dnd-kit/core": "^6.0.8",
@@ -17,6 +18,7 @@
     "@metaplex-foundation/mpl-token-metadata": "*",
     "@project-serum/anchor": "^0.23.0",
     "@solana-playground/anchor-cli": "../wasm/anchor-cli/pkg",
+    "@solana-playground/anchor-idl-convert": "../wasm/anchor-idl-convert/pkg",
     "@solana-playground/playnet": "../wasm/pkgs/playnet",
     "@solana-playground/rust-analyzer": "../wasm/rust-analyzer/pkg",
     "@solana-playground/rustfmt": "../wasm/pkgs/rustfmt",

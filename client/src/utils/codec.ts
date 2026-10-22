@@ -1,4 +1,5 @@
-import { utils } from "@coral-xyz/anchor";
+// TODO: Remove dependence
+import { utils } from "@anchor-lang/core";
 
 import type { OrString } from "./types";
 

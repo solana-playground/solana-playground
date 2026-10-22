@@ -4,11 +4,11 @@ import styled, { css } from "styled-components";
 interface InputLabelProps {
   name: string;
   type: string;
-  isMut?: boolean;
-  isSigner?: boolean;
+  writable?: boolean;
+  signer?: boolean;
 }
 
-const InputLabel: FC<InputLabelProps> = ({ name, type, isMut, isSigner }) => (
+const InputLabel: FC<InputLabelProps> = ({ name, type, writable, signer }) => (
   <Wrapper>
     <NameWrapper>
       <Name>{name}:</Name>
@@ -16,8 +16,8 @@ const InputLabel: FC<InputLabelProps> = ({ name, type, isMut, isSigner }) => (
 
     <TypesWrapper>
       <Type>{type}</Type>
-      {isMut && <Type isMut>mut</Type>}
-      {isSigner && <Type isSigner>signer</Type>}
+      {writable && <Type writable>mut</Type>}
+      {signer && <Type signer>signer</Type>}
     </TypesWrapper>
   </Wrapper>
 );
@@ -46,11 +46,11 @@ const TypesWrapper = styled.div`
   gap: 0.75rem;
 `;
 
-const Type = styled.span<Pick<InputLabelProps, "isMut" | "isSigner">>`
-  ${({ theme, isMut, isSigner }) => css`
-    color: ${isMut
+const Type = styled.span<Pick<InputLabelProps, "writable" | "signer">>`
+  ${({ theme, writable, signer }) => css`
+    color: ${writable
       ? theme.highlight.modifier.color
-      : isSigner
+      : signer
       ? theme.colors.state.success.color
       : theme.highlight.typeName.color};
   `}

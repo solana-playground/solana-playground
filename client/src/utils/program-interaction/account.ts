@@ -1,3 +1,6 @@
+// TODO: Remove dependence
+import type { AccountClient } from "@anchor-lang/core";
+
 import { getAnchorProgram } from "./program";
 import { PgCommon } from "../common";
 import type { PgWeb3 } from "../web3";
@@ -34,7 +37,8 @@ export const fetchAllAccounts = async (accountName: string) => {
  * @param accountName name of the account
  * @returns the account builder client
  */
-const getAccountClient = (accountName: string) => {
+const getAccountClient = (accountName: string): AccountClient => {
   const program = getAnchorProgram();
-  return program.account[PgCommon.toCamelCase(accountName)];
+  const camelName = PgCommon.toCamelCase(accountName);
+  return program.account[camelName as keyof typeof program.account];
 };

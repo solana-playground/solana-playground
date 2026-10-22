@@ -159,7 +159,7 @@ const FromSeed = ({ name, search }: FromSeedProps) => {
       </SeedsWrapper>
 
       <InstructionInput
-        type="publicKey"
+        type="pubkey"
         prefix="seed"
         name="program"
         updateInstruction={({ updateGenerator }) => {
@@ -232,7 +232,7 @@ const SeedSearchBar: FC<SeedSearchBarProps> = ({ select }) => {
       onChange={(ev) => setValue(ev.target.value)}
       items={[
         "string",
-        "publicKey",
+        "pubkey",
         "bytes",
         { label: "uint", items: ["u8", "u16", "u32", "u64", "u128"] },
         { label: "int", items: ["i8", "i16", "i32", "i64", "i128"] },

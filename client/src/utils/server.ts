@@ -1,8 +1,7 @@
-import type { Idl } from "@coral-xyz/anchor";
-
 import { PgCommon } from "./common";
 import { PgSettings } from "./settings";
 import type { TupleFiles } from "./explorer";
+import type { Idl } from "./program-interaction";
 
 /** Rust `Option` type */
 type Option<T> = T | null;

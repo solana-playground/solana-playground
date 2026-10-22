@@ -1,6 +1,3 @@
-import { decodeIdlAccount, idlAddress } from "@coral-xyz/anchor/dist/cjs/idl";
-import type { Idl } from "@coral-xyz/anchor";
-
 import { PgCodec } from "./codec";
 import { PgCommand } from "./command";
 import { PgCommon } from "./common";
@@ -13,7 +10,9 @@ import {
   updatable,
 } from "./decorators";
 import { PgExplorer } from "./explorer";
+import { PgWasmPackage } from "./wasm-package";
 import { PgWeb3 } from "./web3";
+import type { Idl, LatestIdl } from "./program-interaction";
 import type { Nullable } from "./types";
 
 /** Program info state */
@@ -126,6 +125,31 @@ const derive = () => ({
     infallible: true,
   }),
 
+  /** Normalized IDL to the latest spec via conversion. */
+  latestIdl: createDerivable({
+    // TODO:
+    derive: async () => {
+      const idl = PgProgramInfo.idl;
+      if (!idl) return null;
+
+      // Legacy IDLs need `idl.metadata.address` for conversion
+      if (!idl.metadata?.spec) {
+        if (!idl.metadata?.address) {
+          if (!PgProgramInfo.pk) throw new Error("Program ID not found");
+
+          // Modifying the IDL in place persists changes
+          idl.metadata ??= {};
+          idl.metadata.address = PgProgramInfo.pk.toBase58();
+        }
+      }
+
+      const { convertIdl } = await PgWasmPackage.import("anchor-idl-convert");
+      const convertedIdlStr = convertIdl(JSON.stringify(idl));
+      return JSON.parse(convertedIdlStr) as LatestIdl;
+    },
+    onChange: "idl",
+  }),
+
   /** On-chain data of the program */
   onChain: createDerivable({
     derive: () => _PgProgramInfo.fetch(),
@@ -201,7 +225,9 @@ class _PgProgramInfo {
   }
 
   /**
-   * Fetch the Anchor IDL from chain.
+   * Fetch the Anchor IDL from the chain via the current connection.
+   *
+   * Program Metadata Program (PMP) accounts have priority over self-owned IDLs.
    *
    * NOTE: This is a reimplementation of `anchor.Program.fetchIdl` because that
    * function only returns the IDL without the IDL authority.
@@ -212,12 +238,24 @@ class _PgProgramInfo {
   static async fetchIdl(programId = PgProgramInfo.pk) {
     if (!programId) throw new Error("Program id doesn't exist");
 
-    const idlPk = await idlAddress(programId);
+    // Try Program Metadata
+    const anchor = await import("@anchor-lang/core");
+    const pmpIdlPk = anchor.idlAddress(programId);
+    const pmpAccountInfo = await PgConnection.current.getAccountInfo(pmpIdlPk);
+    if (pmpAccountInfo) {
+      const idl = anchor.decodeIdlAccount(pmpAccountInfo.data);
+      const { authority } = anchor.decodeIdlAccountRaw(pmpAccountInfo.data);
+      return { idl, authority };
+    }
+
+    // Fallback to legacy
+    const legacyAnchor = await import("@coral-xyz/anchor/dist/cjs/idl");
+    const idlPk = await legacyAnchor.idlAddress(programId);
     const accountInfo = await PgConnection.current.getAccountInfo(idlPk);
     if (!accountInfo) return null;
 
     // Chop off account discriminator
-    const idlAccount = decodeIdlAccount(accountInfo.data.slice(8));
+    const idlAccount = legacyAnchor.decodeIdlAccount(accountInfo.data.slice(8));
     const { inflate } = await import("pako");
     const inflatedIdl = inflate(idlAccount.data);
     const idl: Idl = JSON.parse(PgCodec.decodeText(inflatedIdl));

@@ -1,22 +1,25 @@
-import { BN, DecodeType } from "@coral-xyz/anchor";
+import { BN, handleDefinedFields } from "@anchor-lang/core";
 import type {
-  Idl,
-  IdlEnumFieldsNamed,
-  IdlEnumFieldsTuple,
-  IdlEnumVariant,
+  DecodeType,
+  Idl as LatestIdl,
+  IdlDefinedFieldsNamed,
   IdlType,
-} from "@coral-xyz/anchor/dist/cjs/idl";
+} from "@anchor-lang/core";
+import type { Idl as LegacyIdl } from "@coral-xyz/anchor";
 
 import { PgCommon } from "../common";
 import { PgWeb3 } from "../web3";
 import type { MergeUnion, OrString } from "../types";
 
-export type { Idl, IdlEvents } from "@coral-xyz/anchor";
+export type { LegacyIdl, LatestIdl, IdlType };
 export type {
-  IdlAccount,
+  IdlEvents,
   IdlInstruction,
-  IdlType,
-} from "@coral-xyz/anchor/dist/cjs/idl";
+  IdlInstructionAccount,
+} from "@anchor-lang/core";
+
+/** Any Anchor IDL */
+export type Idl = LegacyIdl | LatestIdl;
 
 interface PgIdlType<
   T extends IdlType,
@@ -59,11 +62,11 @@ interface PgIdlType<
 // @ts-ignore
 export const getIdlType: <T extends IdlType>(
   idlType: T,
-  idl?: Idl
+  idl?: LatestIdl
 ) => PgIdlType<T> = (idlType, idl) => {
   switch (idlType) {
-    case "publicKey":
-      return publicKey;
+    case "pubkey":
+      return pubkey;
     case "string":
       return string;
     case "bool":
@@ -105,12 +108,24 @@ export const getIdlType: <T extends IdlType>(
       throw new Error(`Defined type \`${defined}\` requires idl.types`);
     }
 
-    const definedType = idl.types.find((type) => type.name === defined);
+    const definedType = idl.types.find((type) => type.name === defined.name);
     if (!definedType) throw new Error(`Type \`${defined}\` not found`);
 
     switch (definedType.type.kind) {
       case "struct": {
         const fields = definedType.type.fields;
+
+        // TODO: Support unit and unnamed (tuple) structs
+        const isNamedFields = (
+          fields: any
+        ): fields is IdlDefinedFieldsNamed => {
+          if (fields?.length) throw new Error("Empty fields");
+          return !fields[0].type;
+        };
+        if (!isNamedFields(fields)) {
+          throw new Error("Only named structs are currently supported");
+        }
+
         return createIdlType({
           name: definedType.name,
           parse: (value) => {
@@ -181,35 +196,14 @@ export const getIdlType: <T extends IdlType>(
           return variant;
         };
 
-        const handleVariant = <U, N, T>(
-          variant: IdlEnumVariant,
-          unitCb: () => U,
-          namedCb: (fields: IdlEnumFieldsNamed) => N,
-          tupleCb: (fields: IdlEnumFieldsTuple) => T
-        ) => {
-          // Unit
-          if (!variant.fields?.length) return unitCb();
-
-          // Named
-          if ((variant.fields as IdlEnumFieldsNamed)[0].name) {
-            return namedCb(variant.fields as IdlEnumFieldsNamed);
-          }
-
-          // Tuple
-          return tupleCb(variant.fields as IdlEnumFieldsTuple);
-        };
-
-        const getStructFromNamedEnum = (fields: IdlEnumFieldsNamed) => {
+        const getStructFromNamedEnum = (fields: IdlDefinedFieldsNamed) => {
           return getIdlType(
-            { defined: "__" },
+            { defined: { name: "__" } },
             {
               ...idl,
               types: [
                 ...idl.types!,
-                {
-                  name: "__",
-                  type: { kind: "struct", fields },
-                },
+                { name: "__", type: { kind: "struct", fields } },
               ],
             }
           );
@@ -242,8 +236,8 @@ export const getIdlType: <T extends IdlType>(
             const isUnnamed = openingChar === "["; // { unnamed: [1, true] }
             if (!isNamed && !isUnnamed) throw new Error("Unable to parse");
 
-            const parsedValue = handleVariant(
-              getVariant(variantKey),
+            const parsedValue = handleDefinedFields(
+              getVariant(variantKey).fields,
               () => ({}),
               (fields) => getStructFromNamedEnum(fields).parse(variantValue),
               (fields) => {
@@ -265,8 +259,8 @@ export const getIdlType: <T extends IdlType>(
             const disc = variants.findIndex(
               (v) => PgCommon.toCamelCase(v.name) === variantName
             );
-            const data = handleVariant(
-              getVariant(variantName),
+            const data = handleDefinedFields(
+              getVariant(variantName).fields,
               () => Buffer.alloc(0),
               (fields) => {
                 const buffers = fields.map((f) => {
@@ -288,9 +282,8 @@ export const getIdlType: <T extends IdlType>(
             const index = PgCommon.generateRandomInt(0, variants.length - 1);
             const variant = variants[index];
             const camelCaseName = PgCommon.toCamelCase(variant.name);
-
-            return handleVariant(
-              variant,
+            return handleDefinedFields(
+              variant.fields,
               () => camelCaseName,
               (fields) => {
                 return (
@@ -317,9 +310,9 @@ export const getIdlType: <T extends IdlType>(
         });
       }
 
-      case "alias": {
+      case "type": {
         return {
-          ...getIdlType(definedType.type.value, idl),
+          ...getIdlType(definedType.type.alias, idl),
           name: definedType.name,
         };
       }
@@ -351,6 +344,13 @@ export const getIdlType: <T extends IdlType>(
 
   if (array || vec) {
     const [elementType, len] = array ?? [vec];
+    // TODO: Impl generic array lengths
+    if (len !== undefined && typeof len !== "number") {
+      throw new Error(
+        `Generic array lengths are currently not supported: ${array}`
+      );
+    }
+
     const inner = getIdlType(elementType!, idl);
     return createIdlType({
       name: array ? `[${inner.name}; ${len}]` : `Vec<${inner.name}>`,
@@ -397,8 +397,8 @@ const createIdlType = <T extends IdlType>(idlType: PgIdlType<T>) => {
   return idlType;
 };
 
-const publicKey = createIdlType({
-  name: "publicKey",
+const pubkey = createIdlType({
+  name: "pubkey",
   parse: (value) => new PgWeb3.PublicKey(string.parse(value)),
   toBuffer: (value) => value.toBuffer(),
   generateRandom: () => PgWeb3.Keypair.generate().publicKey.toBase58(),
