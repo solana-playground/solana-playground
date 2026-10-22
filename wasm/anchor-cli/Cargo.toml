@@ -23,7 +23,7 @@ flate2 = "*"
 serde = "*"
 serde_derive = "*"
 serde_json = "*"
-solana-client-wasm = "1.18.0"
+solana-client-wasm = { path = "../solana-client" }
 solana-playground-utils-wasm = { path = "../utils/solana-playground-utils" }
 solana-sdk = "*"
 wasm-bindgen = "*"
