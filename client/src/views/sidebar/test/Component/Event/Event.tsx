@@ -24,7 +24,7 @@ const Event: FC<EventProps> = ({ index, eventName }) => {
     const { dispose } = PgProgramInteraction.addEventListener(
       eventName,
       (ev) => {
-        setEvents((...events) => [...events, ev]);
+        setEvents((events) => [...events, ev]);
       }
     );
 
