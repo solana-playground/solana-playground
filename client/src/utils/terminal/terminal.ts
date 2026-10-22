@@ -68,7 +68,12 @@ export class PgTerminal {
     await PgTerminal.run({ enable: [] });
   }
 
-  /** Log terminal messages from anywhere. */
+  /** Print to terminal from anywhere (WASM supported). */
+  static async print(msg: any, opts?: PrintOptions) {
+    await PgTerminal.run({ print: [msg, opts] });
+  }
+
+  /** Print to terminal with a newline character `\n` appended from anywhere. */
   static async println(msg: any, opts?: PrintOptions) {
     await PgTerminal.run({ println: [msg, opts] });
   }

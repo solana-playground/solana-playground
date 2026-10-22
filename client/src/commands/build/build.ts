@@ -1,4 +1,5 @@
 import {
+  PgCommand,
   PgCommon,
   PgExplorer,
   PgGlobal,
@@ -34,7 +35,7 @@ export const build = createCmd({
         uuid: result.uuid ?? undefined,
         lastBuildFailed: failed,
       });
-      PgTerminal.println(improveOutput(result));
+      PgTerminal.print(improveOutput(result));
     } finally {
       PgGlobal.update({ buildLoading: false });
     }
@@ -275,7 +276,7 @@ const improveOutput = (output: { stdout: string; stderr: string }) => {
     .replaceAll("solpg", PgExplorer.currentWorkspaceName ?? "solpg")
 
     // Remove compiling output
-    .replace(/\s+Compiling\s.*/gm, "")
+    .replace(/\s+Compiling [^\n]*/gm, "")
 
     // Remove (run `cargo fix --lib -p program` to apply 1 suggestion)
     .replace(/\(run `cargo fix --lib[^)]*\)/gm, "")
@@ -300,7 +301,7 @@ const improveOutput = (output: { stdout: string; stderr: string }) => {
   let startIndex = stderr.indexOf("For more");
   if (startIndex !== -1) {
     const endIndex = stderr.indexOf("\n", startIndex);
-    stderr = stderr.substring(0, startIndex) + stderr.substring(endIndex + 1);
+    stderr = stderr.slice(0, startIndex) + stderr.slice(endIndex + 1);
   }
 
   // TODO: Remove
@@ -310,18 +311,16 @@ const improveOutput = (output: { stdout: string; stderr: string }) => {
     if (startIndex !== -1) {
       const whiteSpaceStartIndex = startIndex - 7; // 7 is the most amount of whitespace
       stderr =
-        stderr.substring(0, whiteSpaceStartIndex) + // until whitespace start
-        stderr.substring(whiteSpaceStartIndex, startIndex).replaceAll(" ", "") +
+        stderr.slice(0, whiteSpaceStartIndex) + // until whitespace start
+        stderr.slice(whiteSpaceStartIndex, startIndex).replaceAll(" ", "") +
         PgTerminal.success("Build successful. ") +
         "Completed" +
-        stderr
-          .substring(stderr.indexOf(" in", startIndex))
-          .replace("\n", ".\n"); // Time passed
+        stderr.slice(stderr.indexOf(" in", startIndex)).replace("\n", ".\n"); // Time passed
     }
-  }
 
-  // Trim the last newline
-  if (stderr) stderr = stderr.substring(0, stderr.length - 1);
+    // Trim the last newline
+    if (stderr) stderr = stderr.slice(0, stderr.length - 1);
+  }
 
   // Improve errors
   if (PgSettings.build.improveErrors) {
@@ -390,19 +389,19 @@ const improveOutput = (output: { stdout: string; stderr: string }) => {
         }
 
         if (displayErrors.length > MAX_ERROR_AMOUNT) {
-          stderr += [
-            "Note: This is a shorter version of the error logs to make it easier to debug.",
-            `Currently ${PgTerminal.bold(
-              MAX_ERROR_AMOUNT.toString()
-            )} errors are displayed but there are ${PgTerminal.bold(
-              displayErrors.length.toString()
-            )} errors.`,
-            'Disable "Improve build errors" setting to see the full error output.',
-          ].join(" ");
+          stderr += `Note: This is a shorter version of the error logs to make \
+it easier to debug. Currently ${PgTerminal.bold(MAX_ERROR_AMOUNT.toString())} \
+errors are displayed but there are \
+${PgTerminal.bold(displayErrors.length.toString())} errors.
+\tRun \`${PgCommand.setting.name} set build.improveErrors false\` to disable \
+this setting and re-run the build command to see the full error output.
+`;
         }
       }
     }
   }
+
+  if (stderr.startsWith("\n")) stderr = stderr.slice(1, stderr.length);
 
   // TODO: Always show both (`PgSettings.experimental.unstable`)
   return stdout ? stderr + stdout : stderr;
