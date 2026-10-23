@@ -1,0 +1,12 @@
+[project]
+name = "program"
+
+[toolchain]
+type = "solana"
+
+[testing]
+language = "typescript"
+
+[clients]
+path="target/client"
+languages = []

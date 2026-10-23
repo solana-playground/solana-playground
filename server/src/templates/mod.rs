@@ -1,6 +1,7 @@
 mod anchor;
 mod legacy;
 mod pinocchio;
+mod quasar;
 
 use std::{fs, io::ErrorKind, path::Path, process::ExitStatus};
 
@@ -8,6 +9,7 @@ use anchor::*;
 use anyhow::Result;
 use legacy::legacy;
 use pinocchio::*;
+use quasar::*;
 
 // TODO: Decide whether this is a good idea: templates being `const fn`s means we should be able to
 // allow templates to self-describe themselves with a file (within the template files), allowing us
@@ -18,6 +20,7 @@ static ALL: &[Template] = &[
     anchor_0_29_0(),
     anchor_1_2_1(),
     pinocchio_0_11_2(),
+    quasar_0_3_0(),
 ];
 
 /// Get all templates.
