@@ -1,4 +1,4 @@
-import { PgFs } from "./fs";
+import * as fs from "./fs";
 import { PgWorkspace } from "./workspace";
 import { PgCommon } from "../common";
 import { PgLanguage } from "../language";
@@ -26,7 +26,7 @@ export class PgExplorer {
   private static _initializedWorkspaceName: string | null = null;
 
   /** `indexedDB` file system */
-  static readonly fs = PgFs;
+  static readonly fs = fs;
 
   /** Explorer errors */
   static readonly errors = {
