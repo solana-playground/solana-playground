@@ -70,7 +70,12 @@ async fn main() -> Result<()> {
         .layer(cors(config.client_urls))
         .layer(middleware::from_fn(log));
 
-    let addr = SocketAddr::from((Ipv4Addr::UNSPECIFIED, config.port));
+    let addr = if cfg!(feature = "unstable") {
+        Ipv4Addr::LOCALHOST
+    } else {
+        Ipv4Addr::UNSPECIFIED
+    };
+    let addr = SocketAddr::from((addr, config.port));
     let listener = TcpListener::bind(addr).await?;
     info!("Listening on {addr}");
 
