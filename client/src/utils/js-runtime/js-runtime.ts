@@ -267,6 +267,12 @@ export class PgJsRuntime {
       const web3JsPkg = deps.find((dep) => dep === WEB3_JS_PKG);
       const anchorPkg = deps.find((dep) => ANCHOR_PKGS.includes(dep));
       if (web3JsPkg || anchorPkg) globals.push(["pg", await this._getPg()]);
+
+      // TODO: Consider whether to provide only when `@solana/web3.js` or its
+      // dependent(s) are installed
+      //
+      // Always provide `Buffer`
+      globals.push(["Buffer", Buffer]);
     }
 
     let endCode: string;

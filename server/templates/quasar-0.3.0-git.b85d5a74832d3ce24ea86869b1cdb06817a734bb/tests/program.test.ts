@@ -1,5 +1,4 @@
 import * as web3 from "@solana/web3.js";
-import { Buffer } from "buffer";
 
 describe("My Program", () => {
   const { connection, wallet, PROGRAM_ID } = pg;

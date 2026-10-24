@@ -1,5 +1,4 @@
 import * as web3 from "@solana/web3.js";
-import { Buffer } from "buffer";
 import { assert } from "chai";
 
 describe("My Program", () => {

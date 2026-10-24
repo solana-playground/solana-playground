@@ -15,6 +15,9 @@ export const declareGlobalTypes = async () => {
       require("./raw/globals.raw.d.ts")
     ),
     monaco.languages.typescript.typescriptDefaults.addExtraLib(
+      require("./raw/buffer.raw.d.ts")
+    ),
+    monaco.languages.typescript.typescriptDefaults.addExtraLib(
       require("./raw/console.raw.d.ts")
     ),
     monaco.languages.typescript.typescriptDefaults.addExtraLib(

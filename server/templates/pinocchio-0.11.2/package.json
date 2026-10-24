@@ -2,8 +2,7 @@
   "name": "pinocchio",
   "type": "module",
   "dependencies": {
-    "@solana/web3.js": "^1.99.0",
-    "buffer": "^6.0.3"
+    "@solana/web3.js": "^1.99.0"
   },
   "devDependencies": {
     "@types/chai": "^5.2.3",
