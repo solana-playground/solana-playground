@@ -1419,12 +1419,16 @@ export class PgExplorer {
    * @returns the parent path
    */
   static getParentPathFromPath(path: string) {
+    if (path === PgExplorer.PATHS.ROOT_DIR_PATH) return path;
+
+    const parts = path.split("/");
+    if (parts.length === 1) return "";
+
     const pad =
       PgExplorer.getItemTypeFromPath(path).folder && path.endsWith("/") ? 2 : 1;
 
-    const names = path.split("/");
-    const parentPath = names
-      .filter((_itemName, i) => i !== names.length - pad)
+    const parentPath = parts
+      .filter((_itemName, i) => i !== parts.length - pad)
       .reduce((acc, itemName) => (acc += `/${itemName}`));
 
     return PgCommon.appendSlash(parentPath);
