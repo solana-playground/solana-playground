@@ -53,12 +53,6 @@ RUN yarn --ignore-scripts --cwd packages/polyfills
 # Make `webpack` available globally
 ENV PATH="${HOME}/${PACKAGES_DIR}/polyfills/node_modules/.bin:${PATH}"
 
-# Temporarily pre-install deps to avoid excessive installations during development
-# TODO: Remove
-ARG TEMPLATE_DIR="templates/legacy"
-COPY --chown=${USER}:${USER} ${TEMPLATE_DIR}/package.json ${TEMPLATE_DIR}/yarn.lock packages/
-RUN yarn --ignore-scripts --cwd packages
-
 # Copy the built binary
 ARG BIN
 COPY --from=binary ${HOME}/target/release/${BIN} /usr/local/bin/
