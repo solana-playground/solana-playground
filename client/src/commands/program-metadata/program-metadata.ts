@@ -1,3 +1,4 @@
+import { PgTerminal } from "../../utils";
 import { createCmd } from "../create";
 
 /**
@@ -13,6 +14,25 @@ export const programMetadata = createCmd({
     const { run } = await import("./cli");
     const overrides = await import("./overrides");
     // @ts-expect-error
-    await run(input.tokens, overrides);
+    await run(input.tokens, {
+      ...overrides,
+      outputConfig: {
+        writeErr: PgTerminal.print,
+        writeOut: PgTerminal.print,
+
+        // No-op to avoid duplicating errors
+        outputError: () => {},
+
+        // The following 4 fix:
+        //
+        // ```
+        // Cannot read properties of undefined (reading 'isTTY')
+        // ```
+        getOutHelpWidth: () => 80,
+        getErrHelpWidth: () => 80,
+        getOutHasColors: () => false,
+        getErrHasColors: () => false,
+      },
+    });
   },
 });

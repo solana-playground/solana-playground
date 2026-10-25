@@ -2,7 +2,6 @@ import {
   Getable,
   PgCommon,
   PgExplorer,
-  PgProgramInfo,
   PgSettings,
   PgWallet,
 } from "../../../utils";

@@ -1,12 +1,12 @@
 import {
-    createDefaultRpcTransport,
-    createSolanaRpcFromTransport,
-    isSolanaError,
-    Rpc,
-    RpcTransport,
-    SOLANA_ERROR__RPC__TRANSPORT_HTTP_ERROR,
-    SolanaRpcApi,
-} from '@solana/kit';
+  createDefaultRpcTransport,
+  createSolanaRpcFromTransport,
+  isSolanaError,
+  Rpc,
+  RpcTransport,
+  SOLANA_ERROR__RPC__TRANSPORT_HTTP_ERROR,
+  SolanaRpcApi,
+} from "@solana/kit";
 
 /** The maximum number of retries attempted for a rate-limited request. */
 const DEFAULT_MAX_RETRIES = 5;
@@ -28,12 +28,12 @@ const MAX_RETRY_AFTER_MS = 60_000;
  * rate-limited request is retried.
  */
 export type RetryInfo = {
-    /** The zero-based index of the attempt that just failed. */
-    attempt: number;
-    /** The delay, in milliseconds, before the next attempt. */
-    delayMs: number;
-    /** The rate-limit error that triggered the retry. */
-    error: unknown;
+  /** The zero-based index of the attempt that just failed. */
+  attempt: number;
+  /** The delay, in milliseconds, before the next attempt. */
+  delayMs: number;
+  /** The rate-limit error that triggered the retry. */
+  error: unknown;
 };
 
 /**
@@ -41,27 +41,30 @@ export type RetryInfo = {
  * requests.
  */
 export type RetryingRpcConfig = {
-    /**
-     * Optional configuration forwarded to the underlying default RPC transport,
-     * such as custom headers.
-     */
-    transportConfig?: Omit<Parameters<typeof createDefaultRpcTransport>[0], 'url'>;
-    /**
-     * The maximum number of retries attempted after an initial rate-limited
-     * (HTTP 429) response before giving up. Defaults to {@link DEFAULT_MAX_RETRIES}.
-     */
-    maxRetries?: number;
-    /**
-     * Called before each retry, after the delay has been computed but before it
-     * elapses. Useful for surfacing progress (e.g. logging a "rate limited,
-     * retrying in Xs" warning) so a paused request does not appear to hang.
-     */
-    onRetry?: (info: RetryInfo) => void;
-    /**
-     * Sleep function used between retries. Injectable for testing; defaults to a
-     * `setTimeout`-based delay that resolves early if the request is aborted.
-     */
-    sleep?: (ms: number, signal?: AbortSignal) => Promise<void>;
+  /**
+   * Optional configuration forwarded to the underlying default RPC transport,
+   * such as custom headers.
+   */
+  transportConfig?: Omit<
+    Parameters<typeof createDefaultRpcTransport>[0],
+    "url"
+  >;
+  /**
+   * The maximum number of retries attempted after an initial rate-limited
+   * (HTTP 429) response before giving up. Defaults to {@link DEFAULT_MAX_RETRIES}.
+   */
+  maxRetries?: number;
+  /**
+   * Called before each retry, after the delay has been computed but before it
+   * elapses. Useful for surfacing progress (e.g. logging a "rate limited,
+   * retrying in Xs" warning) so a paused request does not appear to hang.
+   */
+  onRetry?: (info: RetryInfo) => void;
+  /**
+   * Sleep function used between retries. Injectable for testing; defaults to a
+   * `setTimeout`-based delay that resolves early if the request is aborted.
+   */
+  sleep?: (ms: number, signal?: AbortSignal) => Promise<void>;
 };
 
 /**
@@ -84,9 +87,17 @@ export type RetryingRpcConfig = {
  * @param config - Optional retry and transport configuration.
  * @returns An {@link Rpc} backed by the retrying transport.
  */
-export function createRetryingSolanaRpc(url: string, config: RetryingRpcConfig = {}): Rpc<SolanaRpcApi> {
-    const baseTransport = createDefaultRpcTransport({ url, ...config.transportConfig });
-    return createSolanaRpcFromTransport(withRateLimitRetries(baseTransport, config));
+export function createRetryingSolanaRpc(
+  url: string,
+  config: RetryingRpcConfig = {}
+): Rpc<SolanaRpcApi> {
+  const baseTransport = createDefaultRpcTransport({
+    url,
+    ...config.transportConfig,
+  });
+  return createSolanaRpcFromTransport(
+    withRateLimitRetries(baseTransport, config)
+  );
 }
 
 /**
@@ -99,37 +110,42 @@ export function createRetryingSolanaRpc(url: string, config: RetryingRpcConfig =
  * @param config - Optional retry configuration.
  * @returns A transport that retries rate-limited requests.
  */
-export function withRateLimitRetries(transport: RpcTransport, config: RetryingRpcConfig = {}): RpcTransport {
-    const maxRetries = config.maxRetries ?? DEFAULT_MAX_RETRIES;
-    const sleep = config.sleep ?? defaultSleep;
+export function withRateLimitRetries(
+  transport: RpcTransport,
+  config: RetryingRpcConfig = {}
+): RpcTransport {
+  const maxRetries = config.maxRetries ?? DEFAULT_MAX_RETRIES;
+  const sleep = config.sleep ?? defaultSleep;
 
-    return async <TResponse>(request: Parameters<RpcTransport>[0]): Promise<TResponse> => {
-        for (let attempt = 0; ; attempt++) {
-            try {
-                return await transport<TResponse>(request);
-            } catch (error) {
-                // Don't retry non-429 errors, once the budget is exhausted, or
-                // once the request has been aborted (e.g. the executor
-                // cancelled sibling requests after another transaction failed).
-                const decision = getRetryDecision(error, attempt, maxRetries);
-                if (decision.kind === 'give-up' || request.signal?.aborted) {
-                    throw error;
-                }
-                config.onRetry?.({ attempt, delayMs: decision.delayMs, error });
-                await sleep(decision.delayMs, request.signal);
-                // The sleep resolves early on abort; surface the original 429
-                // rather than looping back into a transport call that would
-                // reject with an `AbortError` instead.
-                if (request.signal?.aborted) {
-                    throw error;
-                }
-            }
+  return async <TResponse>(
+    request: Parameters<RpcTransport>[0]
+  ): Promise<TResponse> => {
+    for (let attempt = 0; ; attempt++) {
+      try {
+        return await transport<TResponse>(request);
+      } catch (error) {
+        // Don't retry non-429 errors, once the budget is exhausted, or
+        // once the request has been aborted (e.g. the executor
+        // cancelled sibling requests after another transaction failed).
+        const decision = getRetryDecision(error, attempt, maxRetries);
+        if (decision.kind === "give-up" || request.signal?.aborted) {
+          throw error;
         }
-    };
+        config.onRetry?.({ attempt, delayMs: decision.delayMs, error });
+        await sleep(decision.delayMs, request.signal);
+        // The sleep resolves early on abort; surface the original 429
+        // rather than looping back into a transport call that would
+        // reject with an `AbortError` instead.
+        if (request.signal?.aborted) {
+          throw error;
+        }
+      }
+    }
+  };
 }
 
 /** The outcome of deciding whether and how long to wait before a retry. */
-type RetryDecision = { kind: 'retry'; delayMs: number } | { kind: 'give-up' };
+type RetryDecision = { kind: "retry"; delayMs: number } | { kind: "give-up" };
 
 /**
  * Decides whether a failed request should be retried and, if so, after how long.
@@ -140,22 +156,31 @@ type RetryDecision = { kind: 'retry'; delayMs: number } | { kind: 'give-up' };
  * retrying and yields `give-up`. Without a usable header, we fall back to
  * exponential backoff with full jitter, capped at {@link MAX_BACKOFF_MS}.
  */
-export function getRetryDecision(error: unknown, attempt: number, maxRetries: number): RetryDecision {
-    if (attempt >= maxRetries || !isRateLimitError(error)) {
-        return { kind: 'give-up' };
-    }
-    const retryAfter = getRetryAfterMs(error);
-    if (retryAfter !== null) {
-        // The server told us exactly when to retry. Honour it within reason;
-        // beyond the ceiling the wait is not worth a retry slot.
-        return retryAfter > MAX_RETRY_AFTER_MS ? { kind: 'give-up' } : { kind: 'retry', delayMs: retryAfter };
-    }
-    return { kind: 'retry', delayMs: getBackoffDelayMs(attempt) };
+export function getRetryDecision(
+  error: unknown,
+  attempt: number,
+  maxRetries: number
+): RetryDecision {
+  if (attempt >= maxRetries || !isRateLimitError(error)) {
+    return { kind: "give-up" };
+  }
+  const retryAfter = getRetryAfterMs(error);
+  if (retryAfter !== null) {
+    // The server told us exactly when to retry. Honour it within reason;
+    // beyond the ceiling the wait is not worth a retry slot.
+    return retryAfter > MAX_RETRY_AFTER_MS
+      ? { kind: "give-up" }
+      : { kind: "retry", delayMs: retryAfter };
+  }
+  return { kind: "retry", delayMs: getBackoffDelayMs(attempt) };
 }
 
 /** Returns whether the given error is an HTTP 429 (rate limit) transport error. */
 function isRateLimitError(error: unknown): boolean {
-    return isSolanaError(error, SOLANA_ERROR__RPC__TRANSPORT_HTTP_ERROR) && error.context.statusCode === 429;
+  return (
+    isSolanaError(error, SOLANA_ERROR__RPC__TRANSPORT_HTTP_ERROR) &&
+    error.context.statusCode === 429
+  );
 }
 
 /**
@@ -163,10 +188,10 @@ function isRateLimitError(error: unknown): boolean {
  * {@link MAX_BACKOFF_MS}.
  */
 export function getBackoffDelayMs(attempt: number): number {
-    const exponential = Math.min(BASE_BACKOFF_MS * 2 ** attempt, MAX_BACKOFF_MS);
-    // Full jitter: a random delay in [0, exponential] to spread out retries and
-    // avoid a thundering herd against the rate limiter.
-    return Math.round(Math.random() * exponential);
+  const exponential = Math.min(BASE_BACKOFF_MS * 2 ** attempt, MAX_BACKOFF_MS);
+  // Full jitter: a random delay in [0, exponential] to spread out retries and
+  // avoid a thundering herd against the rate limiter.
+  return Math.round(Math.random() * exponential);
 }
 
 /**
@@ -174,24 +199,24 @@ export function getBackoffDelayMs(attempt: number): number {
  * returns `null` when the header is absent or unparseable.
  */
 function getRetryAfterMs(error: unknown): number | null {
-    if (!isSolanaError(error, SOLANA_ERROR__RPC__TRANSPORT_HTTP_ERROR)) {
-        return null;
-    }
-    const headerValue = error.context.headers?.get('retry-after');
-    if (!headerValue) {
-        return null;
-    }
-
-    // `Retry-After` may be a number of seconds or an HTTP-date.
-    const seconds = Number(headerValue);
-    if (Number.isFinite(seconds)) {
-        return Math.max(0, seconds * 1000);
-    }
-    const dateMs = Date.parse(headerValue);
-    if (Number.isFinite(dateMs)) {
-        return Math.max(0, dateMs - Date.now());
-    }
+  if (!isSolanaError(error, SOLANA_ERROR__RPC__TRANSPORT_HTTP_ERROR)) {
     return null;
+  }
+  const headerValue = error.context.headers?.get("retry-after");
+  if (!headerValue) {
+    return null;
+  }
+
+  // `Retry-After` may be a number of seconds or an HTTP-date.
+  const seconds = Number(headerValue);
+  if (Number.isFinite(seconds)) {
+    return Math.max(0, seconds * 1000);
+  }
+  const dateMs = Date.parse(headerValue);
+  if (Number.isFinite(dateMs)) {
+    return Math.max(0, dateMs - Date.now());
+  }
+  return null;
 }
 
 /**
@@ -200,18 +225,18 @@ function getRetryAfterMs(error: unknown): number | null {
  * loop re-check `signal.aborted` and surface the original error.
  */
 function defaultSleep(ms: number, signal?: AbortSignal): Promise<void> {
-    if (signal?.aborted) {
-        return Promise.resolve();
-    }
-    return new Promise(resolve => {
-        const onAbort = () => {
-            clearTimeout(timeout);
-            resolve();
-        };
-        const timeout = setTimeout(() => {
-            signal?.removeEventListener('abort', onAbort);
-            resolve();
-        }, ms);
-        signal?.addEventListener('abort', onAbort, { once: true });
-    });
+  if (signal?.aborted) {
+    return Promise.resolve();
+  }
+  return new Promise((resolve) => {
+    const onAbort = () => {
+      clearTimeout(timeout);
+      resolve();
+    };
+    const timeout = setTimeout(() => {
+      signal?.removeEventListener("abort", onAbort);
+      resolve();
+    }, ms);
+    signal?.addEventListener("abort", onAbort, { once: true });
+  });
 }
