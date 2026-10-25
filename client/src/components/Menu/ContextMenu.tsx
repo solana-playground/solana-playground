@@ -13,11 +13,12 @@ import styled, { css } from "styled-components";
 import MenuItem from "./MenuItem";
 import { MenuWrapper } from "./MenuWrapper";
 import { useOnClickOutside } from "../../hooks";
-import type { CommonMenuProps } from "./Menu"; // Circular dependency
 import { PgView } from "../../utils";
+import type { CommonMenuProps } from "./Menu"; // Circular dependency
 
 export type ContextMenuProps = {
   onContextMenu?: (ev: MouseEvent<HTMLDivElement>) => void;
+  className?: string;
 } & CommonMenuProps;
 
 type MenuState =
@@ -40,6 +41,7 @@ const ContextMenu: FC<ContextMenuProps> = ({
   onShow,
   onHide,
   children,
+  ...props
 }) => {
   const [menu, setMenu] = useState<MenuState>({
     state: "hide",
@@ -97,7 +99,7 @@ const ContextMenu: FC<ContextMenuProps> = ({
   useOnClickOutside(menuWrapperRef, hide, menu.state === "show");
 
   return (
-    <Wrapper onContextMenu={handleContextMenu}>
+    <Wrapper onContextMenu={handleContextMenu} {...props}>
       {children}
 
       {menu.state === "show" &&

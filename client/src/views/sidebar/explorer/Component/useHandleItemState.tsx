@@ -20,7 +20,7 @@ export const useHandleItemState = () => {
       const newEl = PgExplorer.getElFromPath(path);
       if (newEl) {
         PgExplorer.setSelectedEl(newEl);
-        PgExplorer.removeCtxSelectedEl();
+        PgExplorer.resetCtxSelectedEl();
       }
     };
 

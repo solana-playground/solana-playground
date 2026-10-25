@@ -1,11 +1,10 @@
 import { useCallback } from "react";
 
-import { PgCommon, PgExplorer, PgView } from "../../../../utils";
+import { PgExplorer, PgView } from "../../../../utils";
 
 export const useCreateItem = () => {
   const createItem = useCallback(async () => {
     const selected = PgExplorer.getSelectedEl();
-
     if (selected) {
       // Open if selected is a folder
       if (PgExplorer.getItemTypeFromEl(selected)?.folder) {
@@ -21,34 +20,9 @@ export const useCreateItem = () => {
         PgView.setNewItemPortal(selected.parentElement);
       }
     } else {
-      // Create in the first dir
-      const projectRootPath = PgExplorer.getProjectRootPath();
-      const { folders } = PgExplorer.getFolderContent(projectRootPath);
-      // Create a new `src` dir if there are no folders
-      if (!folders.length) {
-        await PgExplorer.createItem(PgExplorer.PATHS.SRC_DIRNAME);
-        folders.push(PgExplorer.PATHS.SRC_DIRNAME);
-
-        // Sleep to give time for the UI to update
-        await PgCommon.sleep(100);
-      }
-
-      // Select the first folder(prioritize `src`)
-      const folderName =
-        folders.find((name) => name === PgExplorer.PATHS.SRC_DIRNAME) ??
-        folders[0];
-      const folderPath = PgExplorer.toCanonicalPath(folderName);
-
-      const rootFolderEl = PgExplorer.getRootFolderEl()!;
-      const divs = rootFolderEl.getElementsByTagName("div");
-      for (const div of divs) {
-        const path = PgExplorer.getItemPathFromEl(div);
-        if (path && PgCommon.isPathsEqual(path, folderPath)) {
-          PgExplorer.setSelectedEl(div);
-          createItem();
-          break;
-        }
-      }
+      // Create under project root
+      const projectRootFolderEl = PgExplorer.getProjectRootFolderEl();
+      PgView.setNewItemPortal(projectRootFolderEl);
     }
   }, []);
 

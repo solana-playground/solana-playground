@@ -13,9 +13,7 @@ import {
 
 export const CreateItem = () => {
   const [El, setEl] = useState<Element | null>(null);
-
   useSetStatic(PgView.events.NEW_ITEM_PORTAL_SET, setEl);
-
   const hide = useCallback(() => setEl(null), []);
 
   return El
@@ -51,7 +49,7 @@ const CreateItemInput: FC<CreateItemInputProps> = ({ El, hide }) => {
             PgExplorer.getCtxSelectedEl() ?? PgExplorer.getSelectedEl();
           const parentPath =
             PgExplorer.getParentPathFromEl(selected as HTMLDivElement) ??
-            PgExplorer.PATHS.ROOT_DIR_PATH;
+            PgExplorer.getProjectRootPath();
 
           try {
             // Create item
@@ -64,7 +62,7 @@ const CreateItemInput: FC<CreateItemInputProps> = ({ El, hide }) => {
             hide();
 
             // Reset Ctx Selected
-            PgExplorer.removeCtxSelectedEl();
+            PgExplorer.resetCtxSelectedEl();
 
             // Select new file
             const newEl = PgExplorer.getElFromPath(itemPath);

@@ -1466,7 +1466,7 @@ export class PgExplorer {
   }
 
   /** Get the root folder elemement. */
-  static getRootFolderEl() {
+  static getProjectRootFolderEl() {
     return document.getElementById(PgView.ids.ROOT_DIR);
   }
 
@@ -1487,22 +1487,26 @@ export class PgExplorer {
     newEl.classList.add(PgView.classNames.SELECTED);
   }
 
+  /** Reset the selected element selection. */
+  static resetSelectedEl() {
+    PgExplorer.getSelectedEl()?.classList.remove(PgView.classNames.SELECTED);
+  }
+
   /** Get the selected context element. */
   static getCtxSelectedEl() {
-    const ctxSelectedEls = document.getElementsByClassName(
+    return document.getElementsByClassName(
       PgView.classNames.CTX_SELECTED
-    );
-    if (ctxSelectedEls.length) return ctxSelectedEls[0];
+    )[0] as HTMLDivElement | undefined;
   }
 
   /** Set the selected context element. */
   static setCtxSelectedEl(newEl: HTMLDivElement) {
-    PgExplorer.removeCtxSelectedEl();
+    PgExplorer.resetCtxSelectedEl();
     newEl.classList.add(PgView.classNames.CTX_SELECTED);
   }
 
-  /** Remove the selected context element. */
-  static removeCtxSelectedEl() {
+  /** Reset the selected context element selection. */
+  static resetCtxSelectedEl() {
     PgExplorer.getCtxSelectedEl()?.classList.remove(
       PgView.classNames.CTX_SELECTED
     );

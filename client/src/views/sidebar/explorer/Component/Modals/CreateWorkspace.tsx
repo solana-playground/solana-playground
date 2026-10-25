@@ -73,6 +73,7 @@ export const CreateWorkspace = () => {
 
   return (
     <Modal
+      title
       buttonProps={{
         text: "Create",
         onSubmit: createWorkspace,

@@ -11,7 +11,7 @@ import { PgCommon, PgView } from "../utils";
  */
 export const useOnClickOutside = (
   ref: RefObject<HTMLElement>,
-  cb: () => void,
+  cb: (target: HTMLElement) => void,
   listenCondition: boolean = true
 ) => {
   useEffect(() => {
@@ -33,7 +33,7 @@ export const useOnClickOutside = (
       // TODO: Make this more robust (portal children don't have to be inside)
       if (isPortalChild) return;
 
-      cb();
+      cb(targetEl);
     };
 
     document.addEventListener("mousedown", handleOutsideClick);
