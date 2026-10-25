@@ -139,7 +139,7 @@ export class PgTerminal {
    * @returns the formatted list
    */
   static formatList(
-    list: Array<string[] | { name: string; description?: string }>,
+    list: Array<string[] | Record<string, any>>,
     opts?: { align?: "x" | "y" }
   ) {
     const { align } = PgCommon.setDefault(opts, { align: "x" });

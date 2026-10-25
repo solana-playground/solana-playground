@@ -53,6 +53,9 @@ module.exports = {
         // Fix `Module not found: Error: Can't resolve 'perf_hooks'` from typescript
         perf_hooks: false,
 
+        // `program-metadata` CLI port
+        child_process: false,
+
         // @metaplex-foundation/js polyfills
         crypto: require.resolve("crypto-browserify"),
         fs: false,
@@ -69,6 +72,11 @@ module.exports = {
         // Process
         new webpack.ProvidePlugin({
           process: "process/browser",
+        }),
+
+        // `program-metadata` CLI port
+        new webpack.NormalModuleReplacementPlugin(/^node:(.*)$/, (resource) => {
+          resource.request = resource.request.replace(/^node:/, "");
         }),
 
         // Monaco

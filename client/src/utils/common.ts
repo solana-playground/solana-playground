@@ -1304,7 +1304,7 @@ export class PgCommon {
    */
   static joinPaths(...paths: string[]) {
     return paths.reduce(
-      (acc, p) => this.appendSlash(acc) + (p[0] === "/" ? p.substring(1) : p)
+      (acc, p) => PgCommon.appendSlash(acc) + (p[0] === "/" ? p.slice(1) : p)
     );
   }
 
