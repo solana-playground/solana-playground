@@ -178,9 +178,12 @@ const getBuildFiles = () => {
     const lockFile = PgExplorer.getFileContent("Cargo.lock");
     if (lockFile) buildFiles.push(["Cargo.lock", lockFile]);
 
-    for (const fileName of PgExplorer.getFolderContent("idls").files) {
-      const path = PgCommon.joinPaths("idls", fileName);
-      buildFiles.push([path, PgExplorer.getFileContent(path)!]);
+    const idlsDir = PgExplorer.getFolderContent("idls");
+    if (idlsDir) {
+      for (const fileName of idlsDir.files) {
+        const path = PgCommon.joinPaths("idls", fileName);
+        buildFiles.push([path, PgExplorer.getFileContent(path)!]);
+      }
     }
   }
 

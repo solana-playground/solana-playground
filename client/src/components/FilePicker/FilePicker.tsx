@@ -62,7 +62,7 @@ const RecursiveFolder: FC<RecursiveFolderProps> = ({ path, setFilePaths }) => {
   );
 
   const { files, folders } = useMemo(
-    () => PgExplorer.getFolderContent(path),
+    () => PgExplorer.getFolderContent(path)!,
     [path]
   );
 

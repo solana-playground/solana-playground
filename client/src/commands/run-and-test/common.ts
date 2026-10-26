@@ -28,6 +28,7 @@ export const createCommonArgs = (parentPath: string) => {
             ? token
             : PgExplorer.getParentPathFromPath(token);
           const folder = PgExplorer.getFolderContent(path);
+          if (!folder) return [];
           return [
             ...folder.files
               .map((name) => PgCommon.joinPaths(path, name))
@@ -135,7 +136,7 @@ export const processCommon = async (params: {
 
   // Create default client/test if the folder is empty
   const folder = PgExplorer.getFolderContent(folderPath);
-  if (!folder.files.length && !folder.folders.length) {
+  if (!folder) {
     PgTerminal.println(
       PgTerminal.info(`Creating default ${isTest ? "test" : "client"}...`)
     );

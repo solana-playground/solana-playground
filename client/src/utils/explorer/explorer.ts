@@ -321,13 +321,9 @@ export class PgExplorer {
     if (!opts?.override) {
       // Check whether `newPath` exists because `fs.rename` doesn't throw when
       // `newPath` exists
-      let newPathExists: boolean;
-      if (itemType.file) {
-        newPathExists = !!this.getFile(newPath);
-      } else {
-        const { files, folders } = this.getFolderContent(newPath);
-        newPathExists = files.length > 0 || folders.length > 0;
-      }
+      const newPathExists = itemType.file
+        ? !!this.getFile(newPath)
+        : !!this.getFolderContent(newPath);
       if (newPathExists) throw new Error(PgExplorer.errors.ALREADY_EXISTS);
     }
 
@@ -714,25 +710,28 @@ export class PgExplorer {
     path = PgCommon.appendSlash(PgExplorer.toAbsolutePath(path));
 
     const files = this.files;
-    const filesAndFolders: Folder = { folders: [], files: [] };
 
+    let exists = false;
+    const items: Folder = { folders: [], files: [] };
     for (const itemPath in files) {
-      if (itemPath.startsWith(path)) {
-        const item = itemPath.split(path)[1].split("/")[0];
-        if (
-          !filesAndFolders.files.includes(item) &&
-          !filesAndFolders.folders.includes(item) &&
-          item
-        ) {
-          // It's a file if it contains '.'
-          // TODO: Implement a better system for folders and files
-          if (item.includes(".")) filesAndFolders.files.push(item);
-          else filesAndFolders.folders.push(item);
-        }
+      if (!itemPath.startsWith(path)) continue;
+
+      const item = itemPath.split(path)[1].split("/")[0];
+      if (
+        item &&
+        !items.files.includes(item) &&
+        !items.folders.includes(item)
+      ) {
+        // It's a file if it contains '.'
+        // TODO: Implement a better system for folders and files
+        if (item.includes(".")) items.files.push(item);
+        else items.folders.push(item);
       }
+
+      exists = true;
     }
 
-    return filesAndFolders;
+    if (exists) return items;
   }
 
   /**

@@ -60,8 +60,8 @@ const Folders = () => {
   useOnClickOutside(rootRef, PgExplorer.resetCtxSelectedEl);
 
   // No need to memoize here
-  const relativeRootPath = PgExplorer.getProjectRootPath();
-  const { folders } = PgExplorer.getFolderContent(relativeRootPath);
+  const projectRootPath = PgExplorer.getProjectRootPath();
+  const { folders } = PgExplorer.getFolderContent(projectRootPath)!;
   const otherFolders = folders.filter(
     (f) =>
       f !== PgExplorer.PATHS.SRC_DIRNAME &&
@@ -79,7 +79,7 @@ const Folders = () => {
             <RootWrapper
               ref={rootRef}
               id={PgView.ids.ROOT_DIR}
-              data-path={relativeRootPath}
+              data-path={projectRootPath}
             >
               {/* Program */}
               <SectionTopWrapper>
@@ -113,7 +113,7 @@ const Folders = () => {
                 folders={folders.filter(
                   (f) => f === PgExplorer.PATHS.SRC_DIRNAME
                 )}
-                relativeRootPath={relativeRootPath}
+                projectRootPath={projectRootPath}
               />
 
               {/* Client and tests */}
@@ -154,7 +154,7 @@ const Folders = () => {
                     f === PgExplorer.PATHS.CLIENT_DIRNAME ||
                     f === PgExplorer.PATHS.TESTS_DIRNAME
                 )}
-                relativeRootPath={relativeRootPath}
+                projectRootPath={projectRootPath}
               />
 
               {/* Other */}
@@ -165,7 +165,7 @@ const Folders = () => {
               )}
               <FolderGroup
                 folders={otherFolders}
-                relativeRootPath={relativeRootPath}
+                projectRootPath={projectRootPath}
               />
             </RootWrapper>
 
@@ -280,10 +280,10 @@ const SectionButtonText = styled.span<
 
 interface FolderGroupProps {
   folders: string[];
-  relativeRootPath: string;
+  projectRootPath: string;
 }
 
-const FolderGroup: FC<FolderGroupProps> = ({ folders, relativeRootPath }) => (
+const FolderGroup: FC<FolderGroupProps> = ({ folders, projectRootPath }) => (
   <>
     {folders
       .sort((a, b) => a.localeCompare(b))
@@ -291,7 +291,7 @@ const FolderGroup: FC<FolderGroupProps> = ({ folders, relativeRootPath }) => (
         <RecursiveFolder
           key={folderName}
           path={PgCommon.appendSlash(
-            PgCommon.joinPaths(relativeRootPath, folderName)
+            PgCommon.joinPaths(projectRootPath, folderName)
           )}
         />
       ))}
@@ -313,7 +313,7 @@ const RecursiveFolder: FC<RecursiveFolderProps> = ({ path }) => {
   );
 
   // Intentionally don't memoize in order to re-render
-  const { files, folders } = PgExplorer.getFolderContent(path);
+  const { files, folders } = PgExplorer.getFolderContent(path)!;
 
   const toggle = useCallback((ev: MouseEvent<HTMLDivElement>) => {
     const el = ev.currentTarget;
