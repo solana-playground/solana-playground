@@ -2,11 +2,13 @@ import {
   PgCommand,
   PgCommon,
   PgExplorer,
+  PgFramework,
   PgGlobal,
   PgLanguage,
   PgProgramInfo,
   PgServer,
   PgSettings,
+  PgTemplate,
   PgTerminal,
   PgWasmPackage,
   PgWeb3,
@@ -191,7 +193,7 @@ const getBuildFiles = () => {
 };
 
 /**
- * Convert Python files into Rust with seahorse-compile-wasm and run `_buildRust`.
+ * Convert Python files into Rust with `seahorse-compile-wasm` and run `buildRust`.
  *
  * @param pythonFiles Python files in `src/`
  * @returns the build response
@@ -228,17 +230,113 @@ const buildPython = async (pythonFiles: TupleFiles) => {
 /**
  * Build Rust files and return the output.
  *
- * @param files Rust files from `src/`
+ * @param files Rust program files
  * @returns the build response
  */
-const buildRust = async (files: TupleFiles) => {
+const buildRust = async (
+  files: TupleFiles,
+  opts?: { noTemplateRecovery?: boolean }
+): ReturnType<typeof PgServer["build"]> => {
   if (!files.length) throw new Error("Couldn't find any Rust files.");
 
-  return await PgServer.build({
-    files,
-    uuid: PgProgramInfo.uuid,
-    flags: PgSettings.build.flags,
-  });
+  try {
+    return await PgServer.build({
+      files,
+      uuid: PgProgramInfo.uuid,
+      flags: PgSettings.build.flags,
+    });
+  } catch (e: any) {
+    const SERVER_BUILD_TEMPLATE_NOT_FOUND_ERROR =
+      "Failed to find a build template";
+    if (!e?.message?.includes?.(SERVER_BUILD_TEMPLATE_NOT_FOUND_ERROR)) throw e;
+    // TODO: Ask to migrate to an existing template?
+    if (opts?.noTemplateRecovery) throw new Error("Failed to recover");
+
+    PgTerminal.println(`Warning: ${SERVER_BUILD_TEMPLATE_NOT_FOUND_ERROR}`);
+
+    const manifestFile = files.find(([path]) => path === "Cargo.toml");
+    if (!manifestFile) {
+      throw new Error("Request does not contain a manifest file");
+    }
+
+    const PACKAGE_NAME_VERSION_REGEX =
+      /\[package\]name\s*=\s*"(.*?)"version\s*=\s*"(.*?)"/;
+    const result = PACKAGE_NAME_VERSION_REGEX.exec(
+      manifestFile[1].replaceAll("\n", "")
+    );
+    if (!result) throw new Error("Failed to parse manifest");
+
+    const [, name, version] = result;
+    PgTerminal.println(`Name: ${name}`);
+
+    const updateManifestAndRetry = async (templateFiles: TupleFiles) => {
+      const templateManifest = templateFiles.find(([path, content]) => {
+        return (
+          path.endsWith("Cargo.toml") &&
+          PACKAGE_NAME_VERSION_REGEX.exec(content.replaceAll("\n", ""))?.at(
+            1
+          ) === name
+        );
+      });
+      if (!templateManifest) {
+        throw new Error("Failed to find the manifest file in the template");
+      }
+
+      await PgExplorer.saveItem(...templateManifest);
+
+      // Change the manifest in-place and retry
+      manifestFile[1] = templateManifest[1];
+      const result = await buildRust(files, { noTemplateRecovery: true });
+      PgTerminal.println(PgTerminal.success("Update successful."));
+      return result;
+    };
+
+    // Handle the migration of `<name>` style templates
+    const nameBasedTemplate = TEMPLATES.find((t) => t === name);
+    if (nameBasedTemplate) {
+      const files = await PgTemplate.getFiles(nameBasedTemplate);
+      return await updateManifestAndRetry(files);
+    }
+
+    PgTerminal.println(`Version: ${version}`);
+
+    // Handle the migration of `<framework>-<version>` style templates
+    const framework = PgFramework.all.find(
+      (f) => f.name.toLowerCase() === name
+    );
+    // TODO: Ask to migrate to an existing template?
+    if (!framework) throw new Error(`Framework not found: ${name}`);
+
+    const updateFrameworkManifestAndRetry = async (version: string) => {
+      const templateFiles = await framework.getTemplateFiles(version);
+      const { convertToPlayground } = await framework.import();
+      const pgFiles = await convertToPlayground(templateFiles);
+      return await updateManifestAndRetry(pgFiles);
+    };
+
+    // Possibilities
+    // 1. Template manifest has been modified (same name and version)
+    const versionExists = framework.versions.includes(version);
+    if (versionExists) return await updateFrameworkManifestAndRetry(version);
+
+    // 2. Template version has been bumped to a compatible version
+    for (const frameworkVersion of framework.versions) {
+      if (!PgCommon.isNonBreakingVersionChange(version, frameworkVersion)) {
+        continue;
+      }
+
+      PgTerminal.println(`New version available: ${frameworkVersion}`);
+      return await updateFrameworkManifestAndRetry(frameworkVersion);
+    }
+
+    // 3. Template version has been removed and there are no compatible versions
+    const term = await PgTerminal.get();
+    const selectedVersion = await term.waitForInput(
+      "Could not find a compatible version. Choose one of the supported versions.",
+      { choice: { items: framework.versions } }
+    );
+    return await updateFrameworkManifestAndRetry(selectedVersion);
+  }
 };
 
 /**

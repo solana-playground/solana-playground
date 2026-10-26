@@ -354,6 +354,20 @@ checksum = "2ee67f1008b1ba2321834326597b8e186293b049a023cdef258527550b9935b4"
 [[package]]
 name = "pinocchio"
 version = "0.11.2"
+dependencies = [
+ "pinocchio 0.11.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "pinocchio-associated-token-account",
+ "pinocchio-log",
+ "pinocchio-memo",
+ "pinocchio-system",
+ "pinocchio-token",
+ "pinocchio-token-2022",
+ "pinocchio-transfer-hook-interface",
+]
+
+[[package]]
+name = "pinocchio"
+version = "0.11.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a6cababcb62a2e739c7078ae16eda02789a6e3edd21bbdded864e85c38a7914d"
 dependencies = [
@@ -414,7 +428,7 @@ version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f3ae2ee67b42e2ac797dd88312da473c895660e270d8093e0ba2749b885b5778"
 dependencies = [
- "pinocchio",
+ "pinocchio 0.11.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "solana-address 2.9.0",
 ]
 
@@ -477,20 +491,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "985e7ec9bb745e6ce6535b544d84d6cd6f7ad8bd711c398938ae983b91a766d9"
 dependencies = [
  "unicode-ident",
-]
-
-[[package]]
-name = "program"
-version = "0.1.0"
-dependencies = [
- "pinocchio",
- "pinocchio-associated-token-account",
- "pinocchio-log",
- "pinocchio-memo",
- "pinocchio-system",
- "pinocchio-token",
- "pinocchio-token-2022",
- "pinocchio-transfer-hook-interface",
 ]
 
 [[package]]

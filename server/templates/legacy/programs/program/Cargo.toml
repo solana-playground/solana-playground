@@ -1,6 +1,6 @@
 [package]
-name = "program"
-version = "0.1.0"
+name = "legacy"
+version = "0.0.0"
 edition = "2021"
 
 [lib]

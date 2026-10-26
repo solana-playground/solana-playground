@@ -1014,6 +1014,29 @@ export class PgCommon {
   }
 
   /**
+   * Get whether the version change is non-breaking (SemVer-compatible).
+   *
+   * Downgrades are assumed to be backwards-**incompatible**, as new features
+   * do not require a breaking version bump.
+   *
+   * @param from from version
+   * @param to to version
+   * @returns whether the version bump is non-breaking
+   */
+  static isNonBreakingVersionChange(from: string, to: string) {
+    if (from === to) return true;
+
+    // TODO: Handle `pre`?
+    // TODO: Assume `0.0.x` is always breaking?
+    const x = PgCommon.parseVersion(from);
+    const y = PgCommon.parseVersion(to);
+    if (x.major !== y.major) return false;
+    if (x.minor === y.minor) return x.patch <= y.patch;
+    if (x.major === 0 && y.major === 0) return false;
+    return x.minor <= y.minor;
+  }
+
+  /**
    * Get send and receive event names
    *
    * @param eventName name of the custom event

@@ -1,4 +1,4 @@
-import { Framework, FrameworkParam, PgCommon } from "../utils";
+import { Framework, FrameworkParam, PgCommon, PgTemplate } from "../utils";
 
 /**
  * Create a framework with inferred types.
@@ -32,16 +32,7 @@ export const createFramework = <N extends string>(
       return await convertFromPlayground(playgroundFiles);
     }
 
-    const templatePath = `/templates/${kebabName}-${version}`;
-    const paths = await PgCommon.fetchJson<string[]>(
-      PgCommon.joinPaths(templatePath, "paths.json")
-    );
-    const contents = await Promise.all(
-      paths
-        .map((path) => PgCommon.joinPaths(templatePath, path))
-        .map(PgCommon.fetchText)
-    );
-    return paths.map((path, i) => [path, contents[i]]);
+    return await PgTemplate.getFiles(`${kebabName}-${version}`);
   };
 
   framework.import ??= () => import(dirPath + "import");

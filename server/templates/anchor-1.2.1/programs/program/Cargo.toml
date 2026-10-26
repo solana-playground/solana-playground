@@ -1,6 +1,6 @@
 [package]
-name = "program"
-version = "0.1.0"
+name = "anchor"
+version = "1.2.1"
 edition = "2021"
 
 [lib]

@@ -19,6 +19,7 @@ export * from "./router";
 export * from "./server";
 export * from "./settings";
 export * from "./share";
+export * from "./template";
 export * from "./terminal/";
 export * from "./theme/";
 export * from "./tutorial/";

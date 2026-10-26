@@ -111,8 +111,8 @@ dependencies = [
 ]
 
 [[package]]
-name = "program"
-version = "0.1.0"
+name = "quasar"
+version = "0.3.0-git.b85d5a74832d3ce24ea86869b1cdb06817a734bb"
 dependencies = [
  "quasar-lang",
  "quasar-metadata",
