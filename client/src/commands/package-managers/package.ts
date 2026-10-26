@@ -1,4 +1,4 @@
-import { PgCommand } from "../../utils";
+import { PgCommand, PgJsPackage } from "../../utils";
 import { createArgs, createCmd, createOptions, createSubcmd } from "../create";
 
 /**
@@ -23,7 +23,7 @@ export const packageManager = createCmd({
       description: "Install packages",
       // TODO: Add the relevant manifest and lock file if non-existent (ask?)
       handle: async (input) => {
-        const packageManager = getPackageManager();
+        const packageManager = PgJsPackage.getPackageManager();
         const tokens = input.tokens.slice(1);
         return await PgCommand[packageManager].execute(...tokens);
       },
@@ -57,7 +57,7 @@ export const packageManager = createCmd({
         },
       ]),
       handle: async (input) => {
-        const packageManager = getPackageManager();
+        const packageManager = PgJsPackage.getPackageManager();
         const tokens = [];
         switch (packageManager) {
           case "npm": {
@@ -90,7 +90,7 @@ export const packageManager = createCmd({
         },
       ]),
       handle: async (input) => {
-        const packageManager = getPackageManager();
+        const packageManager = PgJsPackage.getPackageManager();
         const tokens = [];
         switch (packageManager) {
           case "npm": {
@@ -117,7 +117,7 @@ export const packageManager = createCmd({
         },
       ]),
       handle: async (input) => {
-        const packageManager = getPackageManager();
+        const packageManager = PgJsPackage.getPackageManager();
         const tokens = [];
         switch (packageManager) {
           case "npm": {
@@ -134,20 +134,3 @@ export const packageManager = createCmd({
     }),
   ],
 });
-
-// TODO: `pnpm`
-/**
- * Get the configured package manager.
- *
- * @returns the configured package manager
- */
-const getPackageManager = () => {
-  // TODO: Actual impl
-  const packageManager = "npm" as string;
-  switch (packageManager) {
-    case "yarn":
-      return "yarn" as const;
-    default:
-      return "npm" as const;
-  }
-};
