@@ -11,7 +11,6 @@ use axum::{
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use solpg_server::{
-    log::info,
     program::{get_program_out_path, BINARY_FILE, MAX_FILE_AMOUNT, MAX_PATH_LEN, MAX_STDERR_LEN},
     templates::get_all_templates,
     utils::Files,
@@ -110,12 +109,15 @@ pub async fn build(
     static SRC_REGEX: LazyLock<Regex> =
         LazyLock::new(|| Regex::new(r"^/?src/[\w/-]+\.rs$").unwrap());
     static CARGO_REGEX: LazyLock<Regex> =
-        LazyLock::new(|| Regex::new(r"^Cargo.(toml|lock)$").unwrap());
+        LazyLock::new(|| Regex::new(r"^Cargo\.(toml|lock)$").unwrap());
+    static IDLS_REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^idls/\w+\.json$").unwrap());
     for (path, _) in &files {
         let is_valid = path.len() <= MAX_PATH_LEN
             && !path.contains("..")
             && !path.contains("//")
-            && (SRC_REGEX.is_match(path) || CARGO_REGEX.is_match(path));
+            && (SRC_REGEX.is_match(path)
+                || CARGO_REGEX.is_match(path)
+                || IDLS_REGEX.is_match(path));
         if !is_valid {
             return Err(anyhow!("Invalid path: {path}"))?;
         }
@@ -170,7 +172,6 @@ pub async fn build(
     }
     .name();
     let image = Sandbox::get_image_name(format!("program-{template_name}"));
-    info!("Building using image: {image}");
 
     // Container paths
     let input_path = Path::new(INPUT_DIR);

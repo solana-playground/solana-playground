@@ -171,12 +171,17 @@ const getBuildFiles = () => {
     buildFiles.push([buildPath, content]);
   }
 
-  // Add `cargo` files
+  // Add unstable files
   if (PgSettings.experimental.unstable) {
     const manifest = PgExplorer.getFileContent("Cargo.toml");
     if (manifest) buildFiles.push(["Cargo.toml", manifest]);
     const lockFile = PgExplorer.getFileContent("Cargo.lock");
     if (lockFile) buildFiles.push(["Cargo.lock", lockFile]);
+
+    for (const fileName of PgExplorer.getFolderContent("idls").files) {
+      const path = PgCommon.joinPaths("idls", fileName);
+      buildFiles.push([path, PgExplorer.getFileContent(path)!]);
+    }
   }
 
   return buildFiles;
