@@ -61,7 +61,10 @@ const Folders = () => {
 
   // No need to memoize here
   const projectRootPath = PgExplorer.getProjectRootPath();
-  const { folders } = PgExplorer.getFolderContent(projectRootPath)!;
+  const projectRootFolder = PgExplorer.getFolderContent(projectRootPath);
+  if (!projectRootFolder) return null;
+
+  const { folders } = projectRootFolder;
   const otherFolders = folders.filter(
     (f) =>
       f !== PgExplorer.PATHS.SRC_DIRNAME &&
