@@ -1,9 +1,10 @@
-import { convertToPlayground as convertFromAnchor } from "../anchor/import";
-import { PgCommon, PgExplorer, TupleFiles } from "../../utils";
+import { PgCommon, PgExplorer, PgFramework, TupleFiles } from "../../utils";
 
 export const convertToPlayground = async (files: TupleFiles) => {
   // Seahorse is a wrapper around Anchor, only difference is the Python files.
   // We convert to Anchor files and replace the Rust files with Python.
+  const framework = PgFramework.get("Anchor");
+  const { convertToPlayground: convertFromAnchor } = await framework.import();
   const anchorFiles = await convertFromAnchor(files);
   const seahorseFiles = anchorFiles
     .filter(([path]) => !path.endsWith(".rs"))

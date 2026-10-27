@@ -35,7 +35,14 @@ export const createFramework = <N extends string>(
     return await PgTemplate.getFiles(`${kebabName}-${version}`);
   };
 
-  framework.import ??= () => import(dirPath + "import");
+  framework.import ??= async () => {
+    try {
+      return await import(dirPath + "import");
+    } catch {
+      const { convertToPlaygroundCommon } = await import("./common");
+      return { convertToPlayground: convertToPlaygroundCommon };
+    }
+  };
   framework.export ??= async () => {
     const { convertFromPlayground } = await import(dirPath + "export");
     const readme = await import(dirPath + "export.md")
