@@ -1,5 +1,5 @@
-import { PgLanguage } from "../../utils";
-import { createFramework } from "../create";
+import { PgFramework } from "../../utils";
+import { createFramework, getIsCurrentCommon } from "../create";
 
 export const native = createFramework({
   name: "Native",
@@ -23,18 +23,11 @@ export const native = createFramework({
   },
   legacy: { version: "1.16.24" },
   getIsCurrent: (files) => {
-    // TODO: Check `Cargo.toml`
-    const rustContents = files
-      .filter(([path]) => PgLanguage.getFromPath(path)?.name === "Rust")
-      .map(([_, content]) => content);
-    const hasSolanaProgram = rustContents.some((content) =>
-      content.includes("solana_program")
-    );
-    if (!hasSolanaProgram) return false;
-
-    const hasEntrypointMacro = rustContents.some((content) =>
-      content.includes("entrypoint!")
-    );
-    return hasEntrypointMacro;
+    // Native dependencies and `entrypoint!` can be used by other frameworks too
+    const matchesOther = PgFramework.all
+      .filter((f) => f.name !== "Native")
+      .some((f) => f.getIsCurrent(files));
+    if (matchesOther) return false;
+    return getIsCurrentCommon(files, ".rs", "entrypoint!");
   },
 });

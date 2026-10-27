@@ -1,4 +1,4 @@
-import { createFramework } from "../create";
+import { createFramework, getIsCurrentCommon } from "../create";
 
 export const pinocchio = createFramework({
   name: "Pinocchio",
@@ -13,12 +13,5 @@ export const pinocchio = createFramework({
     // TODO: Also include tests after they are supported
     url: "https://github.com/solana-developers/program-examples/tree/main/basics/create-account/pinocchio/program",
   },
-  getIsCurrent: (files) => {
-    // TODO: Check `Cargo.toml`
-    for (const [path, content] of files) {
-      if (path.endsWith("lib.rs")) return content.includes("pinocchio");
-    }
-
-    return false;
-  },
+  getIsCurrent: (files) => getIsCurrentCommon(files, ".rs", "pinocchio"),
 });

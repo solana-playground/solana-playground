@@ -1,4 +1,4 @@
-import { createFramework } from "../create";
+import { createFramework, getIsCurrentCommon } from "../create";
 
 export const quasar = createFramework({
   name: "Quasar",
@@ -14,11 +14,6 @@ export const quasar = createFramework({
     url: "https://github.com/blueshift-gg/quasar/tree/b0de7db4cd271654a2dcf78807dd865e98e0b339/examples/escrow",
   },
   getIsCurrent: (files) => {
-    // TODO: Check `Cargo.toml`
-    for (const [path, content] of files) {
-      if (path.endsWith("lib.rs")) return content.includes("quasar_lang");
-    }
-
-    return false;
+    return getIsCurrentCommon(files, "lib.rs", ["quasar_lang", "#[program]"]);
   },
 });

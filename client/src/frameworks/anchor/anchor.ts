@@ -1,4 +1,5 @@
-import { createFramework } from "../create";
+import { PgFramework } from "../../utils";
+import { createFramework, getIsCurrentCommon } from "../create";
 
 export const anchor = createFramework({
   name: "Anchor",
@@ -13,23 +14,13 @@ export const anchor = createFramework({
     url: "https://github.com/solana-developers/program-examples/tree/main/basics/create-account/anchor",
   },
   getIsCurrent: (files) => {
-    // TODO: Check `Cargo.toml`
-
-    // Return false if there is a Python file(Seahorse) otherwise this will
-    // return a false positive because every Seahorse workspace is a valid
-    // Anchor workspace.
+    // Return `false` if it's a Seahorse project otherwise this will return a
+    // false positive because every Seahorse workspace is a valid Anchor one.
     //
     // TODO: Handle this check from Seahorse side. Ideally we wouldn't need to
     // include Seahorse related checks in any of the Anchor files.
-    const isSeahorse = files.some(([path]) => path.endsWith(".py"));
+    const isSeahorse: boolean = PgFramework.get("Seahorse").getIsCurrent(files);
     if (isSeahorse) return false;
-
-    for (const [path, content] of files) {
-      if (!path.endsWith("lib.rs")) continue;
-      const hasProgramMacro = content.includes("#[program]");
-      if (hasProgramMacro) return true;
-    }
-
-    return false;
+    return getIsCurrentCommon(files, "lib.rs", ["anchor_lang", "#[program]"]);
   },
 });

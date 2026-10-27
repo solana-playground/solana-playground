@@ -1,4 +1,11 @@
-import { Framework, FrameworkParam, PgCommon, PgTemplate } from "../utils";
+import {
+  Arrayable,
+  Framework,
+  FrameworkParam,
+  PgCommon,
+  PgTemplate,
+  TupleFiles,
+} from "../utils";
 
 /**
  * Create a framework with inferred types.
@@ -52,4 +59,31 @@ export const createFramework = <N extends string>(
   };
 
   return framework as Framework<N>;
+};
+
+// NOTE: This exists here instead of in `./common` because `./common` gets
+// lazy-loaded on-demand.
+/**
+ * Decide whether the files belong to the current framework.
+ *
+ * @param files files to check (playground or original layout)
+ * @param pathEndsWith only check files that ends with this suffix
+ * @param contentIncludes check the content includes these values
+ * @returns
+ */
+export const getIsCurrentCommon = (
+  files: TupleFiles,
+  pathEndsWith: string,
+  contentIncludes: Arrayable<string>
+) => {
+  for (const [path, content] of files) {
+    if (!path.endsWith(pathEndsWith)) continue;
+
+    const isCurrent = PgCommon.toArray(contentIncludes).every(
+      (contentInclude) => content.includes(contentInclude)
+    );
+    if (isCurrent) return true;
+  }
+
+  return false;
 };
