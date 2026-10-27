@@ -270,22 +270,26 @@ const buildRust = async (
     PgTerminal.println(`Name: ${name}`);
 
     const updateManifestAndRetry = async (templateFiles: TupleFiles) => {
-      const templateManifest = templateFiles.find(([path, content]) => {
-        return (
-          path.endsWith("Cargo.toml") &&
-          PACKAGE_NAME_VERSION_REGEX.exec(content.replaceAll("\n", ""))?.at(
-            1
-          ) === name
-        );
-      });
+      const templateManifest = templateFiles
+        .find(([path, content]) => {
+          return (
+            path.endsWith("Cargo.toml") &&
+            PACKAGE_NAME_VERSION_REGEX.exec(content.replaceAll("\n", ""))?.at(
+              1
+            ) === name
+          );
+        })
+        ?.at(1);
       if (!templateManifest) {
         throw new Error("Failed to find the manifest file in the template");
       }
 
-      await PgExplorer.saveItem(...templateManifest);
+      // Always use the playground expected manifest path to persist, as the
+      // template files may use different layouts
+      await PgExplorer.saveItem("Cargo.toml", templateManifest);
 
       // Change the manifest in-place and retry
-      manifestFile[1] = templateManifest[1];
+      manifestFile[1] = templateManifest;
       const result = await buildRust(files, { noTemplateRecovery: true });
       PgTerminal.println(PgTerminal.success("Update successful."));
       return result;
