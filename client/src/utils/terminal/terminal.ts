@@ -424,7 +424,11 @@ export class PgTerm {
     const disposables = [];
     if (opts?.choice) {
       // Show multi choice items
-      convertedMsg += " (options: ',' separated numbers e.g. 0,1)";
+      convertedMsg += ` (expected input: ${
+        opts.choice.multiple
+          ? "',' separated option numbers e.g. 0,1"
+          : "option number e.g. 0"
+      })`;
       const items = opts.choice.items;
       convertedMsg += items.reduce(
         (acc, cur, i) => acc + `\n[${i}] - ${cur}`,
