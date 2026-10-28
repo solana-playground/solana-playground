@@ -12,7 +12,10 @@ interface BuildRequest {
   files: TupleFiles;
   /** UUID of the program */
   uuid?: Option<string>;
-  /** Build flags */
+  /** Arguments to pass to the build command */
+  args?: Option<string[]>;
+  // TODO: Remove `PgSettings.experimental.unstable`
+  /** @deprecated build flags */
   flags?: Option<{
     /** Whether to enable Anchor `seeds` feature */
     seedsFeature?: Option<boolean>;

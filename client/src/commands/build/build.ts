@@ -19,12 +19,13 @@ import { createCmd } from "../create";
 export const build = createCmd({
   name: "build",
   description: "Build your program",
-  handle: async () => {
+  proxy: true,
+  handle: async (input) => {
     PgGlobal.update({ buildLoading: true });
     PgTerminal.println(PgTerminal.info("Building..."));
 
     try {
-      const result = await buildProgram();
+      const result = await buildProgram(input.tokens.slice(1));
       // TODO: Remove conditional and inline
       // Server only returns `uuid` on the first build of a session, so we
       // can't use it as a success signal. Mirror the server's own check on
@@ -44,18 +45,21 @@ export const build = createCmd({
   },
 });
 
+/** Build command arguments */
+type BuildArgs = Parameters<typeof PgServer["build"]>[0]["args"];
+
 /**
  * Compile the current project.
  *
  * @returns the build response
  */
-const buildProgram = async () => {
+const buildProgram = async (args: BuildArgs) => {
   const buildFiles = getBuildFiles();
   const pythonFiles = buildFiles.filter(
     ([path]) => PgLanguage.getFromPath(path)?.name === "Python"
   );
-  if (pythonFiles.length > 0) return await buildPython(pythonFiles);
-  return await buildRust(buildFiles);
+  if (pythonFiles.length > 0) return await buildPython(pythonFiles, args);
+  return await buildRust(buildFiles, args);
 };
 
 /**
@@ -198,7 +202,7 @@ const getBuildFiles = () => {
  * @param pythonFiles Python files in `src/`
  * @returns the build response
  */
-const buildPython = async (pythonFiles: TupleFiles) => {
+const buildPython = async (pythonFiles: TupleFiles, args: BuildArgs) => {
   const { compileSeahorse } = await PgWasmPackage.import("seahorse-compile");
 
   const rustFiles = pythonFiles.flatMap(([path, content]) => {
@@ -224,7 +228,7 @@ const buildPython = async (pythonFiles: TupleFiles) => {
     return files;
   });
 
-  return await buildRust(rustFiles);
+  return await buildRust(rustFiles, args);
 };
 
 /**
@@ -235,6 +239,7 @@ const buildPython = async (pythonFiles: TupleFiles) => {
  */
 const buildRust = async (
   files: TupleFiles,
+  args: BuildArgs,
   opts?: { noTemplateRecovery?: boolean }
 ): ReturnType<typeof PgServer["build"]> => {
   if (!files.length) throw new Error("Couldn't find any Rust files.");
@@ -243,6 +248,7 @@ const buildRust = async (
     return await PgServer.build({
       files,
       uuid: PgProgramInfo.uuid,
+      args,
       flags: PgSettings.build.flags,
     });
   } catch (e: any) {
@@ -290,7 +296,7 @@ const buildRust = async (
 
       // Change the manifest in-place and retry
       manifestFile[1] = templateManifest;
-      const result = await buildRust(files, { noTemplateRecovery: true });
+      const result = await buildRust(files, args, { noTemplateRecovery: true });
       PgTerminal.println(PgTerminal.success("Update successful."));
       return result;
     };
