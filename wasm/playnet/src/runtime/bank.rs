@@ -278,7 +278,7 @@ impl PgBank {
         let simulation_result = self.simulate_tx(&tx);
         match simulation_result.result {
             Ok(_) => {
-                // TODO: Substract the fee from the `fee_payer`
+                // TODO: Subtract the fee from the `fee_payer`
                 let fee = self.get_fee_for_message(tx.message()).unwrap();
 
                 for (pubkey, account) in &simulation_result.post_accounts {
