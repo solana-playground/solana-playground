@@ -18,6 +18,9 @@ use quasar::*;
 static ALL: &[Template] = &[
     legacy(),
     anchor_0_29_0(),
+    anchor_0_30_1(),
+    anchor_0_31_1(),
+    anchor_0_32_2(),
     anchor_1_2_1(),
     pinocchio_0_11_2(),
     quasar_0_3_0(),
