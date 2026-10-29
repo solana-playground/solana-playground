@@ -46,6 +46,11 @@ export const CreateWorkspace = () => {
     [versionOpt]
   );
 
+  const frameworks = useMemo(() => {
+    if (experimentalUnstable) return PgFramework.all;
+    return PgFramework.all.filter((f) => f.legacy);
+  }, [experimentalUnstable]);
+
   const createWorkspace = async () => {
     const framework = PgFramework.get(frameworkName!);
     let files;
@@ -96,8 +101,12 @@ export const CreateWorkspace = () => {
 
         <Row>
           <MainText>Framework</MainText>
-          <ResponsiveItems minItemWidth="6.5rem" gap="1rem" maxItems={5}>
-            {PgFramework.all.map((f) => (
+          <ResponsiveItems
+            minItemWidth="6.5rem"
+            gap="1rem"
+            maxItems={Math.min(frameworks.length, 5)}
+          >
+            {frameworks.map((f) => (
               <Framework
                 key={f.name}
                 isSelected={frameworkName === f.name}

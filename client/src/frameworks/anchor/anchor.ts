@@ -13,6 +13,9 @@ export const anchor = createFramework({
     name: "Create Account",
     url: "https://github.com/solana-developers/program-examples/tree/main/basics/create-account/anchor",
   },
+  // The `version` field is intentionally omitted; `anchor-0.29.0` has a
+  // dedicated template
+  legacy: {},
   getIsCurrent: (files) => {
     // Return `false` if it's a Seahorse project otherwise this will return a
     // false positive because every Seahorse workspace is a valid Anchor one.

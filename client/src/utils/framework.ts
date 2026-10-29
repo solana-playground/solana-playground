@@ -54,7 +54,7 @@ export type FrameworkParam<N extends string> = {
      * This is the program crate version (or equivalent), not the tooling
      * version (e.g. CLI).
      */
-    version: string;
+    version?: string;
     /** Lazy load the legacy framework files, defaults to `./files` */
     getFiles?: () => Promise<{
       /** Default framework files to create on a new project */

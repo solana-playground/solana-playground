@@ -24,11 +24,15 @@ export const createFramework = <N extends string>(
     (t) => t.replace(kebabName + "-", "")
   );
 
-  // The `legacy` template is named differently and supports multiple frameworks
-  // at the same time. If a framework has its `legacy` field set, assume it's
-  // a real version and prepend it to the existing versions.
   if (framework.legacy) {
-    framework.versions.unshift(framework.legacy.version);
+    // The `legacy` template is named differently and supports multiple frameworks
+    // at the same time. If a framework has its `legacy.version` field set,
+    // assume it's a real version that uses the `legacy` template and prepend it
+    // to the existing versions.
+    if (framework.legacy.version) {
+      framework.versions.unshift(framework.legacy.version);
+    }
+
     framework.legacy.getFiles ??= () => import(dirPath + "files");
   }
 
