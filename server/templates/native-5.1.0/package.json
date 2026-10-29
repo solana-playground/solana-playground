@@ -1,0 +1,14 @@
+{
+  "name": "pinocchio",
+  "type": "module",
+  "dependencies": {
+    "@solana/web3.js": "^1.99.0"
+  },
+  "devDependencies": {
+    "@types/chai": "^5.2.3",
+    "@types/mocha": "^10.0.10",
+    "chai": "^5.3.3",
+    "mocha": "^10.8.2",
+    "typescript": "^5.0.4"
+  }
+}

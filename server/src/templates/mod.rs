@@ -1,5 +1,6 @@
 mod anchor;
 mod legacy;
+mod native;
 mod pinocchio;
 mod quasar;
 
@@ -8,6 +9,7 @@ use std::{fs, io::ErrorKind, path::Path, process::ExitStatus};
 use anchor::*;
 use anyhow::Result;
 use legacy::legacy;
+use native::*;
 use pinocchio::*;
 use quasar::*;
 
@@ -22,6 +24,7 @@ static ALL: &[Template] = &[
     anchor_0_31_1(),
     anchor_0_32_2(),
     anchor_1_2_1(),
+    native_5_1_0(),
     pinocchio_0_11_2(),
     quasar_0_3_0(),
 ];
