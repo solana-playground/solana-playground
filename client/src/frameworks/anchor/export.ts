@@ -38,6 +38,7 @@ export const convertFromPlayground = async (files: TupleFiles) => {
     }
 
     // Cargo.lock -> Cargo.lock
+    // TODO: Remove this once exports append the default template files
     else if (path === "Cargo.lock") {
     }
 

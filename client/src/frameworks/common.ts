@@ -259,13 +259,6 @@ export const convertToPlaygroundCommon = async (files: TupleFiles) => {
 
     // TODO: After Rust test support: **/programs/*/tests/** -> tests/**
 
-    // **/Cargo.lock -> Cargo.lock
-    const cargoLockResult = /Cargo.lock$/.exec(path);
-    if (cargoLockResult) {
-      pgFiles.push([cargoLockResult[0], content]);
-      continue;
-    }
-
     // **/client/**/*.ts -> client/**/*.ts
     const clientResult = /client\/(?!.*client\/).*\.(js|ts)$/.exec(path);
     if (clientResult) {
@@ -380,8 +373,7 @@ export const convertFromPlaygroundToSingleProgramLayout = async (
     // Program files -> `program/`
     if (
       path.startsWith(PgExplorer.PATHS.SRC_DIRNAME) ||
-      path === "Cargo.toml" ||
-      path === "Cargo.lock"
+      path === "Cargo.toml"
     ) {
       path = PgCommon.joinPaths(PROGRAM_PATH, path);
     }

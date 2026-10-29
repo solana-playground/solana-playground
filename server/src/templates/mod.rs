@@ -4,7 +4,7 @@ mod native;
 mod pinocchio;
 mod quasar;
 
-use std::{fs, io::ErrorKind, path::Path, process::ExitStatus};
+use std::{fs, path::Path, process::ExitStatus};
 
 use anchor::*;
 use anyhow::Result;
@@ -121,22 +121,14 @@ impl Template {
     }
 
     /// Get whether the given cargo files matches the template.
-    pub fn matches(&self, manifest: &str, lock: &str) -> Result<bool> {
+    pub fn matches(&self, manifest: &str) -> Result<bool> {
         // TODO: Cache
-        let template_dir = Path::new("templates").join(self.name);
-        let template_program_dir = template_dir.join(self.program_dir);
-        let manifest_path = template_program_dir.join("Cargo.toml");
+        let manifest_path = Path::new("templates")
+            .join(self.name)
+            .join(self.program_dir)
+            .join("Cargo.toml");
         let actual_manifest = fs::read_to_string(manifest_path)?;
-
-        let actual_lock = match fs::read_to_string(template_dir.join("Cargo.lock")) {
-            Ok(lock) => lock,
-            Err(e) if e.kind() == ErrorKind::NotFound => {
-                fs::read_to_string(template_program_dir.join("Cargo.lock"))?
-            }
-            Err(e) => return Err(Into::into(e)),
-        };
-
-        Ok(manifest == actual_manifest && lock == actual_lock)
+        Ok(manifest == actual_manifest)
     }
 }
 

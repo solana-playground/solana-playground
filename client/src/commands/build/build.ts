@@ -181,8 +181,6 @@ const getBuildFiles = () => {
   if (PgSettings.experimental.unstable) {
     const manifest = PgExplorer.getFileContent("Cargo.toml");
     if (manifest) buildFiles.push(["Cargo.toml", manifest]);
-    const lockFile = PgExplorer.getFileContent("Cargo.lock");
-    if (lockFile) buildFiles.push(["Cargo.lock", lockFile]);
 
     const idlsDir = PgExplorer.getFolderContent("idls");
     if (idlsDir) {
