@@ -489,36 +489,30 @@ export class PgJsRuntime {
 
       // Add `anchor.workspace`
       if (PgProgramInfo.idl) {
-        // TODO: Get the exact version from the lock file
-        const versionReq = PgJsPackage.getParsedManifest().dependencies?.[name];
-        if (!versionReq) throw new Error(`Anchor version not found: ${name}`);
+        const getIsLegacyPackage = () => {
+          if (!PgSettings.experimental.unstable) return true;
 
-        const versionStr =
-          /^(?:\^|~|=|>=|<=|>|<)?(\d+\.\d+\.\d+(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?)$/
-            .exec(versionReq)
-            ?.at(1);
-        if (!versionStr) {
-          throw new Error(`Invalid version requirement: ${versionReq}`);
-        }
+          // TODO: Get the exact version from the lock file
+          const versionReq =
+            PgJsPackage.getParsedManifest().dependencies?.[name];
+          if (!versionReq) throw new Error(`Anchor version not found: ${name}`);
+
+          const versionStr =
+            /^(?:\^|~|=|>=|<=|>|<)?(\d+\.\d+\.\d+(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?)$/
+              .exec(versionReq)
+              ?.at(1);
+          if (!versionStr) {
+            throw new Error(`Invalid version requirement: ${versionReq}`);
+          }
+
+          const version = PgCommon.parseVersion(versionStr);
+          return version.major === 0 && version.minor < 30;
+        };
 
         const idl = PgProgramInfo.idl;
-        const version = PgCommon.parseVersion(versionStr);
-        const isLegacy = version.major === 0 && version.minor < 30;
-        const snakeCaseName = isLegacy
-          ? // TODO: Add helper for type safety?
-            // @ts-expect-error
-            idl.name
-          : idl.metadata.name;
-        const programNames = [
-          PgCommon.toPascalFromSnake(snakeCaseName), // default before 0.29.0
-          PgCommon.toCamelCase(snakeCaseName),
-          PgCommon.toKebabFromSnake(snakeCaseName),
-          snakeCaseName,
-        ];
-
         const provider = pkg.getProvider();
         const programArgs = [];
-        if (isLegacy) {
+        if (getIsLegacyPackage()) {
           const programId = PgProgramInfo.pk;
           if (!programId) throw new Error("Program ID not set");
           programArgs.push(idl, programId, provider);
@@ -527,6 +521,15 @@ export class PgJsRuntime {
         }
         const program = new pkg.Program(...programArgs);
 
+        // TODO: Add helper for type safety?
+        // @ts-expect-error
+        const snakeCaseName = idl.metadata.name ?? idl.name;
+        const programNames = [
+          PgCommon.toPascalFromSnake(snakeCaseName), // default before 0.29.0
+          PgCommon.toCamelCase(snakeCaseName),
+          PgCommon.toKebabFromSnake(snakeCaseName),
+          snakeCaseName,
+        ];
         pkg.workspace = {};
         for (const name of programNames) {
           if (pkg.workspace[name]) continue;
