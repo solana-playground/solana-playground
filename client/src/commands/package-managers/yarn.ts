@@ -1,9 +1,10 @@
 import { createArgs, createCmd, createOptions, createSubcmd } from "../create";
-import { createHandler } from "./common";
+import { checkExperimentalUnstable, createHandler } from "./common";
 
 export const yarn = createCmd({
   name: "yarn",
   description: "Yarn package manager (v1)",
+  preChecks: checkExperimentalUnstable,
   subcommands: [
     // TODO: `init`
 

@@ -1,9 +1,10 @@
 import { createArgs, createCmd, createOptions, createSubcmd } from "../create";
-import { createHandler } from "./common";
+import { checkExperimentalUnstable, createHandler } from "./common";
 
 export const npm = createCmd({
   name: "npm",
   description: "Node Package Manager",
+  preChecks: checkExperimentalUnstable,
   subcommands: [
     // TODO: `init`
 

@@ -1,4 +1,21 @@
-import { PgCommon, PgJsPackage, PgTerminal } from "../../utils";
+import {
+  PgCommand,
+  PgCommon,
+  PgJsPackage,
+  PgSettings,
+  PgTerminal,
+} from "../../utils";
+
+/** Require the unstable experimental features setting to be enabled. */
+export const checkExperimentalUnstable = () => {
+  if (PgSettings.experimental.unstable) return;
+
+  throw new Error(
+    `This command requires the experimental features setting to be enabled. \
+You can enable them by running \
+\`${PgCommand.setting.name} set experimental.unstable true\`.`
+  );
+};
 
 /**
  * Create a common package manager command handler.

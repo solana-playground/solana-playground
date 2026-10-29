@@ -1,5 +1,6 @@
 import { PgCommand, PgJsPackage } from "../../utils";
 import { createArgs, createCmd, createOptions, createSubcmd } from "../create";
+import { checkExperimentalUnstable } from "./common";
 
 /**
  * Manage packages.
@@ -16,6 +17,7 @@ import { createArgs, createCmd, createOptions, createSubcmd } from "../create";
 export const packageManager = createCmd({
   name: "package",
   description: "Manage packages",
+  preChecks: checkExperimentalUnstable,
   subcommands: [
     createSubcmd({
       // TODO: Alias
