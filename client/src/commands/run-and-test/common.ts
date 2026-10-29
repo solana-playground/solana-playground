@@ -6,6 +6,7 @@ import {
   PgJsPackage,
   PgJsRuntimeImporter,
   PgLanguage,
+  PgSettings,
   PgTerminal,
 } from "../../utils";
 import { createArgs } from "../create";
@@ -79,6 +80,26 @@ export const checkUntrusted = async () => {
 };
 
 /**
+ * Check whether the packages have been installed. If not, ask the user about
+ * installing them.
+ */
+export const checkInstallation = async () => {
+  if (!PgSettings.experimental.unstable) return;
+
+  const isInstalled = await PgJsPackage.isInstalled();
+  if (isInstalled) return;
+
+  // Ask to install packages
+  const term = await PgTerminal.get();
+  term.println("Warning: Packages have not been installed.");
+  const shouldInstall = await term.waitForInput("Would you like to install?", {
+    confirm: true,
+    default: "yes",
+  });
+  if (shouldInstall) await PgCommand.packageManager.execute("install");
+};
+
+/**
  * Process `run` or `test` command.
  *
  * @param params named parameters
@@ -94,18 +115,6 @@ export const processCommon = async (params: {
   defaultFile: FileEntry;
 }) => {
   const { paths, isTest, folderPath, defaultFile } = params;
-
-  // Ask to install packages if not installed
-  const isInstalled = await PgJsPackage.isInstalled();
-  if (!isInstalled) {
-    const term = await PgTerminal.get();
-    term.println("Warning: Packages have not been installed.");
-    const shouldInstall = await term.waitForInput(
-      "Would you like to install?",
-      { confirm: true, default: "yes" }
-    );
-    if (shouldInstall) await PgCommand.packageManager.execute("install");
-  }
 
   PgTerminal.println(
     PgTerminal.info(`Running ${isTest ? "tests" : "client"}...`)
