@@ -119,8 +119,7 @@ export const getIdlType: <T extends IdlType>(
         const isNamedFields = (
           fields: any
         ): fields is IdlDefinedFieldsNamed => {
-          if (fields?.length) throw new Error("Empty fields");
-          return !fields[0].type;
+          return Boolean(fields?.at(0)?.type);
         };
         if (!isNamedFields(fields)) {
           throw new Error("Only named structs are currently supported");
