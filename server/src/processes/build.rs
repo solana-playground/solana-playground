@@ -99,11 +99,7 @@ fn build(args: &Args) -> Result<()> {
     // 2. Move IDL
     if let Some(idl_dir) = template.idl_dir() {
         let Ok(dir) = fs::read_dir(idl_dir) else {
-            // Do not treat not having an IDL as an error case even when the template specifies
-            // `Some` for `idl_path` because the legacy template uses the same template for both
-            // Anchor and Native.
-            //
-            // TODO: Consider adding a field to toggle making IDL required or not.
+            // Not an error because IDL generation can be skipped
             return Ok(());
         };
 
@@ -119,7 +115,11 @@ fn build(args: &Args) -> Result<()> {
                 }
             }
 
-            return Err(anyhow!("Unable to find IDL"));
+            // Not an error because IDL generation can be skipped.
+            //
+            // NOTE: Frameworks can create the IDL directory by default even when the IDL generation
+            // step is getting skipped.
+            return Ok(());
         };
 
         fs::create_dir_all(args.idl_path.parent().expect("Always has parent"))?;
