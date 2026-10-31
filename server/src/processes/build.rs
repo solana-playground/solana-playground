@@ -80,6 +80,13 @@ fn build(args: &Args) -> Result<()> {
         return Ok(());
     }
 
+    // Allow help output
+    if let Some(first) = args.build_args.first() {
+        if matches!(first.as_str(), "--help" | "-h") {
+            return Ok(());
+        }
+    }
+
     // Move files to the expected output location
     //
     // 1. Move binary
