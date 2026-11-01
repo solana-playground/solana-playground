@@ -245,7 +245,11 @@ class _PgProgramInfo {
     if (pmpAccountInfo) {
       const idl = anchor.decodeIdlAccount(pmpAccountInfo.data);
       const { authority } = anchor.decodeIdlAccountRaw(pmpAccountInfo.data);
-      return { idl, authority };
+
+      // `authority` is `null` if the metadata account is canonical, but this
+      // doesn't mean it's immutable; the default authority is still the program
+      // upgrade authority
+      return { idl, authority: authority ?? PgProgramInfo.onChain?.authority };
     }
 
     // Fallback to legacy
