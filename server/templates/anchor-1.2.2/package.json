@@ -2,7 +2,7 @@
   "name": "anchor",
   "type": "module",
   "dependencies": {
-    "@anchor-lang/core": "^1.2.1"
+    "@anchor-lang/core": "^1.2.2"
   },
   "devDependencies": {
     "@types/chai": "^5.2.3",
