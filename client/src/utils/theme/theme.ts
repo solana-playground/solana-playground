@@ -1013,6 +1013,7 @@ export class PgTheme {
     text.default.display ??= "flex";
     text.default.justifyContent ??= "center";
     text.default.alignItems ??= "center";
+    text.default.minWidth ??= "fit-content";
     text.default.bg ??= theme.colors.default.bgPrimary;
     text.default.padding ??= "1rem";
     text.default.borderRadius ??= theme.default.borderRadius;
