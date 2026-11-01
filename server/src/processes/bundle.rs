@@ -14,14 +14,26 @@ use solpg_server::{
     utils::Files,
 };
 
+/// Maximum amount of total direct dependencies specified in manifest
+const MAX_DEPENDENCY_AMOUNT: usize = 64;
+
 // TODO: Make the process output a single compressed archive with all the files in it
 fn main() -> Result<()> {
     let args = Args::from_env()?;
+    let manifest_path = Path::new(PACKAGES_DIR).join(MANIFEST_FILE);
+    let manifest = fs::read(manifest_path).map(|b| serde_json::from_slice::<Manifest>(&b))??;
     match args {
-        Args::Install { command } => run_package_manager_command(command),
+        Args::Install { command } => {
+            let total_dep_amount = manifest
+                .sum_all_dependencies()
+                .ok_or_else(|| anyhow!("Too many dependencies"))?;
+            if total_dep_amount > MAX_DEPENDENCY_AMOUNT {
+                return Err(anyhow!("Too many dependencies: {total_dep_amount}"));
+            }
+
+            run_package_manager_command(command)
+        }
         Args::Build => {
-            let manifest_path = Path::new(PACKAGES_DIR).join(MANIFEST_FILE);
-            let manifest = fs::read(manifest_path).map(|b| serde_json::from_slice(&b))??;
             generate_bundle(&manifest)?;
             generate_types(&manifest)?;
             Ok(())
@@ -86,6 +98,16 @@ impl Manifest {
         deps.extend(self.optional_dependencies.clone());
         deps
     }
+
+    /// Get the total number of dependencies. `None` if overflow occured.
+    fn sum_all_dependencies(&self) -> Option<usize> {
+        // Do not use `Self::get_all_dependencies` because it's lossy
+        self.dependencies
+            .len()
+            .checked_add(self.dev_dependencies.len())?
+            .checked_add(self.peer_dependencies.len())?
+            .checked_add(self.optional_dependencies.len())
+    }
 }
 
 /// `package.json` dependencies map
@@ -94,7 +116,7 @@ type Dependencies = HashMap<String, String>;
 /// Run the package manager command.
 fn run_package_manager_command(command: Vec<String>) -> Result<()> {
     // TODO: Only match command name once (merge with the command runner path)
-    let lock_file_name = match command.get(0).map(|s| s.as_str()).unwrap_or("npm") {
+    let lock_file_name = match command.first().map(|s| s.as_str()).unwrap_or("npm") {
         "npm" => "package-lock.json",
         "yarn" => "yarn.lock",
         name => return Err(anyhow!("Unsupported package manager: `{name}`")),

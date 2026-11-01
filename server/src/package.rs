@@ -1,4 +1,3 @@
-// TODO: All packages and versions from NPM
 // TODO: Switch to `pnpm` without shared cache (simpler transition if we decide to use shared cache)
 // TODO: Use shared cache with `pnpm`? (shared cache is better for speed but worse for security)
 // TODO: Check if bundling client-side is feasible with a tool like `esbuild-wasm`?
