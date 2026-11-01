@@ -3,9 +3,9 @@ import styled, { css } from "styled-components";
 
 import Foldable from "../../../../../components/Foldable";
 import BuildFlags from "./BuildFlags";
-import IDL from "./IDL";
+import Idl from "./Idl";
 import ProgramBinary from "./ProgramBinary";
-import ProgramID from "./ProgramID";
+import ProgramId from "./ProgramId";
 import { PgFramework, PgSettings } from "../../../../../utils";
 
 /** All program settings */
@@ -14,7 +14,7 @@ const DEFAULT_PROGRAM_SETTINGS: ProgramSettingProps[] = [
     title: "Program ID",
     description:
       "Import/export program keypair or input a public key for the program",
-    element: <ProgramID />,
+    element: <ProgramId />,
     isOpen: true,
   },
   {
@@ -36,7 +36,7 @@ const ProgramSettings = () => {
           {
             title: "IDL",
             description: "Anchor IDL interactions",
-            element: <IDL />,
+            element: <Idl />,
           },
         ];
         // TODO: Workspace-based settings (not global `PgSettings`)

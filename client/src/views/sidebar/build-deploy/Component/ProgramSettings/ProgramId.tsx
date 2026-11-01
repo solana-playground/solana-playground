@@ -9,7 +9,7 @@ import { Warning } from "../../../../../components/Icons";
 import { PgProgramInfo, PgCommon, PgView, PgWeb3 } from "../../../../../utils";
 import { useRenderOnChange } from "../../../../../hooks";
 
-const ProgramID = () => (
+const ProgramId = () => (
   <Wrapper>
     <ButtonsWrapper>
       <New />
@@ -276,4 +276,4 @@ const InputWarning = styled.div`
   `}
 `;
 
-export default ProgramID;
+export default ProgramId;

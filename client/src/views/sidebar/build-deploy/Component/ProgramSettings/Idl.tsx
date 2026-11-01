@@ -5,19 +5,19 @@ import Button from "../../../../../components/Button";
 import {
   PgCommand,
   PgCommon,
+  PgExplorer,
   PgProgramInfo,
   PgWallet,
 } from "../../../../../utils";
 import { useRenderOnChange } from "../../../../../hooks";
 
-const IDL = () => (
+const Idl = () => (
   <Wrapper>
     <Import />
     <Export />
-    <InitOrUpgrade />
+    <Deploy />
   </Wrapper>
 );
-
 const Import = () => {
   const handleImport = async (ev: ChangeEvent<HTMLInputElement>) => {
     const files = ev.target.files;
@@ -29,7 +29,7 @@ const Import = () => {
       const idl = JSON.parse(text);
       PgProgramInfo.update({ idl });
     } catch (e: any) {
-      console.log(e.message);
+      console.log("Failed to import IDL:", e?.message);
     }
   };
 
@@ -51,48 +51,41 @@ const Export = () => {
   );
 };
 
-enum InitOrUpgradeState {
+enum DeployState {
   HIDDEN,
   HAS_ERROR,
   INCORRECT_AUTHORITY,
-  NO_AUTHORITY,
+  IS_IMMUTABLE,
   IS_FETCHING,
-  IS_INITIALIZING,
-  IS_UPGRADING,
-  CAN_INIT,
-  CAN_UPGRADE,
+  IS_DEPLOYING,
+  IS_READY,
 }
 
-const InitOrUpgrade = () => {
-  const [state, setState] = useState<InitOrUpgradeState>(
-    InitOrUpgradeState.HIDDEN
-  );
+const Deploy = () => {
+  const [state, setState] = useState<DeployState>(DeployState.HIDDEN);
 
   const buttonText = useMemo(() => {
     switch (state) {
-      case InitOrUpgradeState.HAS_ERROR:
+      case DeployState.HAS_ERROR:
         return "Retry";
-      case InitOrUpgradeState.IS_FETCHING:
+      case DeployState.IS_FETCHING:
         return "Fetching";
-      case InitOrUpgradeState.IS_INITIALIZING:
-        return "Initializing";
-      case InitOrUpgradeState.IS_UPGRADING:
-        return "Upgrading";
-      case InitOrUpgradeState.CAN_INIT:
-        return "Initialize";
-      case InitOrUpgradeState.CAN_UPGRADE:
-        return "Upgrade";
+      case DeployState.IS_DEPLOYING:
+        return "Deploying";
+      case DeployState.IS_READY:
+        return "Deploy";
+      case DeployState.IS_IMMUTABLE:
+        return "Immutable";
     }
   }, [state]);
 
   const [loading, disabled] = useMemo(() => {
     switch (state) {
-      case InitOrUpgradeState.IS_FETCHING:
-      case InitOrUpgradeState.IS_INITIALIZING:
-      case InitOrUpgradeState.IS_UPGRADING:
+      case DeployState.IS_FETCHING:
+      case DeployState.IS_DEPLOYING:
         return [true, true];
-      case InitOrUpgradeState.INCORRECT_AUTHORITY:
-      case InitOrUpgradeState.NO_AUTHORITY:
+      case DeployState.INCORRECT_AUTHORITY:
+      case DeployState.IS_IMMUTABLE:
         return [false, true];
       default:
         return [false, false];
@@ -100,33 +93,31 @@ const InitOrUpgrade = () => {
   }, [state]);
 
   const getIdl = useCallback(async () => {
-    try {
-      if (!PgProgramInfo.idl || !PgProgramInfo.pk || !PgWallet.current) {
-        setState(InitOrUpgradeState.HIDDEN);
-        return;
-      }
+    if (!PgProgramInfo.pk || !PgWallet.current) return;
 
-      setState(InitOrUpgradeState.IS_FETCHING);
+    try {
+      setState(DeployState.IS_FETCHING);
       const idlResult = await PgCommon.transition(PgProgramInfo.fetchIdl());
       if (!idlResult) {
-        setState(InitOrUpgradeState.CAN_INIT);
+        setState(DeployState.IS_READY);
         return;
       }
 
-      if (idlResult.authority === null) {
-        setState(InitOrUpgradeState.NO_AUTHORITY);
+      if (!idlResult.authority) {
+        setState(DeployState.IS_IMMUTABLE);
         return;
       }
 
       if (!idlResult.authority.equals(PgWallet.current.publicKey)) {
-        setState(InitOrUpgradeState.INCORRECT_AUTHORITY);
+        setState(DeployState.INCORRECT_AUTHORITY);
         return;
       }
 
-      setState(InitOrUpgradeState.CAN_UPGRADE);
+      setState(DeployState.IS_READY);
     } catch (e: any) {
-      console.log("Couldn't get IDL:", e.message);
-      setState(InitOrUpgradeState.HAS_ERROR);
+      // TODO: Show the error in UI?
+      console.log("Failed to get IDL:", e?.message);
+      setState(DeployState.HAS_ERROR);
     }
   }, []);
 
@@ -139,27 +130,38 @@ const InitOrUpgrade = () => {
     return dispose;
   }, [getIdl]);
 
-  const handleInitOrUpgrade = async () => {
-    switch (state) {
-      case InitOrUpgradeState.CAN_INIT: {
-        setState(InitOrUpgradeState.IS_INITIALIZING);
-        await PgCommand.anchor.execute("idl", "init");
-        break;
-      }
-      case InitOrUpgradeState.CAN_UPGRADE: {
-        setState(InitOrUpgradeState.IS_UPGRADING);
-        await PgCommand.anchor.execute("idl", "upgrade");
-        break;
-      }
-    }
+  const handleDeploy = async () => {
+    setState(DeployState.IS_DEPLOYING);
 
-    await getIdl();
+    try {
+      // TODO: Handle the file creation better
+      const idlFilePath = PgCommon.joinPaths(
+        PgExplorer.getProjectRootPath(),
+        ".tmp",
+        "idl.json"
+      );
+      await PgExplorer.fs.writeFile(
+        idlFilePath,
+        JSON.stringify(PgProgramInfo.idl!),
+        { createParents: true }
+      );
+      await PgCommand.programMetadata.execute(
+        "write",
+        "idl",
+        PgProgramInfo.pk!.toBase58(),
+        idlFilePath
+      );
+    } catch {
+      setState(DeployState.HAS_ERROR);
+    } finally {
+      await getIdl();
+    }
   };
 
-  if (state === InitOrUpgradeState.HIDDEN) return null;
+  if (!buttonText || state === DeployState.HIDDEN) return null;
 
   return (
-    <Button disabled={disabled} loading={loading} onClick={handleInitOrUpgrade}>
+    <Button disabled={disabled} loading={loading} onClick={handleDeploy}>
       {buttonText}
     </Button>
   );
@@ -170,4 +172,4 @@ const Wrapper = styled.div`
   gap: 1rem;
 `;
 
-export default IDL;
+export default Idl;
