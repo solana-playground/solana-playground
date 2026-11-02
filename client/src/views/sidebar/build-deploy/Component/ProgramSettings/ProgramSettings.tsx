@@ -22,6 +22,11 @@ const DEFAULT_PROGRAM_SETTINGS: ProgramSettingProps[] = [
     description: "Import your program and deploy without failure",
     element: <ProgramBinary />,
   },
+  {
+    title: "IDL",
+    description: "Program IDL interactions (PMP)",
+    element: <Idl />,
+  },
 ];
 
 const ProgramSettings = () => {
@@ -32,27 +37,23 @@ const ProgramSettings = () => {
     switch (framework?.name) {
       case "Anchor":
       case "Seahorse": {
-        const anchorSettings: ProgramSettingProps[] = [
-          {
-            title: "IDL",
-            description: "Anchor IDL interactions",
-            element: <Idl />,
-          },
-        ];
-        // TODO: Workspace-based settings (not global `PgSettings`)
-        // FIXME: This doesn't work with unstable currently
+        // TODO: Remove or allow specifying build arguments?
         if (
           process.env.NODE_ENV !== "production" &&
           !PgSettings.experimental.unstable
         ) {
-          anchorSettings.unshift({
-            title: "Build flags",
-            description: "Anchor build flags",
-            element: <BuildFlags />,
-          });
+          setSettings([
+            ...DEFAULT_PROGRAM_SETTINGS,
+            {
+              title: "Build flags",
+              description: "Anchor build flags",
+              element: <BuildFlags />,
+            },
+          ]);
+          break;
         }
 
-        setSettings(DEFAULT_PROGRAM_SETTINGS.concat(anchorSettings));
+        setSettings(DEFAULT_PROGRAM_SETTINGS);
         break;
       }
 
