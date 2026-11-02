@@ -112,7 +112,7 @@ dependencies = [
 
 [[package]]
 name = "quasar"
-version = "0.3.0-git.b85d5a74832d3ce24ea86869b1cdb06817a734bb"
+version = "0.2.0-git.863ee777a4520dba165f15bb1037bed1f2f739b8"
 dependencies = [
  "quasar-lang",
  "quasar-metadata",
@@ -121,8 +121,8 @@ dependencies = [
 
 [[package]]
 name = "quasar-derive"
-version = "0.3.0"
-source = "git+https://github.com/blueshift-gg/quasar?rev=b85d5a74832d3ce24ea86869b1cdb06817a734bb#b85d5a74832d3ce24ea86869b1cdb06817a734bb"
+version = "0.2.0"
+source = "git+https://github.com/blueshift-gg/quasar?rev=863ee777a4520dba165f15bb1037bed1f2f739b8#863ee777a4520dba165f15bb1037bed1f2f739b8"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -132,8 +132,8 @@ dependencies = [
 
 [[package]]
 name = "quasar-lang"
-version = "0.3.0"
-source = "git+https://github.com/blueshift-gg/quasar?rev=b85d5a74832d3ce24ea86869b1cdb06817a734bb#b85d5a74832d3ce24ea86869b1cdb06817a734bb"
+version = "0.2.0"
+source = "git+https://github.com/blueshift-gg/quasar?rev=863ee777a4520dba165f15bb1037bed1f2f739b8#863ee777a4520dba165f15bb1037bed1f2f739b8"
 dependencies = [
  "quasar-derive",
  "solana-address",
@@ -146,16 +146,16 @@ dependencies = [
 
 [[package]]
 name = "quasar-metadata"
-version = "0.3.0"
-source = "git+https://github.com/blueshift-gg/quasar?rev=b85d5a74832d3ce24ea86869b1cdb06817a734bb#b85d5a74832d3ce24ea86869b1cdb06817a734bb"
+version = "0.2.0"
+source = "git+https://github.com/blueshift-gg/quasar?rev=863ee777a4520dba165f15bb1037bed1f2f739b8#863ee777a4520dba165f15bb1037bed1f2f739b8"
 dependencies = [
  "quasar-lang",
 ]
 
 [[package]]
 name = "quasar-spl"
-version = "0.3.0"
-source = "git+https://github.com/blueshift-gg/quasar?rev=b85d5a74832d3ce24ea86869b1cdb06817a734bb#b85d5a74832d3ce24ea86869b1cdb06817a734bb"
+version = "0.2.0"
+source = "git+https://github.com/blueshift-gg/quasar?rev=863ee777a4520dba165f15bb1037bed1f2f739b8#863ee777a4520dba165f15bb1037bed1f2f739b8"
 dependencies = [
  "quasar-lang",
 ]

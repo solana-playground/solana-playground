@@ -1,0 +1,19 @@
+[package]
+name = "quasar"
+version = "0.2.0-git.863ee777a4520dba165f15bb1037bed1f2f739b8"
+edition = "2024"
+
+[lib]
+crate-type = ["cdylib"]
+
+[features]
+debug = ["quasar-lang/debug"]
+no-entrypoint = []
+
+[dependencies]
+quasar-lang = { git = "https://github.com/blueshift-gg/quasar", rev = "863ee777a4520dba165f15bb1037bed1f2f739b8" }
+quasar-metadata = { git = "https://github.com/blueshift-gg/quasar", rev = "863ee777a4520dba165f15bb1037bed1f2f739b8" }
+quasar-spl = { git = "https://github.com/blueshift-gg/quasar", rev = "863ee777a4520dba165f15bb1037bed1f2f739b8" }
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(target_os, values("solana"))'] }
