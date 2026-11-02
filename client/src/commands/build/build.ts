@@ -337,7 +337,15 @@ const buildRust = async (
       return await updateFrameworkManifestAndRetry(frameworkVersion);
     }
 
-    // 3. Template version has been removed and there are no compatible versions
+    // 3. Template version has been removed and there is only one version
+    if (framework.versions.length === 1) {
+      const frameworkVersion = framework.versions[0];
+      PgTerminal.println("Warning: Could not find a compatible version.");
+      PgTerminal.println(`New version available: ${frameworkVersion}`);
+      return await updateFrameworkManifestAndRetry(frameworkVersion);
+    }
+
+    // 4. Template version has been removed and there are no compatible versions
     const term = await PgTerminal.get();
     const selectedVersion = await term.waitForInput(
       "Could not find a compatible version. Choose one of the supported versions.",
@@ -429,7 +437,7 @@ const improveOutput = (output: { stdout: string; stderr: string }) => {
     stderr = stderr
       .replace(PROGRAM_BUILD_FINISHED_REGEX, "")
       .replace(IDL_BUILD_FINISHED_REGEX, "")
-      .replaceAll(/^\s*Running unittests [\w-\/]+\.rs/g, "");
+      .replaceAll(/^\s*Running unittests [\w-/]+\.rs/g, "");
     stderr += PgTerminal.success("Build successful.");
     stderr += " ";
     if (idlBuildDuration) {
