@@ -10,7 +10,7 @@ export const seahorse = createFramework({
   },
   githubExample: {
     name: "Transfer SOL",
-    url: "https://github.com/solana-developers/program-examples/tree/main/basics/transfer-sol/seahorse",
+    url: "https://github.com/solana-foundation/program-examples/tree/4b8594ec0416ac01c8cfbfa72ea8214c09cf0544/basics/transfer-sol/seahorse",
   },
   legacy: { version: "0.2.0" },
   getIsCurrent: (files) => getIsCurrentCommon(files, ".py", "seahorse.prelude"),

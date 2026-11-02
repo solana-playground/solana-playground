@@ -27,6 +27,9 @@ export const ImportGithub = () => {
   const [url, setUrl] = useState("");
   const [error, setError] = useState("");
 
+  const defaultExampleUrl = PgFramework.get("Anchor").githubExample.url;
+  const defaultExampleViewUrl = PgRouter.getPathUrl(defaultExampleUrl);
+
   return (
     <Modal
       title
@@ -69,22 +72,17 @@ export const ImportGithub = () => {
           <p>
             Program repositories can be viewed in playground by combining the
             playground URL with their GitHub URL. For example, from{" "}
-            <Link href={GITHUB_PROGRAM_URL}>this repository</Link>:
+            <Link href={defaultExampleUrl}>this repository</Link>:
           </p>
 
           <p style={{ wordBreak: "break-all" }}>
-            <Link href={VIEW_URL}>{VIEW_URL}</Link>
+            <Link href={defaultExampleViewUrl}>{defaultExampleViewUrl}</Link>
           </p>
         </Text>
       </Wrapper>
     </Modal>
   );
 };
-
-const GITHUB_PROGRAM_URL =
-  "https://github.com/solana-developers/program-examples/tree/main/basics/create-account/anchor";
-
-const VIEW_URL = PgRouter.getPathUrl(GITHUB_PROGRAM_URL);
 
 const Wrapper = styled.div`
   max-width: 39rem;
@@ -153,7 +151,7 @@ const Example: FC<ExampleProps> = ({ framework }) => (
       </Button>
 
       <Link href={framework.githubExample.url}>
-        <Button rightIcon={<Github />}>Open in GitHub</Button>
+        <Button rightIcon={<Github />}>Open on GitHub</Button>
       </Link>
     </ExampleButtonsWrapper>
   </ExampleWrapper>

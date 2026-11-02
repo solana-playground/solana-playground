@@ -10,8 +10,9 @@ export const anchor = createFramework({
     url: "https://www.anchor-lang.com/docs/quickstart/solpg",
   },
   githubExample: {
-    name: "Create Account",
-    url: "https://github.com/solana-developers/program-examples/tree/main/basics/create-account/anchor",
+    name: "Realloc",
+    // TODO: Also include tests
+    url: "https://github.com/solana-foundation/program-examples/tree/6d134a7a978dfe1c96b2b0e9602e029d0226596c/basics/realloc/anchor/programs/anchor-realloc",
   },
   // The `version` field is intentionally omitted; `anchor-0.29.0` has a
   // dedicated template
