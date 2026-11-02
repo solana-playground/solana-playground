@@ -418,22 +418,28 @@ const improveOutput = (output: { stdout: string; stderr: string }) => {
     stderr = stderr.slice(0, startIndex) + stderr.slice(endIndex + 1);
   }
 
-  // TODO: Remove
-  if (!PgSettings.experimental.unstable) {
-    // Remove the whitespace before `rustc` finished text
-    startIndex = stderr.indexOf("Finished `release`");
-    if (startIndex !== -1) {
-      const whiteSpaceStartIndex = startIndex - 7; // 7 is the most amount of whitespace
-      stderr =
-        stderr.slice(0, whiteSpaceStartIndex) + // until whitespace start
-        stderr.slice(whiteSpaceStartIndex, startIndex).replaceAll(" ", "") +
-        PgTerminal.success("Build successful. ") +
-        "Completed" +
-        stderr.slice(stderr.indexOf(" in", startIndex)).replace("\n", ".\n"); // Time passed
+  // Simplify raw `rustc` success output (e.g. Anchor)
+  const PROGRAM_BUILD_FINISHED_REGEX =
+    /^\s*Finished (?:release|`release` profile) \[optimized\] target\(s\) in ([\w.]+)\n/m;
+  const programBuildDuration = PROGRAM_BUILD_FINISHED_REGEX.exec(stderr)?.at(1);
+  if (programBuildDuration) {
+    const IDL_BUILD_FINISHED_REGEX =
+      /^\s*Finished `?test`? profile \[unoptimized \+ debuginfo\] target\(s\) in ([\w.]+)\n/m;
+    const idlBuildDuration = IDL_BUILD_FINISHED_REGEX.exec(stderr)?.at(1);
+    stderr = stderr
+      .replace(PROGRAM_BUILD_FINISHED_REGEX, "")
+      .replace(IDL_BUILD_FINISHED_REGEX, "")
+      .replaceAll(/^\s*Running unittests [\w-\/]+\.rs/g, "");
+    stderr += PgTerminal.success("Build successful.");
+    stderr += " ";
+    if (idlBuildDuration) {
+      stderr += `Binary completed in ${programBuildDuration} and IDL completed \
+in ${idlBuildDuration}.`;
+    } else {
+      stderr += `Completed in ${programBuildDuration}.`;
     }
 
-    // Trim the last newline
-    if (stderr) stderr = stderr.slice(0, stderr.length - 1);
+    stderr += "\n";
   }
 
   // Improve errors
