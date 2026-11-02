@@ -1,4 +1,4 @@
-import { PgCommon, PgFramework, PgProgramInfo, PgTerminal } from "../../utils";
+import { PgCommon, PgProgramInfo, PgTerminal } from "../../utils";
 
 /**
  * Automatically fetch the on-chain Anchor IDL of the current program.
@@ -16,11 +16,6 @@ export const fetchIdl = () => {
     if (!programId || PgProgramInfo.idl || !PgProgramInfo.onChain?.deployed) {
       return;
     }
-
-    // TODO: Remove once `PgProgramInfo.fetchIdl` is framework-agnostic
-    // (Seahorse programs are Anchor-compatible and also have Anchor IDLs)
-    const framework = PgFramework.getFromFiles();
-    if (framework?.name !== "Anchor" && framework?.name !== "Seahorse") return;
 
     try {
       const result = await PgProgramInfo.fetchIdl(programId);
