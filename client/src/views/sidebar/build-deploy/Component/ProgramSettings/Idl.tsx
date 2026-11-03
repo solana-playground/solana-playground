@@ -18,6 +18,7 @@ const Idl = () => (
     <Deploy />
   </Wrapper>
 );
+
 const Import = () => {
   const handleImport = async (ev: ChangeEvent<HTMLInputElement>) => {
     const files = ev.target.files;
@@ -53,12 +54,12 @@ const Export = () => {
 
 enum DeployState {
   HIDDEN,
-  HAS_ERROR,
+  ERROR,
   INCORRECT_AUTHORITY,
-  IS_IMMUTABLE,
-  IS_FETCHING,
-  IS_DEPLOYING,
-  IS_READY,
+  IMMUTABLE,
+  FETCHING,
+  DEPLOYING,
+  READY,
 }
 
 const Deploy = () => {
@@ -66,26 +67,26 @@ const Deploy = () => {
 
   const buttonText = useMemo(() => {
     switch (state) {
-      case DeployState.HAS_ERROR:
+      case DeployState.ERROR:
         return "Retry";
-      case DeployState.IS_FETCHING:
+      case DeployState.FETCHING:
         return "Fetching";
-      case DeployState.IS_DEPLOYING:
+      case DeployState.DEPLOYING:
         return "Deploying";
-      case DeployState.IS_READY:
+      case DeployState.READY:
         return "Deploy";
-      case DeployState.IS_IMMUTABLE:
+      case DeployState.IMMUTABLE:
         return "Immutable";
     }
   }, [state]);
 
   const [loading, disabled] = useMemo(() => {
     switch (state) {
-      case DeployState.IS_FETCHING:
-      case DeployState.IS_DEPLOYING:
+      case DeployState.FETCHING:
+      case DeployState.DEPLOYING:
         return [true, true];
       case DeployState.INCORRECT_AUTHORITY:
-      case DeployState.IS_IMMUTABLE:
+      case DeployState.IMMUTABLE:
         return [false, true];
       default:
         return [false, false];
@@ -93,18 +94,22 @@ const Deploy = () => {
   }, [state]);
 
   const getIdl = useCallback(async () => {
-    if (!PgProgramInfo.pk || !PgWallet.current) return;
+    if (!PgProgramInfo.pk || !PgWallet.current) {
+      setState(DeployState.HIDDEN);
+      return;
+    }
 
     try {
-      setState(DeployState.IS_FETCHING);
+      setState(DeployState.FETCHING);
       const idlResult = await PgCommon.transition(PgProgramInfo.fetchIdl());
       if (!idlResult) {
-        setState(DeployState.IS_READY);
+        if (!PgProgramInfo.idl) setState(DeployState.HIDDEN);
+        else setState(DeployState.READY);
         return;
       }
 
       if (!idlResult.authority) {
-        setState(DeployState.IS_IMMUTABLE);
+        setState(DeployState.IMMUTABLE);
         return;
       }
 
@@ -113,11 +118,11 @@ const Deploy = () => {
         return;
       }
 
-      setState(DeployState.IS_READY);
+      setState(DeployState.READY);
     } catch (e: any) {
       // TODO: Show the error in UI?
       console.log("Failed to get IDL:", e?.message);
-      setState(DeployState.HAS_ERROR);
+      setState(DeployState.ERROR);
     }
   }, []);
 
@@ -131,7 +136,7 @@ const Deploy = () => {
   }, [getIdl]);
 
   const handleDeploy = async () => {
-    setState(DeployState.IS_DEPLOYING);
+    setState(DeployState.DEPLOYING);
 
     try {
       // TODO: Handle the file creation better
@@ -152,7 +157,7 @@ const Deploy = () => {
         idlFilePath
       );
     } catch {
-      setState(DeployState.HAS_ERROR);
+      setState(DeployState.ERROR);
     } finally {
       await getIdl();
     }
