@@ -71,7 +71,6 @@ impl Args {
 #[derive(Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 struct Manifest {
-    name: String,
     #[serde(default)]
     dependencies: Dependencies,
     #[serde(default)]
