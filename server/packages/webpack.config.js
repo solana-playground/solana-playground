@@ -46,6 +46,7 @@ export default {
       fs: false,
       inspector: false,
       net: false,
+      os: false,
       perf_hooks: false,
       repl: false,
       tls: false,
