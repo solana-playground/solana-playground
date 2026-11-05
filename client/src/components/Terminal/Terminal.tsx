@@ -2,7 +2,6 @@ import { FC, useEffect, useMemo, useRef } from "react";
 import styled, { css, useTheme } from "styled-components";
 import "xterm/css/xterm.css";
 
-import { GITHUB_URL, PROJECT_NAME } from "../../constants";
 import { useExposeStatic, useKeybind } from "../../hooks";
 import {
   CommandManager,
@@ -14,9 +13,10 @@ import {
 
 interface TerminalProps {
   cmdManager: CommandManager;
+  defaultText?: string;
 }
 
-const Terminal: FC<TerminalProps> = ({ cmdManager }) => {
+const Terminal: FC<TerminalProps> = ({ cmdManager, defaultText }) => {
   const terminalRef = useRef<HTMLDivElement>(null);
 
   const theme = useTheme();
@@ -24,16 +24,8 @@ const Terminal: FC<TerminalProps> = ({ cmdManager }) => {
   // Create xterm
   const term = useMemo(() => {
     const xterm = theme.components.terminal.xterm;
-
     return new PgTerm(cmdManager, {
-      defaultText: [
-        `Welcome to ${PgTerminal.bold(PROJECT_NAME)}.`,
-        `Popular crates for Solana development are available to use.`,
-        `See the list of available crates and request new crates from ${PgTerminal.underline(
-          GITHUB_URL
-        )}`,
-        `Type ${PgTerminal.bold("help")} to see all commands.\n`,
-      ].join("\n\n"),
+      defaultText,
       xterm: {
         convertEol: true,
         rendererType: "dom",
@@ -58,7 +50,7 @@ const Terminal: FC<TerminalProps> = ({ cmdManager }) => {
         },
       },
     });
-  }, [theme, cmdManager]);
+  }, [theme, cmdManager, defaultText]);
 
   useExposeStatic(PgTerminal.events.STATIC, term);
 
