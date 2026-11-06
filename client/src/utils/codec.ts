@@ -19,6 +19,7 @@ export class PgCodec {
     const buf = this._normalizeBytes(bytes);
     switch (encoding) {
       case "hex":
+        // TODO: Use `Uint8Array.toHex()`, which became available in 2025
         return utils.bytes.hex.encode(buf);
       case "base58":
         return utils.bytes.bs58.encode(buf);
@@ -68,9 +69,18 @@ export class PgCodec {
   }
 
   // TODO: Find a more fitting place for this
-  /** Hash the given string with SHA-256 hashing algorithm. */
-  static hashSha256(str: string) {
-    return utils.sha256.hash(str);
+  /**
+   * Hash the given string with SHA-256 hashing algorithm.
+   *
+   * @param str string to hash
+   * @returns the hash as hex-encoded string
+   */
+  static async hashSha256(str: string) {
+    const arrayBuffer = await crypto.subtle.digest(
+      "SHA-256",
+      PgCodec.encodeText(str)
+    );
+    return PgCodec.encodeBinary(arrayBuffer, "hex").slice(2); // strip the `0x` prefix
   }
 
   /**

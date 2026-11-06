@@ -106,7 +106,7 @@ export const getAssetPairs = async (): Promise<GetAssetPairsResult> => {
     }
 
     const imgFileName = imgFileNames[0];
-    const imgHash = encode(imgFileName);
+    const imgHash = await encode(imgFileName);
 
     // Need a similar check for animation as above, this one checking if there is
     // animation on specific index
@@ -116,10 +116,10 @@ export const getAssetPairs = async (): Promise<GetAssetPairsResult> => {
     const animationFileName =
       animationfileNames.length === 1 ? animationfileNames[0] : undefined;
     const animationHash = animationFileName
-      ? encode(animationFileName)
+      ? await encode(animationFileName)
       : undefined;
 
-    const metadataHash = encode(metadataFileName);
+    const metadataHash = await encode(metadataFileName);
     const metadata: JsonMetadata = JSON.parse(
       await files.find((f) => f.name === metadataFileName)!.text()
     );

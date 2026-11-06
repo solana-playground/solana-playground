@@ -7,12 +7,9 @@ export const processHash = async (compare: string | undefined) => {
 
   if (compare) {
     const cache = await loadCache();
-    const hashB58 = hash(PgCommon.toPrettyJson(cache));
-    term.println(`Cache hash: ${hashB58}`);
-
-    if (compare !== hashB58) {
-      throw new Error("Hashes do not match!");
-    }
+    const hashResult = await hash(PgCommon.toPrettyJson(cache));
+    term.println(`Cache hash: ${hashResult}`);
+    if (compare !== hashResult) throw new Error("Hashes do not match!");
 
     term.println("Hashes match!");
   }
@@ -34,18 +31,15 @@ export const hashAndUpdate = async () => {
   }
 
   const cache = await loadCache();
-  const hashResult = hash(PgCommon.toPrettyJson(cache));
-  hiddenSettings.hash = Array.from(Buffer.from(hashResult));
-
+  const hashResult = await hash(PgCommon.toPrettyJson(cache));
+  hiddenSettings.hash = Array.from(PgCodec.encodeText(hashResult));
   await saveConfigData(configData);
-
-  return PgCodec.decodeText(hiddenSettings.hash);
+  return hashResult;
 };
 
 // FIXME: This ends up not producing the same hash with the sugar cli
-const hash = (data: string) => {
-  return PgCodec.encodeBinary(
-    PgCodec.decodeBinary(PgCodec.hashSha256(data), "hex"),
-    "base58"
-  ).substring(0, 32);
+const hash = async (data: string) => {
+  const hash = await PgCodec.hashSha256(data);
+  const bytes = PgCodec.decodeBinary(hash, "hex");
+  return PgCodec.encodeBinary(bytes, "base58").substring(0, 32);
 };
