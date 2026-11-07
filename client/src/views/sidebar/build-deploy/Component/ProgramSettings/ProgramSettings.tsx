@@ -7,6 +7,7 @@ import Idl from "./Idl";
 import ProgramBinary from "./ProgramBinary";
 import ProgramId from "./ProgramId";
 import { PgFramework, PgSettings } from "../../../../../utils";
+import { useExplorer } from "../../../../../hooks";
 
 /** All program settings */
 const DEFAULT_PROGRAM_SETTINGS: ProgramSettingProps[] = [
@@ -31,6 +32,8 @@ const DEFAULT_PROGRAM_SETTINGS: ProgramSettingProps[] = [
 
 const ProgramSettings = () => {
   const [settings, setSettings] = useState<ProgramSettingProps[]>();
+
+  const explorer = useExplorer();
 
   useEffect(() => {
     const framework = PgFramework.getFromFiles();
@@ -62,7 +65,7 @@ const ProgramSettings = () => {
     }
   }, []);
 
-  if (!settings) return null;
+  if (!settings || !explorer.allWorkspaceNames?.length) return null;
 
   return (
     <Wrapper>
