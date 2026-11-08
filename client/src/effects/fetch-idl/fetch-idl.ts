@@ -1,7 +1,7 @@
 import { PgCommon, PgProgramInfo, PgTerminal } from "../../utils";
 
 /**
- * Automatically fetch the on-chain Anchor IDL of the current program.
+ * Automatically fetch the on-chain IDL of the current program.
  *
  * This runs when the program is deployed and there is no IDL available
  * locally, e.g. when interacting with a pre-deployed program via a custom
@@ -9,28 +9,39 @@ import { PgCommon, PgProgramInfo, PgTerminal } from "../../utils";
  * never overwritten.
  */
 export const fetchIdl = () => {
-  return PgCommon.batchChanges(async () => {
-    const programId = PgProgramInfo.pk;
+  return PgCommon.batchChanges(
+    async () => {
+      const programId = PgProgramInfo.pk;
 
-    // Only fetch when the program is deployed and there is no local IDL.
-    if (!programId || PgProgramInfo.idl || !PgProgramInfo.onChain?.deployed) {
-      return;
-    }
+      // Only fetch when the program is deployed and there is no local IDL.
+      if (!programId || PgProgramInfo.idl || !PgProgramInfo.onChain?.deployed) {
+        return;
+      }
 
-    try {
-      const result = await PgProgramInfo.fetchIdl(programId);
-      if (!result) return;
+      // Start a new process for better printing and isolation
+      await PgTerminal.process(async () => {
+        try {
+          const result = await PgProgramInfo.fetchIdl(programId);
+          if (!result) return;
 
-      // Bail if the state changed while fetching (the IDL was set or the
-      // program id changed) so newer data is not overwritten.
-      if (PgProgramInfo.idl || !PgProgramInfo.pk?.equals(programId)) return;
+          // Bail if the state changed while fetching (the IDL was set or the
+          // program id changed) so newer data is not overwritten.
+          if (PgProgramInfo.idl || !PgProgramInfo.pk?.equals(programId)) return;
 
-      PgProgramInfo.update({ idl: result.idl });
-      PgTerminal.println(PgTerminal.success("Fetched the on-chain IDL."));
-    } catch {
-      // Fetching can fail for various reasons, e.g. the connection not being
-      // ready or the request getting rate-limited. Ignore because this runs
-      // automatically in the background.
-    }
-  }, [PgProgramInfo.onDidChangePk, PgProgramInfo.onDidChangeOnChain]);
+          PgProgramInfo.update({ idl: result.idl });
+          PgTerminal.println(PgTerminal.success("Fetched the on-chain IDL."));
+        } catch {
+          // Fetching can fail for various reasons, e.g. the connection not being
+          // ready or the request getting rate-limited. Ignore because this runs
+          // automatically in the background.
+        }
+      });
+    },
+    [
+      PgProgramInfo.onDidChangePk,
+      PgProgramInfo.onDidChangeIdl,
+      PgProgramInfo.onDidChangeOnChain,
+    ],
+    { delay: 5000 }
+  );
 };
