@@ -26,6 +26,7 @@ num-derive = "*"
 num-traits = "*"
 pyth-sdk = "*"
 pyth-sdk-solana = "*"
+pyth-solana-receiver-sdk = "*"
 serde = "*"
 solana-program = "*"
 spl-account-compression = { version = "*", features = ["cpi"] }
