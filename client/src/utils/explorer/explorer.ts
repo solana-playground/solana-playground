@@ -1232,8 +1232,7 @@ export class PgExplorer {
       []
     );
 
-    // Convert the old metadata file
-    // TODO: Delete in 2024
+    // Convert legacy object-shaped metadata to the current array format.
     if (!Array.isArray(metaFile)) {
       type OldItemMetaFile = Record<
         string,
