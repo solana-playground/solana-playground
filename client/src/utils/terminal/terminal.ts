@@ -573,7 +573,9 @@ export class PgTerm {
     this.disable();
     this.scrollToBottom();
     try {
-      return await cb();
+      // Wait minimum until the next even loop to fix potential issues related
+      // to prompt prefix not being visible
+      return await PgCommon.transition(cb, 0);
     } catch (e: any) {
       // Only log error if this is the outermost process i.e. a process that is
       // *not* spawned by another terminal process.
