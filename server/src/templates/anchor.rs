@@ -88,13 +88,13 @@ pub const fn anchor_0_31_1() -> Template {
     }
 }
 
-pub const fn anchor_0_32_2() -> Template {
+pub const fn anchor_0_32_3() -> Template {
     Template {
-        name: "anchor-0.32.2",
+        name: "anchor-0.32.3",
         rust_version: "1.79.0",
         solana_version: Some("2.3.0"),
         cargo_build_sbf_version: None,
-        installation_command: Some(anchor_installation_command!("0.32.2")),
+        installation_command: Some(anchor_installation_command!("0.32.3")),
         initial_build_command: INITIAL_BUILD_COMMAND,
         program_dir: PROGRAM_DIR,
         binary_dir: BINARY_DIR,

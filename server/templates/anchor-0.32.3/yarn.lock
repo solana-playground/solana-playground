@@ -2,21 +2,21 @@
 # yarn lockfile v1
 
 
-"@anchor-lang/borsh@^0.32.2":
-  version "0.32.2"
-  resolved "https://registry.yarnpkg.com/@anchor-lang/borsh/-/borsh-0.32.2.tgz#0bf4af2d3b2b7dbe2b296f1df49be8f1a7375c46"
-  integrity sha512-pjtaNcA+LgLri4M35LajTpR7J6zlbUl1tiaBIb0cAOkzChCd/QsAZ/HJJEVQHZ4TMtHerDKkkk26Gor8Hq9Ihw==
+"@anchor-lang/borsh@^0.32.3":
+  version "0.32.3"
+  resolved "https://registry.yarnpkg.com/@anchor-lang/borsh/-/borsh-0.32.3.tgz#5af4a51a09bab8e4541e888d1047041c4bb93cc2"
+  integrity sha512-ro40e8I3l8EcS0n+6k3qNyutZu48rbq7xVf9Rs8u/qm4Vg7vx20DmUUzxHn5BOKdlJSxkbLoKJSNTnMq8PQ8jQ==
   dependencies:
     bn.js "^5.1.2"
     buffer-layout "^1.2.0"
 
-"@anchor-lang/core@^0.32.2":
-  version "0.32.2"
-  resolved "https://registry.yarnpkg.com/@anchor-lang/core/-/core-0.32.2.tgz#2e48dc05a05e89db942535965419d1830a45bd44"
-  integrity sha512-I1L83T3iEw2FKms/yVKHt2N/HMYyTBmqYNzMjVlZ+bvX2KCVYvH0o75TgddlVcVOA/hdY8WzHzG0xR0e6Ucpug==
+"@anchor-lang/core@^0.32.3":
+  version "0.32.3"
+  resolved "https://registry.yarnpkg.com/@anchor-lang/core/-/core-0.32.3.tgz#bea9b0747436b951b4c10c53ed5dcf5a33d20625"
+  integrity sha512-8h5k2ws7cN5DOi/hypf33TsP3Ltlf21Rh4sXlKWOfX0lAsUlx3iEdZWemDOi/PmMaRcT1q9dWeXw8433h4yiug==
   dependencies:
-    "@anchor-lang/borsh" "^0.32.2"
-    "@anchor-lang/errors" "^0.32.2"
+    "@anchor-lang/borsh" "^0.32.3"
+    "@anchor-lang/errors" "^0.32.3"
     "@noble/hashes" "^1.3.1"
     "@solana/web3.js" "1.99.0"
     bn.js "^5.1.2"
@@ -29,10 +29,10 @@
     superstruct "^0.15.4"
     toml "^3.0.0"
 
-"@anchor-lang/errors@^0.32.2":
-  version "0.32.2"
-  resolved "https://registry.yarnpkg.com/@anchor-lang/errors/-/errors-0.32.2.tgz#93b95a3d0c6118a428fe990b4b49bf31cc9e79c5"
-  integrity sha512-sa6bvOITFUfSJ0wOCQ2/7ye/SA9hUZCkU6TL6mN5hSxin7SM6omgIR0OTPd7NH0iP+rTYyIIHsIJbGXBnN4fDw==
+"@anchor-lang/errors@^0.32.3":
+  version "0.32.3"
+  resolved "https://registry.yarnpkg.com/@anchor-lang/errors/-/errors-0.32.3.tgz#27e8d9541e65447a1ffdd0b8d29ab60c17a49f4c"
+  integrity sha512-MiV9QqYmISu4RqzbfCritFYzLfuiuim6GYQi3EpxXQgNwy4LZ5YDzcocAQk0eMw51nrQIXRydMdp08E16CLbyA==
 
 "@babel/runtime@^7.29.7":
   version "7.29.10"

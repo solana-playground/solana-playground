@@ -22,7 +22,7 @@ static ALL: &[Template] = &[
     anchor_0_29_0(),
     anchor_0_30_1(),
     anchor_0_31_1(),
-    anchor_0_32_2(),
+    anchor_0_32_3(),
     anchor_1_2_2(),
     native_5_1_0(),
     pinocchio_0_11_2(),

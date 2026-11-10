@@ -1,6 +1,6 @@
 [package]
 name = "anchor"
-version = "0.32.2"
+version = "0.32.3"
 edition = "2021"
 
 [lib]
@@ -10,8 +10,8 @@ crate-type = ["cdylib", "lib"]
 idl-build = ["anchor-lang/idl-build", "anchor-spl/idl-build"]
 
 [dependencies]
-anchor-lang = { version = "=0.32.2", features = ["allow-missing-optionals", "event-cpi", "init-if-needed", "interface-instructions", "lazy-account"] }
-anchor-spl = { version = "=0.32.2", features = ["governance", "memo", "metadata"] }
+anchor-lang = { version = "=0.32.3", features = ["allow-missing-optionals", "event-cpi", "init-if-needed", "interface-instructions", "lazy-account"] }
+anchor-spl = { version = "=0.32.3", features = ["governance", "memo", "metadata"] }
 bytemuck = { version = "1", features = ["derive", "min_const_generics"] }
 
 [lints.rust]
