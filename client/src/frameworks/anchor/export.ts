@@ -27,6 +27,7 @@ export const convertFromPlayground = async (files: TupleFiles) => {
 
   const frameworkFiles: TupleFiles = [];
   for (let [path, content] of files) {
+    console.log(path);
     // src -> programs/<program_name>/src
     if (path.startsWith(PgExplorer.PATHS.SRC_DIRNAME)) {
       path = PgCommon.joinPaths(programPath, path);
@@ -59,6 +60,10 @@ export const convertFromPlayground = async (files: TupleFiles) => {
       path === "package-lock.json" ||
       path === "yarn.lock"
     ) {
+    }
+
+    // `idls` directory (no conversion)
+    else if (path.startsWith("idls")) {
     }
 
     // Don't include other files

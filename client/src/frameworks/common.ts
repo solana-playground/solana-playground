@@ -282,6 +282,13 @@ export const convertToPlaygroundCommon = async (files: TupleFiles) => {
       pgFiles.push([jsPackageResult[0], content]);
       continue;
     }
+
+    // **/idls/**/*.json -> idls/**/*.json
+    const idlsResult = /idls\/(?!.*idls\/).*\.json$/.exec(path);
+    if (idlsResult) {
+      pgFiles.push([idlsResult[0], content]);
+      continue;
+    }
   }
 
   return pgFiles;
