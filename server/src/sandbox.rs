@@ -74,6 +74,15 @@ impl<'a> Sandbox<'a> {
         self
     }
 
+    /// Set the Docker image platform.
+    ///
+    /// This allows compatibility via emulation when the image requires a certain architecture.
+    #[must_use]
+    pub fn platform(mut self, platform: impl ToString) -> Self {
+        self.cfg.platform.replace(platform.to_string());
+        self
+    }
+
     /// Enable the proxy network mode.
     ///
     /// This mode restricts public network access to everywhere except `allowed_domains`. Only
@@ -253,6 +262,9 @@ impl<'a> Sandbox<'a> {
                 .arg("--oom-score-adj=1000") // Make the container easily killable when OOM
                 .arg("--security-opt=no-new-privileges");
 
+            if let Some(platform) = &self.cfg.platform {
+                cmd.arg("--platform").arg(platform);
+            }
             if let Some(cpu) = self.cfg.limits.cpu {
                 cmd.arg("--cpus").arg(cpu.to_string());
             }
@@ -679,7 +691,7 @@ impl<'a> Sandbox<'a> {
                 stdout: Default::default(),
             };
             for action in &self.actions {
-                debug!("Running action {action:?}");
+                debug!("Running action: {action:?}");
                 match action {
                     Action::Run(cmd) => {
                         let cmd = cmd.as_std();
@@ -895,6 +907,8 @@ struct Config {
     image: Option<String>,
     /// Image user (unprivileged; no `root` or `sudo`)
     user: Option<String>,
+    /// Image platform (compatibility via emulation)
+    platform: Option<String>,
     /// Container network
     network: Network,
     /// Container limits

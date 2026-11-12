@@ -180,6 +180,9 @@ pub async fn build(
     let output = Sandbox::new()
         .image(image)
         .user("solpg")
+        // Solana doesn't ship linux/arm64 which makes templates that need the Solana installation
+        // fail during initial build (e.g. on Apple Silicon). This is inconsequential for prod.
+        .platform("linux/amd64")
         .limits(state.config.limits.sandbox)
         .copy(
             format!("{}/.", host_path.display()),
