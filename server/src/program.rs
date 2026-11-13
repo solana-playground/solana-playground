@@ -27,7 +27,7 @@ pub const MAX_FILE_AMOUNT: usize = 64;
 pub const MAX_PATH_LEN: usize = 128;
 
 /// Max program build output stderr length
-pub const MAX_STDERR_LEN: usize = 1024 * 1024 * 1024; // 1 MiB
+pub const MAX_STDERR_LEN: usize = 1024 * 1024; // 1 MiB
 
 /// Build the program from the given program name and files.
 ///
