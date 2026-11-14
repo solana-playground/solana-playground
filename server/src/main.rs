@@ -42,21 +42,41 @@ async fn main() -> Result<()> {
         .route("/new", post(share_new));
 
     let unstable_routes = if cfg!(feature = "unstable") {
-        let build_concurrency = config.unstable_build.limits.route.concurrency;
-        let bundle_concurrency = config.unstable_bundle.limits.route.concurrency;
         Router::new()
             .route(
                 "/build",
                 post(unstable::build)
-                    .with_state(unstable::BuildState::new(config.unstable_build))
-                    .layer(concurrency_limit(build_concurrency)),
+                    // The first middleware sees the response first (and request last).
+                    //
+                    // Use `route_layer` instead of `layer` to avoid extra type annotations.
+                    .route_layer(response_size_limit(
+                        config.unstable_build.limits.route.response_size,
+                    ))
+                    .layer(concurrency_limit(
+                        config.unstable_build.limits.route.concurrency,
+                    ))
+                    .with_state(unstable::BuildState::new(config.unstable_build)),
             )
-            .route("/deploy/{uuid}", get(unstable::deploy))
+            .route(
+                "/deploy/{uuid}",
+                get(unstable::deploy)
+                    .route_layer(response_size_limit(
+                        config.unstable_deploy.limits.route.response_size,
+                    ))
+                    .layer(concurrency_limit(
+                        config.unstable_deploy.limits.route.concurrency,
+                    )),
+            )
             .route(
                 "/bundle",
                 post(unstable::bundle)
-                    .with_state(unstable::BundleState::new(config.unstable_bundle))
-                    .layer(concurrency_limit(bundle_concurrency)),
+                    .route_layer(response_size_limit(
+                        config.unstable_bundle.limits.route.response_size,
+                    ))
+                    .layer(concurrency_limit(
+                        config.unstable_bundle.limits.route.concurrency,
+                    ))
+                    .with_state(unstable::BundleState::new(config.unstable_bundle)),
             )
     } else {
         Router::new()
@@ -66,7 +86,7 @@ async fn main() -> Result<()> {
         .merge(stable_routes)
         .nest("/unstable", unstable_routes)
         .layer(compression())
-        .layer(payload_limit(config.payload_limit))
+        .layer(request_size_limit(config.payload_limit))
         .layer(cors(config.client_urls))
         .layer(middleware::from_fn(log));
 

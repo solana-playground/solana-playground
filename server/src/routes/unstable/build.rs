@@ -34,7 +34,7 @@ const FILES_FILE: &str = "files.json";
 const IDL_FILE: &str = "idl.json";
 
 /// Maximum program build output stdout length
-const MAX_STDOUT_LEN: usize = 1024 * 1024 * 1024; // 1 MiB
+const MAX_STDOUT_LEN: usize = 1024 * 1024; // 1 MiB
 
 /// Build request
 #[derive(Deserialize)]

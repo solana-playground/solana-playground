@@ -3,7 +3,7 @@ mod cors;
 mod limit;
 mod log;
 
-pub use compression::compression;
-pub use cors::cors;
-pub use limit::{concurrency_limit, payload_limit};
-pub use log::log;
+pub use compression::*;
+pub use cors::*;
+pub use limit::*;
+pub use log::*;

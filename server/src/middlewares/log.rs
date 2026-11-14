@@ -1,4 +1,4 @@
-use axum::{extract::Request, middleware::Next, response::IntoResponse};
+use axum::{extract::Request, middleware::Next, response::Response};
 
 use crate::log::{error, info};
 
@@ -7,7 +7,7 @@ use crate::log::{error, info};
 /// [`TraceLayer`] is intentionally avoided because customization experience is awful.
 ///
 /// [`TraceLayer`]: https://docs.rs/tower-http/0.5.0/tower_http/trace/struct.TraceLayer.html
-pub async fn log(req: Request, next: Next) -> impl IntoResponse {
+pub async fn log(req: Request, next: Next) -> Response {
     let uri = req.uri().to_owned();
     let method = req.method().to_owned();
     let headers = req.headers().to_owned();

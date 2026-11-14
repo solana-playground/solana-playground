@@ -23,6 +23,8 @@ pub struct Config {
     pub build_concurrency: usize,
     /// Unstable build configuration
     pub unstable_build: BuildConfig,
+    /// Unstable build configuration
+    pub unstable_deploy: DeployConfig,
     /// Unstable bundle configuration
     pub unstable_bundle: BundleConfig,
 }
@@ -47,9 +49,13 @@ impl Config {
             db_name: get_env("DB_NAME", "solpg"),
             build_concurrency: get_env("BUILD_CONCURRENCY", 16usize),
             unstable_build: BuildConfig {
-                limits: Limits {
+                limits: SandboxedRouteLimits {
                     route: RouteLimits {
                         concurrency: get_env("UNSTABLE_BUILD_CONCURRENCY_LIMIT", 16usize),
+                        response_size: get_env(
+                            "UNSTABLE_BUILD_RESPONSE_SIZE_LIMIT",
+                            1024usize * 1024, // 1 MiB
+                        ),
                     },
                     sandbox: SandboxLimits {
                         timeout: Some(get_env("UNSTABLE_BUILD_TIMEOUT_LIMIT", 30u64)),
@@ -69,11 +75,26 @@ impl Config {
                     },
                 },
             },
+            unstable_deploy: DeployConfig {
+                limits: DeployLimits {
+                    route: RouteLimits {
+                        concurrency: get_env("UNSTABLE_DEPLOY_CONCURRENCY_LIMIT", 64usize),
+                        response_size: get_env(
+                            "UNSTABLE_DEPLOY_RESPONSE_SIZE_LIMIT",
+                            8usize * 1024 * 1024, // 8 MiB
+                        ),
+                    },
+                },
+            },
             unstable_bundle: BundleConfig {
                 // TODO: Re-evaulate defaults before stabilization
-                limits: Limits {
+                limits: SandboxedRouteLimits {
                     route: RouteLimits {
                         concurrency: get_env("UNSTABLE_BUNDLE_CONCURRENCY_LIMIT", 4usize),
+                        response_size: get_env(
+                            "UNSTABLE_BUNDLE_RESPONSE_SIZE_LIMIT",
+                            64usize * 1024 * 1024, // 64 MiB
+                        ),
                     },
                     sandbox: SandboxLimits {
                         timeout: Some(get_env("UNSTABLE_BUNDLE_TIMEOUT_LIMIT", 120u64)),
@@ -111,19 +132,26 @@ impl Config {
 #[derive(Debug)]
 pub struct BuildConfig {
     /// Build limits
-    pub limits: Limits,
+    pub limits: SandboxedRouteLimits,
+}
+
+/// Deploy route configuration
+#[derive(Debug)]
+pub struct DeployConfig {
+    /// Deploy limits
+    pub limits: DeployLimits,
 }
 
 /// Bundle route configuration
 #[derive(Debug)]
 pub struct BundleConfig {
     /// Bundle limits
-    pub limits: Limits,
+    pub limits: SandboxedRouteLimits,
 }
 
 /// General limits
 #[derive(Debug)]
-pub struct Limits {
+pub struct SandboxedRouteLimits {
     /// Route-based limits
     pub route: RouteLimits,
     /// Sandbox-only limits
@@ -135,6 +163,15 @@ pub struct Limits {
 pub struct RouteLimits {
     // Maximum amount of concurrent requests
     pub concurrency: usize,
+    // Maximum amount of response size in bytes (uncompressed)
+    pub response_size: usize,
+}
+
+/// Deploy limits
+#[derive(Debug)]
+pub struct DeployLimits {
+    /// Route-based limits
+    pub route: RouteLimits,
 }
 
 /// Get and parse the environment variable or return the given `default`.
