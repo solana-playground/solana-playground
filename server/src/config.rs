@@ -51,24 +51,24 @@ impl Config {
             unstable_build: BuildConfig {
                 limits: SandboxedRouteLimits {
                     route: RouteLimits {
-                        concurrency: get_env("UNSTABLE_BUILD_CONCURRENCY_LIMIT", 16usize),
+                        concurrency: get_env("UNSTABLE_BUILD_LIMITS_ROUTE_CONCURRENCY", 16usize),
                         response_size: get_env(
-                            "UNSTABLE_BUILD_RESPONSE_SIZE_LIMIT",
+                            "UNSTABLE_BUILD_LIMITS_ROUTE_RESPONSE_SIZE",
                             1024usize * 1024, // 1 MiB
                         ),
                     },
                     sandbox: SandboxLimits {
-                        timeout: Some(get_env("UNSTABLE_BUILD_TIMEOUT_LIMIT", 30u64)),
-                        cpu: Some(get_env("UNSTABLE_BUILD_CPU_LIMIT", 1usize)),
+                        timeout: Some(get_env("UNSTABLE_BUILD_LIMITS_SANDBOX_TIMEOUT", 30u64)),
+                        cpu: Some(get_env("UNSTABLE_BUILD_LIMITS_SANDBOX_CPU", 1usize)),
                         memory: Some(get_env(
-                            "UNSTABLE_BUILD_MEMORY_LIMIT",
+                            "UNSTABLE_BUILD_LIMITS_SANDBOX_MEMORY",
                             2usize * 1024 * 1024 * 1024, // 2 GiB
                         )),
-                        swap: get_env_raw("UNSTABLE_BUILD_SWAP_LIMIT")
+                        swap: get_env_raw("UNSTABLE_BUILD_LIMITS_SANDBOX_SWAP")
                             .map(|v| v.parse())
                             .transpose()?,
-                        process: Some(get_env("UNSTABLE_BUILD_PROCESS_LIMIT", 64usize)),
-                        storage: get_env_raw("UNSTABLE_BUILD_STORAGE_LIMIT")
+                        process: Some(get_env("UNSTABLE_BUILD_LIMITS_SANDBOX_PROCESS", 64usize)),
+                        storage: get_env_raw("UNSTABLE_BUILD_LIMITS_SANDBOX_STORAGE")
                             .map(|v| v.parse())
                             .transpose()?,
                         ..Default::default()
@@ -78,9 +78,9 @@ impl Config {
             unstable_deploy: DeployConfig {
                 limits: DeployLimits {
                     route: RouteLimits {
-                        concurrency: get_env("UNSTABLE_DEPLOY_CONCURRENCY_LIMIT", 64usize),
+                        concurrency: get_env("UNSTABLE_DEPLOY_LIMITS_ROUTE_CONCURRENCY", 64usize),
                         response_size: get_env(
-                            "UNSTABLE_DEPLOY_RESPONSE_SIZE_LIMIT",
+                            "UNSTABLE_DEPLOY_LIMITS_ROUTE_RESPONSE_SIZE",
                             8usize * 1024 * 1024, // 8 MiB
                         ),
                     },
@@ -90,35 +90,35 @@ impl Config {
                 // TODO: Re-evaulate defaults before stabilization
                 limits: SandboxedRouteLimits {
                     route: RouteLimits {
-                        concurrency: get_env("UNSTABLE_BUNDLE_CONCURRENCY_LIMIT", 4usize),
+                        concurrency: get_env("UNSTABLE_BUNDLE_LIMITS_ROUTE_CONCURRENCY", 4usize),
                         response_size: get_env(
-                            "UNSTABLE_BUNDLE_RESPONSE_SIZE_LIMIT",
+                            "UNSTABLE_BUNDLE_LIMITS_ROUTE_RESPONSE_SIZE",
                             64usize * 1024 * 1024, // 64 MiB
                         ),
                     },
                     sandbox: SandboxLimits {
-                        timeout: Some(get_env("UNSTABLE_BUNDLE_TIMEOUT_LIMIT", 120u64)),
+                        timeout: Some(get_env("UNSTABLE_BUNDLE_LIMITS_SANDBOX_TIMEOUT", 120u64)),
                         // Diminishing returns after 4
-                        cpu: Some(get_env("UNSTABLE_BUNDLE_CPU_LIMIT", 4usize)),
+                        cpu: Some(get_env("UNSTABLE_BUNDLE_LIMITS_SANDBOX_CPU", 4usize)),
                         memory: Some(get_env(
-                            "UNSTABLE_BUNDLE_MEMORY_LIMIT",
+                            "UNSTABLE_BUNDLE_LIMITS_SANDBOX_MEMORY",
                             4usize * 1024 * 1024 * 1024, // 4 GiB (also affects speed)
                         )),
-                        swap: get_env_raw("UNSTABLE_BUNDLE_SWAP_LIMIT")
+                        swap: get_env_raw("UNSTABLE_BUNDLE_LIMITS_SANDBOX_SWAP")
                             .map(|v| v.parse())
                             .transpose()?,
-                        process: Some(get_env("UNSTABLE_BUNDLE_PROCESS_LIMIT", 64usize)),
-                        storage: get_env_raw("UNSTABLE_BUNDLE_STORAGE_LIMIT")
+                        process: Some(get_env("UNSTABLE_BUNDLE_LIMITS_SANDBOX_PROCESS", 64usize)),
+                        storage: get_env_raw("UNSTABLE_BUNDLE_LIMITS_SANDBOX_STORAGE")
                             .map(|v| v.parse())
                             .transpose()?,
                         // For reference, the legacy template uses ~54MiB
                         download: Some(get_env(
-                            "UNSTABLE_BUNDLE_DOWNLOAD_LIMIT",
+                            "UNSTABLE_BUNDLE_LIMITS_SANDBOX_DOWNLOAD",
                             128usize * 1024 * 1024, // 128 MiB
                         )),
                         // For reference, the legacy template uses ~1MiB
                         upload: Some(get_env(
-                            "UNSTABLE_BUNDLE_UPLOAD_LIMIT",
+                            "UNSTABLE_BUNDLE_LIMITS_SANDBOX_UPLOAD",
                             4usize * 1024 * 1024, // 4 MiB
                         )),
                     },
