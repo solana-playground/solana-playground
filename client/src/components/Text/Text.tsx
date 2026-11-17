@@ -6,7 +6,7 @@ import { PgTheme } from "../../utils";
 
 export type TextKind = "default" | "info" | "warning" | "success" | "error";
 
-interface TextProps extends ComponentPropsWithoutRef<"div"> {
+export interface TextProps extends ComponentPropsWithoutRef<"div"> {
   kind?: TextKind;
   icon?: ReactNode;
 }
@@ -17,7 +17,7 @@ const Text = forwardRef<HTMLDivElement, TextProps>(
     const ref = useDifferentBackground();
 
     return (
-      <Wrapper ref={refProp ?? ref} icon={icon} {...props}>
+      <Wrapper ref={refProp ?? ref} {...props}>
         {icon && <IconWrapper>{icon}</IconWrapper>}
         <ContentWrapper>{children}</ContentWrapper>
       </Wrapper>
@@ -26,7 +26,7 @@ const Text = forwardRef<HTMLDivElement, TextProps>(
 );
 
 const Wrapper = styled.div<TextProps>`
-  ${({ kind, icon, theme }) => {
+  ${({ kind, theme }) => {
     kind ??= "default";
 
     // Clone the default Text theme to not override the global object
@@ -49,13 +49,6 @@ const Wrapper = styled.div<TextProps>`
 
     return css`
       ${PgTheme.toCss(text)};
-
-      ${!!icon &&
-      `& div > svg {
-      width: 1.5rem;
-      height: 1.5rem;
-      margin-right: 0.75rem;
-    }`}
     `;
   }}
 `;
@@ -64,6 +57,13 @@ const IconWrapper = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  position: relative;
+
+  & > * {
+    width: 1.5rem;
+    height: 1.5rem;
+    margin-right: 0.75rem;
+  }
 `;
 
 const ContentWrapper = styled.div`
