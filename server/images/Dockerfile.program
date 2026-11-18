@@ -73,6 +73,9 @@ ARG BINARY_DIR
 ARG IDL_DIR
 RUN rm -rf ${BINARY_DIR} ${IDL_DIR}
 
+# Disable `cargo`'s auto-cleanup feature to fix builds taking longer after a while
+ENV CARGO_CACHE_AUTO_CLEAN_FREQUENCY=never
+
 # Copy the built binary
 ARG BIN
 COPY --from=binary ${HOME}/target/release/${BIN} /usr/local/bin/
