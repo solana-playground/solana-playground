@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import styled, { useTheme } from "styled-components";
+import styled, { css, useTheme } from "styled-components";
 import * as monaco from "monaco-editor";
 
 import { initLanguages } from "./languages";
@@ -123,9 +123,9 @@ const Monaco = () => {
           "input.background": theme.components.input.bg!,
           "input.foreground": theme.components.input.color,
           "input.border": theme.components.input.borderColor,
+          "input.placeholderForeground": theme.colors.default.textSecondary,
           "inputOption.activeBorder":
             theme.colors.default.primary + theme.default.transparency.high,
-          "input.placeholderForeground": theme.colors.default.textSecondary,
           "inputValidation.infoBackground": theme.colors.state.info.bg!,
           "inputValidation.infoBorder": theme.colors.state.info.color,
           "inputValidation.warningBackground": theme.colors.state.warning.bg!,
@@ -763,14 +763,29 @@ const Monaco = () => {
 };
 
 const Wrapper = styled.div`
-  width: 100%;
-  height: 100%;
+  ${({ theme }) => css`
+    width: 100%;
+    height: 100%;
 
-  /** Inlay hints */
-  & span[class^="dyn-rule"],
-  span[class*=" dyn-rule"] {
-    font-size: 12px;
-  }
+    /** Inlay hints */
+    & span[class^="dyn-rule"],
+    span[class*=" dyn-rule"] {
+      font-size: 12px;
+    }
+
+    /**
+     * Rename input (F2) does not adhere to theme's input styling:
+     *
+     * https://github.com/microsoft/monaco-editor/issues/4660
+     */
+    & .monaco-editor .rename-input {
+      color: ${theme.components.input.color};
+
+      &:focus {
+        outline: ${theme.components.input.focus?.outline};
+      }
+    }
+  `}
 `;
 
 export default Monaco;
