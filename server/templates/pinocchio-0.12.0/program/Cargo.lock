@@ -353,9 +353,9 @@ checksum = "2ee67f1008b1ba2321834326597b8e186293b049a023cdef258527550b9935b4"
 
 [[package]]
 name = "pinocchio"
-version = "0.11.2"
+version = "0.12.0"
 dependencies = [
- "pinocchio 0.11.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "pinocchio 0.12.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "pinocchio-associated-token-account",
  "pinocchio-log",
  "pinocchio-memo",
@@ -367,9 +367,9 @@ dependencies = [
 
 [[package]]
 name = "pinocchio"
-version = "0.11.2"
+version = "0.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a6cababcb62a2e739c7078ae16eda02789a6e3edd21bbdded864e85c38a7914d"
+checksum = "402c0799a02d9b979837f50cade9f758898813430873542b87a62aaa3d56022a"
 dependencies = [
  "solana-account-view",
  "solana-address 2.9.0",
@@ -380,9 +380,9 @@ dependencies = [
 
 [[package]]
 name = "pinocchio-associated-token-account"
-version = "0.4.0"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c552da2a965b33511ac54494e434e69be0ae12da1619a72594b76703c3dca211"
+checksum = "79166e06610ec0acb75ac5f9f05c38518020a6ec5bd3f2eb325c2ae771d8fb71"
 dependencies = [
  "solana-account-view",
  "solana-address 2.9.0",
@@ -412,9 +412,9 @@ dependencies = [
 
 [[package]]
 name = "pinocchio-memo"
-version = "0.4.0"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "87cd9e3e3c3c315d5c7d974929b74cd074ac280e3ab09111e736e9de47f3ce38"
+checksum = "bf191a99108be30857ed7f69b80404f62157daae0e17703285905959453b5199"
 dependencies = [
  "solana-account-view",
  "solana-address 2.9.0",
@@ -424,19 +424,19 @@ dependencies = [
 
 [[package]]
 name = "pinocchio-system"
-version = "0.6.1"
+version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f3ae2ee67b42e2ac797dd88312da473c895660e270d8093e0ba2749b885b5778"
+checksum = "436f1ab80f654fc35e24162bd610d86b5215d0b4265ee45479e70cea896f63fa"
 dependencies = [
- "pinocchio 0.11.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "pinocchio 0.12.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "solana-address 2.9.0",
 ]
 
 [[package]]
 name = "pinocchio-token"
-version = "0.7.0"
+version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "217e3259f93a1520e4692b18653dad4d29af54ffc8b3a09819808be85dada074"
+checksum = "8bb7dade00a30bd38a2081987c4990518dbe101ff1f36bcea10e6101238d5ce4"
 dependencies = [
  "solana-account-view",
  "solana-address 2.9.0",
@@ -446,9 +446,9 @@ dependencies = [
 
 [[package]]
 name = "pinocchio-token-2022"
-version = "0.4.0"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3a3c164973916f044bebff3c8cb4467088bafb13cbdb818522b9ca8782940d06"
+checksum = "81270f2cbbdaf774e4081943e280b25c5830943c1486b05f97a001cdc619427e"
 dependencies = [
  "pinocchio-token",
  "solana-account-view",
@@ -461,9 +461,9 @@ dependencies = [
 
 [[package]]
 name = "pinocchio-transfer-hook-interface"
-version = "0.1.0"
+version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cd99db011e067bbdfd159ffa381eae378e24d68e7bdf18ef50abdbd1052c3cf2"
+checksum = "5ff2bb9eb28cc9d76280e69f7b68514c8ae74ed6e5d675f651c7053b0b459d95"
 dependencies = [
  "solana-account-view",
  "solana-address 2.9.0",
@@ -638,9 +638,9 @@ dependencies = [
 
 [[package]]
 name = "solana-account-view"
-version = "2.1.0"
+version = "3.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1acd7ff34cf7f09e238921b5aa64d9e517b2e92642c153a5dc15d99c8e25af3d"
+checksum = "6d648359fbdc962a6d4435b8a05b6f4920fa9ea2c12bb92d0284c7eefb81551f"
 dependencies = [
  "solana-address 2.9.0",
  "solana-program-error",
@@ -735,9 +735,9 @@ dependencies = [
 
 [[package]]
 name = "solana-instruction-view"
-version = "2.1.0"
+version = "3.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6ab7a27d0c4214b9f7389c3dd00b68c93093a67f1dcc5b7893aebe299bbcbb47"
+checksum = "e145b112003bc400015bac7cc36196bd37404defb112daa9ac9ca7f47450ada8"
 dependencies = [
  "solana-account-view",
  "solana-address 2.9.0",

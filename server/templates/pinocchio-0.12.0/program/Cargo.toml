@@ -1,0 +1,17 @@
+[package]
+name = "pinocchio"
+version = "0.12.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+pinocchio = { version = "=0.12.0", features = ["account-resize", "cpi"] }
+pinocchio-associated-token-account = "0.5.0"
+pinocchio-log = "0.5.1"
+pinocchio-memo = "0.5.0"
+pinocchio-system = "0.7.0"
+pinocchio-token = "0.8.0"
+pinocchio-token-2022 = "0.5.0"
+pinocchio-transfer-hook-interface = "0.2.0"
