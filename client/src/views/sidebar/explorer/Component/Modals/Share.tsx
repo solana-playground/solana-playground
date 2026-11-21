@@ -79,7 +79,7 @@ const SuccessPage: FC<SuccessPageProps> = ({ shareId }) => {
   return (
     <Modal title buttonProps={{ text: "Continue" }}>
       <SuccessWrapper>
-        <Text kind="success" icon={<Checkmark color="success" />}>
+        <Text kind="success" icon={<Checkmark />}>
           Successfully shared the project.
         </Text>
 

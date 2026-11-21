@@ -19,7 +19,7 @@ export const Remove = () => (
       <MainText>Are you sure you want to remove the current wallet?</MainText>
       <Desc>This action is irreversable!</Desc>
       <WarningTextWrapper>
-        <Text icon={<Warning color="warning" />}>
+        <Text kind="warning" icon={<Warning />}>
           You can recover the wallet later if you save the keypair.
         </Text>
       </WarningTextWrapper>

@@ -41,11 +41,11 @@ export const Add = () => {
           />
         </InputWrapper>
 
-        <WarningTextWrapper>
+        <InfoTextWrapper>
           <Text icon={<Info color="info" />}>
             Saving the keypair will allow you to recover the wallet.
           </Text>
-        </WarningTextWrapper>
+        </InfoTextWrapper>
         <Button onClick={() => PgWallet.export({ name, keypair })}>
           Save keypair
         </Button>
@@ -80,7 +80,7 @@ const Desc = styled.span`
   `}
 `;
 
-const WarningTextWrapper = styled.div`
+const InfoTextWrapper = styled.div`
   margin-top: 1rem;
   display: flex;
   align-items: center;
