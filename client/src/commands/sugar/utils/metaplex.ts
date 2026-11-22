@@ -13,7 +13,7 @@ export const getMetaplex = async (endpoint?: string) => {
     .use(
       bundlrStorage({
         address:
-          (await PgConnection.getCluster(endpoint)) === "mainnet-beta"
+          (await PgConnection.getCluster(endpoint)) === "mainnet"
             ? BundlrEnpoints.MAINNET
             : BundlrEnpoints.DEVNET,
         providerUrl: endpoint,

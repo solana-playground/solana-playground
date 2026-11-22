@@ -5,8 +5,12 @@ import { PgSettings } from "./settings";
 import { PgWeb3 } from "./web3";
 import type { Disposable } from "./types";
 
-/** Solana public clusters or "localnet" */
-export type Cluster = "playnet" | "localnet" | PgWeb3.Cluster;
+/** All public and private Solana clusters */
+export type Cluster =
+  | "playnet"
+  | "localnet"
+  | Exclude<PgWeb3.Cluster, "mainnet-beta">
+  | "mainnet";
 
 const derive = () => ({
   /** Globally sycned connection instance */
@@ -194,7 +198,7 @@ class _PgConnection {
       case PgCommon.appendSlash(PgWeb3.clusterApiUrl("testnet")):
         return "testnet";
       case PgCommon.appendSlash(PgWeb3.clusterApiUrl("mainnet-beta")):
-        return "mainnet-beta";
+        return "mainnet";
     }
 
     // Decide custom endpoints from the genesis hash of the cluster
@@ -207,7 +211,7 @@ class _PgConnection {
       case "4uhcVJyU9pJkvQyS88uRDiswHXSCkY3zQawwpjk2NsNY":
         return "testnet";
       case "5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d":
-        return "mainnet-beta";
+        return "mainnet";
       default:
         throw new Error(
           `Genesis hash ${genesisHash} did not match any cluster`

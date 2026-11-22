@@ -27,7 +27,7 @@ export const processBundlr = async (
 
   const cluster = await PgConnection.getCluster(rpcUrl);
   const bundlr = new Bundlr(
-    cluster === "mainnet-beta" ? BundlrEnpoints.MAINNET : BundlrEnpoints.DEVNET,
+    cluster === "mainnet" ? BundlrEnpoints.MAINNET : BundlrEnpoints.DEVNET,
     "solana",
     PgWallet,
     { providerUrl: rpcUrl }

@@ -18,7 +18,7 @@ export const connection = [
       { name: "Localnet", value: Endpoint.LOCALNET },
       { name: "Devnet", value: Endpoint.DEVNET },
       { name: "Testnet", value: Endpoint.TESTNET },
-      { name: "Mainnet Beta", value: Endpoint.MAINNET_BETA },
+      { name: "Mainnet", value: Endpoint.MAINNET },
     ],
     default:
       process.env.NODE_ENV === "production"

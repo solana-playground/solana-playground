@@ -127,7 +127,7 @@ export const processVerify = async (rpcUrl: string | undefined) => {
     const cluster = await PgConnection.getCluster(
       metaplex.connection.rpcEndpoint
     );
-    if (cluster === "devnet" || cluster === "mainnet-beta") {
+    if (cluster === "devnet" || cluster === "mainnet") {
       term.println(
         [
           `\nVerification successful. You're good to go!\n\nSee your candy machine at:\n`,
