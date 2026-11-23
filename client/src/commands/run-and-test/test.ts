@@ -27,27 +27,10 @@ export const test = createCmd({
 const DEFAULT_FILE: FileEntry = [
   "index.test.ts",
   `describe("Test", () => {
-  it("Airdrop", async () => {
-    // Fetch my balance
+  it("Fetches my balance", async () => {
+    console.log("My address:", pg.wallet.publicKey.toString());
     const balance = await pg.connection.getBalance(pg.wallet.publicKey);
-    console.log(\`My balance is \${balance} lamports\`);
-
-    // Airdrop 1 SOL
-    const airdropAmount = 1 * web3.LAMPORTS_PER_SOL;
-    const txHash = await pg.connection.requestAirdrop(
-      pg.wallet.publicKey,
-      airdropAmount
-    );
-
-    // Confirm transaction
-    await pg.connection.confirmTransaction(txHash);
-
-    // Fetch new balance
-    const newBalance = await pg.connection.getBalance(pg.wallet.publicKey);
-    console.log(\`New balance is \${newBalance} lamports\`);
-
-    // Assert balances
-    assert(balance + airdropAmount === newBalance);
+    console.log(\`My balance: \${balance} lamports\`);
   });
 });
 `,
