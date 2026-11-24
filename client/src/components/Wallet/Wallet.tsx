@@ -22,7 +22,7 @@ import {
   PgView,
   PgWallet,
 } from "../../utils";
-import { useDarken } from "./hooks";
+import { WALLET_MAIN_ID, useDarken } from "./hooks";
 import {
   useKeybind,
   useOnClickOutside,
@@ -246,7 +246,7 @@ const CloseButton = styled(Button)`
 `;
 
 const WalletMain = () => (
-  <MainWrapper id={PgView.ids.WALLET_MAIN}>
+  <MainWrapper id={WALLET_MAIN_ID}>
     <Balance />
     <Send />
     <Transactions />

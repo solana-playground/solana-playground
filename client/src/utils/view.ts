@@ -111,7 +111,6 @@ class _PgView {
     ROOT_DIR: "root-dir",
     BOTTOM: "bottom",
     TABS: "tabs",
-    WALLET_MAIN: "wallet-main",
     HOME: "home",
     PORTAL_ABOVE: "portal-above",
     PORTAL_BELOW: "portal-below",

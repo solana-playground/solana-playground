@@ -1,2 +1,2 @@
 export { useAirdrop } from "./useAirdrop";
-export { useDarken } from "./useDarken";
+export * from "./useDarken";
