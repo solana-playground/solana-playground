@@ -90,10 +90,10 @@ pub fn build(
     //
     // TODO: Compare with existing files and only remove the unused ones instead of removing all
     let program_path = Path::new(PROGRAMS_DIR).join(program_name);
-    if let Err(e) = fs::remove_dir_all(program_path.join("src")) {
-        if e.kind() != io::ErrorKind::NotFound {
-            return Err(anyhow!("Failed to remove existing files: {e}"));
-        }
+    if let Err(e) = fs::remove_dir_all(program_path.join("src"))
+        && e.kind() != io::ErrorKind::NotFound
+    {
+        return Err(anyhow!("Failed to remove existing files: {e}"));
     };
 
     // Write files
