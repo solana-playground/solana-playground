@@ -81,10 +81,10 @@ fn build(args: &Args) -> Result<()> {
     }
 
     // Allow help output
-    if let Some(first) = args.build_args.first() {
-        if matches!(first.as_str(), "--help" | "-h") {
-            return Ok(());
-        }
+    if let Some(first) = args.build_args.first()
+        && matches!(first.as_str(), "--help" | "-h")
+    {
+        return Ok(());
     }
 
     // Move files to the expected output location
