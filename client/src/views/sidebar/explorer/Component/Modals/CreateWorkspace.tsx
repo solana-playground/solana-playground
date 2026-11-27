@@ -29,11 +29,11 @@ export const CreateWorkspace = () => {
   const [version, setVersion] = useState<string | null>(null);
 
   const versionOpts = useMemo(() => {
-    if (!PgSettings.experimental.unstable || !frameworkName) return [];
+    if (!experimentalUnstable || !frameworkName) return [];
     return [...PgFramework.get(frameworkName).versions]
       .sort((a, b) => PgCommon.compareVersion(b, a))
       .map((ver, i) => ({ label: i ? ver : `${ver} (latest)`, value: ver }));
-  }, [frameworkName]);
+  }, [experimentalUnstable, frameworkName]);
 
   const versionOpt = useMemo(
     () => findSelectOption(versionOpts, version),
