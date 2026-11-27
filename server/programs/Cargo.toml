@@ -12,7 +12,11 @@ overflow-checks = true
 incremental = true
 
 [dependencies]
-anchor-lang = { version = "*", features = ["anchor-debug", "allow-missing-optionals", "init-if-needed"] }
+anchor-lang = { version = "*", features = [
+    "anchor-debug",
+    "allow-missing-optionals",
+    "init-if-needed",
+] }
 anchor-spl = { version = "*", features = ["dex", "governance", "metadata"] }
 arrayref = "*"
 borsh = "*"
@@ -28,6 +32,7 @@ pyth-sdk = "*"
 pyth-sdk-solana = "*"
 serde = "*"
 solana-program = "*"
+solana-security-txt = "*"
 spl-account-compression = { version = "*", features = ["cpi"] }
 spl-associated-token-account = "*"
 spl-pod = "*"
