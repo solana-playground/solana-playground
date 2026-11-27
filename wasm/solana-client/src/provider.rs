@@ -61,17 +61,42 @@ impl HttpProvider {
         let status =
             StatusCode::from_u16(response.status()).unwrap_or(StatusCode::INTERNAL_SERVER_ERROR);
 
+        // The response body can only be read once, so read it as text and
+        // parse it as many times as needed
+        let body = response.text().await?;
+
         if status.is_success() {
-            if let Ok(response) = response.json::<ClientResponse<R>>().await {
+            if let Ok(response) = serde_json::from_str::<ClientResponse<R>>(&body) {
                 return Ok(response);
             }
         }
 
-        match response.json::<ClientError>().await {
+        match serde_json::from_str::<ClientError>(&body) {
             Ok(error) => Err(error),
-            Err(error) => Err(ClientError::new_with_status(status.as_u16(), error)),
+            Err(_) => Err(ClientError::new_with_status(
+                status.as_u16(),
+                get_error_message(&body),
+            )),
         }
     }
+}
+
+/// Get the error message from a JSON-RPC error response body.
+///
+/// JSON-RPC error codes are negative (e.g. `-32603`), which means they can't be
+/// deserialized into [`ClientError`]. Fall back to the raw body if the message
+/// doesn't exist.
+fn get_error_message(body: &str) -> String {
+    serde_json::from_str::<serde_json::Value>(body)
+        .ok()
+        .and_then(|value| {
+            value
+                .get("error")?
+                .get("message")?
+                .as_str()
+                .map(ToOwned::to_owned)
+        })
+        .unwrap_or_else(|| body.to_owned())
 }
 
 #[derive(Clone)]
