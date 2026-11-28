@@ -173,7 +173,7 @@ const derive = () => ({
   }),
 });
 
-// TODO: Remove in 2024
+// Migrate legacy wallet state to the current format.
 const migrate = () => {
   const walletStr = localStorage.getItem(storage.KEY);
   if (!walletStr) return;
