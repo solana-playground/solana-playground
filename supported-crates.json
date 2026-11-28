@@ -6,6 +6,7 @@
   "borsh-derive": "0.10.3",
   "bytemuck": "1.14.0",
   "bytemuck_derive": "1.5.0",
+  "jupiter-cpi": "4.0.3",
   "mpl-bubblegum": "1.0.0",
   "mpl-token-auth-rules": "1.4.3",
   "mpl-token-metadata": "3.2.3",
